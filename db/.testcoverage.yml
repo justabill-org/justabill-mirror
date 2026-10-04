@@ -1,0 +1,19 @@
+# Coverage floors for go-test-coverage (docs/design/172-testing-linting.md), checked in CI by
+# .github/scripts/go-coverage.sh and locally by `task cover`. Floors are the hard minimum, raised by
+# hand now and then, never in a feature PR; CI also fails a PR whose total drops below main's.
+# The long-term target is 70% per module; new packages must reach 70% from the start.
+profile: coverage.out
+
+threshold:
+  package: 70
+  total: 85
+override:
+  # spannerdb holds most of the module's statements. It was pinned at 39% when the floors were set
+  # and raised to 85% once its read paths had emulator tests (#225, 89.9% then), a few points of
+  # room below its coverage.
+  - path: ^spannerdb$
+    threshold: 85
+exclude:
+  paths:
+    - ^cmd/     # main packages: wiring, covered by the smoke tests (#84)
+    - ^testdb/  # test helpers

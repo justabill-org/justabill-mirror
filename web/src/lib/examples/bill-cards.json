@@ -1,0 +1,22 @@
+{
+  "hr-119-187": {
+    "crs": null,
+    "passage": [
+      {
+        "chamber": "House",
+        "method": "roll",
+        "date": "2025-01-21T00:00:00Z",
+        "question": "On Motion to Suspend the Rules and Pass, as Amended",
+        "result": "Passed",
+        "roll_number": 19,
+        "yeas": 413,
+        "nays": 0,
+        "present": 0,
+        "not_voting": 19
+      },
+      { "chamber": "Senate", "method": "voice", "date": "2025-12-16T00:00:00Z", "result": "Passed" }
+    ],
+    "enacted": { "date": "2025-12-26T00:00:00Z", "law_type": "public", "law_number": "119-62" },
+    "law_change_count": 0
+  }
+}

@@ -1,0 +1,27 @@
+{
+    "comparisons": [
+        {
+            "bill_id": "hr-119-187",
+            "bill_title": "MAPWaters Act of 2025",
+            "vote_id": "house-119-s1-roll019",
+            "vote_date": "2025-01-22T00:07:48Z",
+            "question": "On Motion to Suspend the Rules and Pass, as Amended",
+            "user_vote": "yea",
+            "member_vote": "not_voting",
+            "counted": false,
+            "matches": false
+        },
+        {
+            "bill_id": "hr-119-165",
+            "bill_title": "Wounded Knee Massacre Memorial and Sacred Site Act",
+            "vote_id": "house-119-s1-roll022",
+            "vote_date": "2025-01-22T21:58:28Z",
+            "question": "On Motion to Suspend the Rules and Pass",
+            "user_vote": "yea",
+            "member_vote": "not_voting",
+            "counted": false,
+            "matches": false
+        }
+    ],
+    "member_id": "P000197"
+}

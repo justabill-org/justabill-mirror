@@ -1,0 +1,222 @@
+groups:
+  - id: metric.justabill.upstream.quota.remaining
+    type: metric
+    metric_name: justabill.upstream.quota.remaining
+    stability: development
+    brief: Requests left in the upstream API's rate-limit window.
+    note: Read from the `X-RateLimit-Remaining` response header of Congress.gov and GovInfo.
+    instrument: gauge
+    unit: "{request}"
+    attributes:
+      - ref: server.address
+        requirement_level: required
+
+  - id: metric.justabill.pipeline.job.duration
+    type: metric
+    metric_name: justabill.pipeline.job.duration
+    stability: development
+    brief: How long pipeline job runs take.
+    instrument: histogram
+    unit: s
+    attributes:
+      - ref: justabill.job.name
+        requirement_level: required
+      - ref: justabill.job.outcome
+        requirement_level: required
+
+  - id: metric.justabill.pipeline.job.last_success
+    type: metric
+    metric_name: justabill.pipeline.job.last_success
+    stability: development
+    brief: When a pipeline job last finished successfully, as Unix time in seconds.
+    instrument: gauge
+    unit: s
+    attributes:
+      - ref: justabill.job.name
+        requirement_level: required
+
+  - id: metric.justabill.pipeline.items
+    type: metric
+    metric_name: justabill.pipeline.items
+    stability: development
+    brief: Items handled by pipeline jobs, by outcome.
+    instrument: counter
+    unit: "{item}"
+    attributes:
+      - ref: justabill.job.name
+        requirement_level: required
+      - ref: justabill.item.outcome
+        requirement_level: required
+
+  - id: metric.justabill.summary.results
+    type: metric
+    metric_name: justabill.summary.results
+    stability: development
+    brief: Bill summary requests to Gemini, by outcome.
+    instrument: counter
+    unit: "{summary}"
+    attributes:
+      - ref: justabill.summary.outcome
+        requirement_level: required
+      - ref: gen_ai.request.model
+        requirement_level: required
+
+  - id: metric.justabill.law_change.results
+    type: metric
+    metric_name: justabill.law_change.results
+    stability: development
+    brief: Law-change explanation requests to Gemini, by outcome.
+    note: >-
+      One request explains every section of law a bill changes (sync-law-changes). Counted apart
+      from justabill.summary.results so that the summary failure alert and dashboard measure bill
+      and diff summaries only; gen_ai.client.token.usage and gen_ai.client.operation.duration
+      count both.
+    instrument: counter
+    unit: "{request}"
+    attributes:
+      - ref: justabill.summary.outcome
+        requirement_level: required
+      - ref: gen_ai.request.model
+        requirement_level: required
+
+  - id: metric.justabill.web.fixture_fallback
+    type: metric
+    metric_name: justabill.web.fixture_fallback
+    stability: development
+    brief: Pages the web app rendered from example fixtures because the API call failed.
+    note: "Counted in `api.ts` until #73 removes the fixture fallback in production."
+    instrument: counter
+    unit: "{render}"
+    attributes:
+      - ref: http.route
+        requirement_level: required
+
+  - id: metric.justabill.app_check.verifications
+    type: metric
+    metric_name: justabill.app_check.verifications
+    stability: development
+    brief: App Check token checks on the API's vote and import routes, by result.
+    note: >-
+      Counted only when APP_CHECK_MODE is audit or enforce. Carries no user, token or IP.
+      The failure-rate alert (docs/design/89-aggregate-analytics.md) is built on it.
+    instrument: counter
+    unit: "{verification}"
+    attributes:
+      - ref: justabill.app_check.result
+        requirement_level: required
+      - ref: justabill.app_check.mode
+        requirement_level: required
+
+  - id: metric.justabill.aggregates.cells
+    type: metric
+    metric_name: justabill.aggregates.cells
+    stability: development
+    brief: vote_aggregates cells after the latest aggregate-votes run, by status.
+    instrument: gauge
+    unit: "{cell}"
+    attributes:
+      - ref: justabill.aggregates.status
+        requirement_level: required
+
+  - id: metric.justabill.aggregates.holds
+    type: metric
+    metric_name: justabill.aggregates.holds
+    stability: development
+    brief: Cells the aggregate-votes job put on hold, by the rule that tripped.
+    note: Each new hold should raise an alert (docs/design/89-aggregate-analytics.md).
+    instrument: counter
+    unit: "{cell}"
+    attributes:
+      - ref: justabill.aggregates.hold_reason
+        requirement_level: required
+
+  - id: metric.justabill.aggregates.votes
+    type: metric
+    metric_name: justabill.aggregates.votes
+    stability: development
+    brief: Yea and Nay user votes in the latest aggregate-votes snapshot, by eligibility.
+    note: Carries no user, bill or place.
+    instrument: gauge
+    unit: "{vote}"
+    attributes:
+      - ref: justabill.aggregates.eligibility
+        requirement_level: required
+
+  - id: metric.justabill.vercel.function.failures
+    type: metric
+    metric_name: justabill.vercel.function.failures
+    stability: development
+    brief: Web function requests that crashed, timed out or failed, counted once each from Vercel's drain lines.
+    note: >-
+      Deduplicated by Vercel's request ID for 15 minutes on each vercel-drain replica, so a request
+      whose lines reach both replicas can count twice. Carries no path, host, request ID or IP.
+      Design docs/design/473-vercel-function-failures.md.
+    instrument: counter
+    unit: "{request}"
+    attributes:
+      - ref: justabill.vercel.failure.kind
+        requirement_level: required
+      - ref: http.response.status_code
+        requirement_level:
+          conditionally_required: When the line carries a valid HTTP status.
+
+  - id: metric.justabill.vercel.drain.lines
+    type: metric
+    metric_name: justabill.vercel.drain.lines
+    stability: development
+    brief: Vercel log drain lines vercel-drain received, by shape and outcome.
+    note: The census that checks the failure counting rule against production data (design 473).
+    instrument: counter
+    unit: "{line}"
+    attributes:
+      - ref: justabill.vercel.source
+        requirement_level: required
+      - ref: justabill.vercel.log.type
+        requirement_level: required
+      - ref: justabill.vercel.status_class
+        requirement_level: required
+      - ref: justabill.vercel.line.outcome
+        requirement_level: required
+
+  - id: metric.justabill.vercel.drain.lag
+    type: metric
+    metric_name: justabill.vercel.drain.lag
+    stability: development
+    brief: How long after its timestamp a Vercel log drain line reached vercel-drain.
+    instrument: histogram
+    unit: s
+    attributes:
+      - ref: justabill.vercel.source
+        requirement_level: required
+
+  - id: metric.justabill.experiment.exposures
+    type: metric
+    metric_name: justabill.experiment.exposures
+    stability: development
+    brief: Visitors who saw an experiment's page, by arm.
+    note: >
+      The browser sends one exposure per visitor and experiment to POST /api/experiments, which
+      takes the arm from the visitor's jab_exp cookie (docs/design/580-ab-experiments.md).
+    instrument: counter
+    unit: "{visitor}"
+    attributes:
+      - ref: justabill.experiment.id
+        requirement_level: required
+      - ref: justabill.experiment.variant
+        requirement_level: required
+
+  - id: metric.justabill.experiment.conversions
+    type: metric
+    metric_name: justabill.experiment.conversions
+    stability: development
+    brief: Visitors who took an experiment's goal action, by arm.
+    note: >
+      An action such as casting a vote, never how anyone voted. Sent once per visitor and
+      experiment, and only after that visitor's exposure.
+    instrument: counter
+    unit: "{visitor}"
+    attributes:
+      - ref: justabill.experiment.id
+        requirement_level: required
+      - ref: justabill.experiment.variant
+        requirement_level: required

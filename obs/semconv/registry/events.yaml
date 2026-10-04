@@ -1,0 +1,36 @@
+groups:
+  - id: event.justabill.pipeline.job.finished
+    type: event
+    name: justabill.pipeline.job.finished
+    stability: development
+    brief: A pipeline job run finished.
+    note: Emitted once per run by the scheduler and backfill, whatever the outcome.
+    attributes:
+      - ref: justabill.job.name
+        requirement_level: required
+      - ref: justabill.job.outcome
+        requirement_level: required
+      - ref: justabill.job.duration
+        requirement_level: required
+      - ref: justabill.job.items.ok
+        requirement_level: recommended
+      - ref: justabill.job.items.failed
+        requirement_level: recommended
+
+  - id: event.justabill.vercel.alert
+    type: event
+    name: justabill.vercel.alert
+    stability: development
+    brief: Vercel raised an alert, such as a usage or error anomaly, forwarded by vercel-drain.
+    attributes:
+      - ref: justabill.vercel.alert.type
+        requirement_level: required
+
+  - id: event.justabill.vercel.deployment
+    type: event
+    name: justabill.vercel.deployment
+    stability: development
+    brief: A Vercel deployment changed state, forwarded by vercel-drain.
+    attributes:
+      - ref: justabill.vercel.deployment.state
+        requirement_level: required

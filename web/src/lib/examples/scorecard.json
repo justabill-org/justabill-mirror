@@ -1,0 +1,15 @@
+{
+    "scores": [
+        {
+            "member_id": "S001231",
+            "member_name": "Lateefah Simon",
+            "chamber": "House",
+            "party": "D",
+            "matching_votes": 2,
+            "total_compared": 2,
+            "alignment_pct": 100,
+            "member_absent": 0,
+            "rule": "final-passage-v1"
+        }
+    ]
+}

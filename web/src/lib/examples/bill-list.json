@@ -1,0 +1,172 @@
+{
+    "items": [
+        {
+            "id": "hr-119-129",
+            "congress": 119,
+            "bill_type": "hr",
+            "number": 129,
+            "title": "Abolish the ATF Act",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-01-03",
+                "text": "Referred to the House Committee on the Judiciary."
+            },
+            "current_status": "in_committee",
+            "status_date": "2025-01-03T00:00:00Z",
+            "policy_area": "Government Operations and Politics",
+            "sponsors": [
+                {
+                    "bioguideId": "B000825",
+                    "fullName": "Rep. Boebert, Lauren [R-CO-4]",
+                    "party": "R",
+                    "state": "CO"
+                }
+            ],
+            "cosponsors": [
+                {
+                    "bioguideId": "H001086",
+                    "fullName": "Rep. Harshbarger, Diana [R-TN-1]",
+                    "isOriginalCosponsor": false,
+                    "party": "R",
+                    "sponsorshipDate": "2025-11-19",
+                    "state": "TN"
+                }
+            ],
+            "committees": [
+                {
+                    "activities": [
+                        {
+                            "date": "2025-01-03T16:26:30Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "House",
+                    "name": "Judiciary Committee",
+                    "systemCode": "hsju00",
+                    "type": "Standing"
+                }
+            ],
+            "subjects": [
+                "Department of Justice",
+                "Executive agency funding and structure"
+            ],
+            "related_bills": [
+                {
+                    "congress": 119,
+                    "number": 221,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "CRS",
+                            "type": "Identical bill"
+                        }
+                    ],
+                    "title": "Abolish the ATF Act",
+                    "type": "HR"
+                }
+            ],
+            "updated_at": "2026-03-19T20:11:40.663459417Z",
+            "synced_at": "2026-03-19T20:11:40.666326Z"
+        },
+        {
+            "id": "hr-119-180",
+            "congress": 119,
+            "bill_type": "hr",
+            "number": 180,
+            "title": "Endangered Species Transparency and Reasonableness Act of 2025",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-07-22",
+                "text": "Subcommittee Hearings Held"
+            },
+            "current_status": "in_committee",
+            "status_date": "2025-07-16T00:00:00Z",
+            "policy_area": "Environmental Protection",
+            "sponsors": [
+                {
+                    "bioguideId": "M001177",
+                    "fullName": "Rep. McClintock, Tom [R-CA-5]",
+                    "party": "R",
+                    "state": "CA"
+                }
+            ],
+            "committees": [
+                {
+                    "activities": [
+                        {
+                            "date": "2025-01-03T16:23:50Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "House",
+                    "name": "Natural Resources Committee",
+                    "systemCode": "hsii00",
+                    "type": "Standing"
+                }
+            ],
+            "subjects": [
+                "Administrative law and regulatory procedures",
+                "Civil actions and liability",
+                "Congressional oversight",
+                "Department of the Interior",
+                "Endangered and threatened species",
+                "Environmental assessment, monitoring, research",
+                "Government ethics and transparency, public corruption",
+                "Government information and archives",
+                "Judicial review and appeals",
+                "Public participation and lobbying",
+                "Public-private cooperation",
+                "State and local government operations",
+                "Wildlife conservation and habitat protection"
+            ],
+            "updated_at": "2026-03-19T20:11:37.187488691Z",
+            "synced_at": "2026-03-19T20:11:37.190049Z"
+        },
+        {
+            "id": "sconres-119-3",
+            "congress": 119,
+            "bill_type": "sconres",
+            "number": 3,
+            "title": "A concurrent resolution authorizing the use of the rotunda of the Capitol for the lying in state of the remains of the late James Earl Carter, Jr., 39th President of the United States.",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "Senate",
+            "latest_action": {
+                "actionDate": "2025-01-03",
+                "text": "Motion to reconsider laid on the table Agreed to without objection."
+            },
+            "current_status": "passed_senate",
+            "status_date": "2025-01-03T00:00:00Z",
+            "policy_area": "Congress",
+            "sponsors": [
+                {
+                    "bioguideId": "K000367",
+                    "fullName": "Sen. Klobuchar, Amy [D-MN]",
+                    "party": "D",
+                    "state": "MN"
+                }
+            ],
+            "cosponsors": [
+                {
+                    "bioguideId": "F000463",
+                    "fullName": "Sen. Fischer, Deb [R-NE]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "NE"
+                }
+            ],
+            "subjects": [
+                "Cemeteries and funerals",
+                "Congressional tributes",
+                "Presidents and presidential powers, Vice Presidents",
+                "U.S. Capitol"
+            ],
+            "updated_at": "2026-03-19T20:11:33.558552378Z",
+            "synced_at": "2026-03-19T20:11:33.568529Z"
+        }
+    ],
+    "total": 100,
+    "offset": 0,
+    "limit": 3
+}

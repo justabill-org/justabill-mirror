@@ -1,0 +1,47 @@
+{
+  "result": {
+    "geographies": {
+      "120th Congressional Districts": [
+        {
+          "STGEOMETRY_Area": 292742530.9541352,
+          "CD120": "98",
+          "GEOID": "1198",
+          "CENTLAT": "+38.9047586",
+          "CDSESSN": "120",
+          "AREAWATER": 18707004,
+          "STATE": "11",
+          "BASENAME": "Delegate District (at Large)",
+          "OID": "2119042393277437",
+          "LSADC": "C4",
+          "FUNCSTAT": "N",
+          "INTPTLAT": "+38.9042429",
+          "NAME": "Delegate District (at Large)",
+          "OBJECTID": 77,
+          "CENTLON": "-077.0162860",
+          "STGEOMETRY_Length": 86300.89857680116,
+          "AREALAND": 158318974,
+          "INTPTLON": "-077.0165243",
+          "MTFCC": "G5200"
+        }
+      ]
+    },
+    "input": {
+      "vintage": {
+        "isDefault": false,
+        "id": "426",
+        "vintageName": "ACS2026_Current",
+        "vintageDescription": "ACS2026 Vintage - Current Benchmark"
+      },
+      "location": {
+        "x": -77.0365,
+        "y": 38.8977
+      },
+      "benchmark": {
+        "isDefault": true,
+        "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+        "id": "4",
+        "benchmarkName": "Public_AR_Current"
+      }
+    }
+  }
+}

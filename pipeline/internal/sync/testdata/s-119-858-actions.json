@@ -1,0 +1,284 @@
+{
+    "actions": [
+        {
+            "actionCode": "E40000",
+            "actionDate": "2026-09-10",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Became Public Law No: 119-104.",
+            "type": "President"
+        },
+        {
+            "actionCode": "36000",
+            "actionDate": "2026-09-10",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Became Public Law No: 119-104.",
+            "type": "BecameLaw"
+        },
+        {
+            "actionCode": "E30000",
+            "actionDate": "2026-09-10",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Signed by President.",
+            "type": "President"
+        },
+        {
+            "actionCode": "36000",
+            "actionDate": "2026-09-10",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Signed by President.",
+            "type": "BecameLaw"
+        },
+        {
+            "actionCode": "E20000",
+            "actionDate": "2026-09-02",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Presented to President.",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "28000",
+            "actionDate": "2026-09-02",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Presented to President.",
+            "type": "President"
+        },
+        {
+            "actionCode": "H38310",
+            "actionDate": "2026-08-31",
+            "actionTime": "15:46:43",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Motion to reconsider laid on the table Agreed to without objection.",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "H37300",
+            "actionDate": "2026-08-31",
+            "actionTime": "15:46:16",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "On motion to suspend the rules and pass the bill Agreed to by voice vote. (text: CR H5264)",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "8000",
+            "actionDate": "2026-08-31",
+            "actionTime": "15:46:16",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Passed/agreed to in House: On motion to suspend the rules and pass the bill Agreed to by voice vote. (text: CR H5264)",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "H8D000",
+            "actionDate": "2026-08-31",
+            "actionTime": "15:32:43",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "DEBATE - The House proceeded with forty minutes of debate on S. 858.",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "H30000",
+            "actionDate": "2026-08-31",
+            "actionTime": "15:32:42",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Considered under suspension of the rules. (consideration: CR H5264-5266)",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "H30300",
+            "actionDate": "2026-08-31",
+            "actionTime": "15:32:28",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Mr. Westerman moved to suspend the rules and pass the bill.",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "H15000",
+            "actionDate": "2026-03-27",
+            "actionTime": "09:09:06",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Held at the desk.",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "H14000",
+            "actionDate": "2026-03-27",
+            "actionTime": "09:04:19",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Received in the House.",
+            "type": "Floor"
+        },
+        {
+            "actionDate": "2026-03-27",
+            "sourceSystem": {
+                "name": "Senate"
+            },
+            "text": "Message on Senate action sent to the House.",
+            "type": "Floor"
+        },
+        {
+            "actionDate": "2026-03-25",
+            "sourceSystem": {
+                "name": "Senate"
+            },
+            "text": "Passed Senate with an amendment by Unanimous Consent. (text of amendment in the nature of a substitute: CR S1605)",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "17000",
+            "actionDate": "2026-03-25",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Passed/agreed to in Senate: Passed Senate with an amendment by Unanimous Consent.",
+            "type": "Floor"
+        },
+        {
+            "actionDate": "2026-03-25",
+            "sourceSystem": {
+                "name": "Senate"
+            },
+            "text": "Measure laid before Senate by unanimous consent. (consideration: CR S1605)",
+            "type": "Floor"
+        },
+        {
+            "actionDate": "2026-03-25",
+            "committees": [
+                {
+                    "name": "Energy and Natural Resources Committee",
+                    "systemCode": "sseg00",
+                    "url": "https://api.congress.gov/v3/committee/senate/sseg00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "name": "Senate"
+            },
+            "text": "Senate Committee on Energy and Natural Resources discharged by Unanimous Consent.",
+            "type": "Discharge"
+        },
+        {
+            "actionCode": "14500",
+            "actionDate": "2026-03-25",
+            "committees": [
+                {
+                    "name": "Energy and Natural Resources Committee",
+                    "systemCode": "sseg00",
+                    "url": "https://api.congress.gov/v3/committee/senate/sseg00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Senate Committee on Energy and Natural Resources discharged by Unanimous Consent.",
+            "type": "Committee"
+        },
+        {
+            "actionDate": "2025-12-17",
+            "committees": [
+                {
+                    "name": "Energy and Natural Resources Committee",
+                    "systemCode": "sseg00",
+                    "url": "https://api.congress.gov/v3/committee/senate/sseg00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "name": "Senate"
+            },
+            "text": "Committee on Energy and Natural Resources. Ordered to be reported with an amendment in the nature of a substitute favorably.",
+            "type": "Committee"
+        },
+        {
+            "actionDate": "2025-12-09",
+            "committees": [
+                {
+                    "name": "National Parks Subcommittee",
+                    "systemCode": "sseg04",
+                    "url": "https://api.congress.gov/v3/committee/senate/sseg04?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "name": "Senate"
+            },
+            "text": "Committee on Energy and Natural Resources Subcommittee on National Parks. Hearings held. With printed Hearing: S.Hrg. 119-238.",
+            "type": "Committee"
+        },
+        {
+            "actionDate": "2025-03-05",
+            "committees": [
+                {
+                    "name": "Energy and Natural Resources Committee",
+                    "systemCode": "sseg00",
+                    "url": "https://api.congress.gov/v3/committee/senate/sseg00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "name": "Senate"
+            },
+            "text": "Read twice and referred to the Committee on Energy and Natural Resources.",
+            "type": "IntroReferral"
+        },
+        {
+            "actionCode": "10000",
+            "actionDate": "2025-03-05",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Introduced in Senate",
+            "type": "IntroReferral"
+        }
+    ],
+    "pagination": {
+        "count": 24
+    },
+    "request": {
+        "billNumber": "858",
+        "billType": "s",
+        "billUrl": "https://api.congress.gov/v3/bill/119/s/858?format=json",
+        "congress": "119",
+        "contentType": "application/json",
+        "format": "json"
+    }
+}

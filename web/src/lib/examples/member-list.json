@@ -1,0 +1,25 @@
+{
+    "items": [
+        {
+            "bioguide_id": "A000371",
+            "first_name": "Pete",
+            "last_name": "Aguilar",
+            "photo_url": "https://www.congress.gov/img/member/a000371_200.jpg"
+        },
+        {
+            "bioguide_id": "B001300",
+            "first_name": "Nanette Diaz",
+            "last_name": "Barrag\u00e1n",
+            "photo_url": "https://www.congress.gov/img/member/b001300_200.jpg"
+        },
+        {
+            "bioguide_id": "B001287",
+            "first_name": "Ami",
+            "last_name": "Bera",
+            "photo_url": "https://www.congress.gov/img/member/b001287_200.jpg"
+        }
+    ],
+    "total": 52,
+    "offset": 0,
+    "limit": 3
+}

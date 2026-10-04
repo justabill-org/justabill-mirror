@@ -1,0 +1,70 @@
+{
+  "result": {
+    "input": {
+      "address": {
+        "address": "1600 Pennsylvania Ave NW, Washington, DC 20500"
+      },
+      "vintage": {
+        "isDefault": false,
+        "id": "425",
+        "vintageName": "ACS2025_Current",
+        "vintageDescription": "ACS2025 Vintage - Current Benchmark"
+      },
+      "benchmark": {
+        "isDefault": true,
+        "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+        "id": "4",
+        "benchmarkName": "Public_AR_Current"
+      }
+    },
+    "addressMatches": [
+      {
+        "tigerLine": {
+          "side": "L",
+          "tigerLineId": "76225813"
+        },
+        "geographies": {
+          "119th Congressional Districts": [
+            {
+              "GEOID": "1198",
+              "CENTLAT": "+38.9047586",
+              "CDSESSN": "119",
+              "AREAWATER": "18706999",
+              "STATE": "11",
+              "BASENAME": "Delegate District (at Large)",
+              "OID": "2119035963374576",
+              "LSADC": "C4",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+38.9042429",
+              "NAME": "Delegate District (at Large)",
+              "OBJECTID": 314,
+              "CENTLON": "-077.0162860",
+              "AREALAND": "158318961",
+              "INTPTLON": "-077.0165243",
+              "MTFCC": "G5200"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -77.035189204737,
+          "y": 38.898702605245
+        },
+        "addressComponents": {
+          "zip": "20500",
+          "streetName": "PENNSYLVANIA",
+          "preType": "",
+          "city": "WASHINGTON",
+          "preDirection": "",
+          "suffixDirection": "NW",
+          "fromAddress": "1600",
+          "state": "DC",
+          "suffixType": "AVE",
+          "toAddress": "1648",
+          "suffixQualifier": "",
+          "preQualifier": ""
+        },
+        "matchedAddress": "1600 PENNSYLVANIA AVE NW, WASHINGTON, DC, 20500"
+      }
+    ]
+  }
+}

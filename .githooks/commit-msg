@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Commit messages follow Conventional Commits (CI checks them too): .github/scripts/conventional.sh
+exec "$(git rev-parse --show-toplevel)/.github/scripts/conventional.sh" commit-msg "$1"

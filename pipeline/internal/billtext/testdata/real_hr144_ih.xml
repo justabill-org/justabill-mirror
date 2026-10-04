@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<bill bill-stage="Introduced-in-House" public-private="public">
+<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dublinCore>
+<dc:title>119 HR 144 IH: Tennessee Valley Authority Salary Transparency Act</dc:title>
+<dc:publisher>U.S. House of Representatives</dc:publisher>
+<dc:date>2025-01-03</dc:date>
+</dublinCore>
+</metadata>
+<form>
+<distribution-code display="yes">I</distribution-code>
+<congress display="yes">119th CONGRESS</congress>
+<session display="yes">1st Session</session>
+<legis-num display="yes">H. R. 144</legis-num>
+<current-chamber>IN THE HOUSE OF REPRESENTATIVES</current-chamber>
+<legis-type>A BILL</legis-type>
+<official-title>To provide that the Federal Reports Elimination and Sunset Act of 1995 does not apply to certain reports required to be submitted by the Tennessee Valley Authority, and for other purposes.</official-title>
+</form>
+<legis-body id="H30186A19B2DF45BAB87C2A0C28C6414F" style="OLC">
+<section id="H92772330397C48FBB26F23A38D5F5228" section-type="section-one">
+  <enum>1.</enum>
+  <header>Short title</header>
+  <text display-inline="no-display-inline">This Act may be cited as the "Tennessee Valley Authority Salary Transparency Act".</text>
+</section>
+<section id="HFA726E3FE3F04CE89DF8064A55706935" display-inline="no-display-inline" section-type="subsequent-section">
+  <enum>2.</enum>
+  <header>Salary disclosure; exception to report elimination</header>
+  <text display-inline="no-display-inline">Section 9 of the Tennessee Valley Authority Act of 1933 (16 U.S.C. 831h) is amended—</text>
+  <subsection id="H228FF6B5CE5C4625BAB5CB90A31E935B">
+    <enum>(1)</enum>
+    <header>Report on compensation</header>
+    <text>subsection (a), by striking "a financial statement" and all that follows through "$1,500 a year" and inserting "a report of the total number of employees at the management level or above";</text>
+  </subsection>
+  <subsection id="H720B8D404BAB4D049E1890AE86A2DD42">
+    <enum>(2)</enum>
+    <header>Financial reporting header</header>
+    <text>by striking all that precedes "The Board shall" and inserting a new section header;</text>
+  </subsection>
+  <subsection id="H88C64D2F8F954518B365DDA336FACD6D">
+    <enum>(3)</enum>
+    <header>Exemption</header>
+    <text>on subsection (a), by adding at the end an exemption from disclosure under section 552(b)(3) of title 5, United States Code.</text>
+  </subsection>
+</section>
+</legis-body>
+</bill>

@@ -1,0 +1,14 @@
+# The Just a Bill telemetry registry: every custom attribute, metric and event name, all under
+# justabill.*. Weaver checks it and generates obs/semconv/names.go and web/src/lib/obs/names.ts
+# (`task semconv`). Design: docs/design/53-observability.md, Decision 3.
+name: justabill
+description: Custom attributes, metrics and events of the Just a Bill API, pipeline and web app.
+schema_url: https://github.com/justabill-org/justabill/schemas/0.1.0
+dependencies:
+  # The core conventions. HTTP and DB are stable here.
+  - schema_url: https://opentelemetry.io/schemas/1.44.0
+    registry_path: https://github.com/open-telemetry/semantic-conventions.git@v1.44.0[model]
+  # GenAI moved to its own repository in 1.43.0 and has no release tags yet, so it's pinned to a
+  # commit. It is still in development and depends on the core 1.44.0 above.
+  - schema_url: https://opentelemetry.io/schemas/gen-ai-dev/1.42.0-dev
+    registry_path: https://github.com/open-telemetry/semantic-conventions-genai.git@e57c543b4889619eb2a05702471937db5119165d[model]

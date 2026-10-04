@@ -1,0 +1,29 @@
+{
+    "pagination": {
+        "count": 2
+    },
+    "request": {
+        "billNumber": "1003",
+        "billType": "s",
+        "billUrl": "https://api.congress.gov/v3/bill/119/s/1003?format=json",
+        "congress": "119",
+        "contentType": "application/json",
+        "format": "json"
+    },
+    "summaries": [
+        {
+            "actionDate": "2025-03-12",
+            "actionDesc": "Introduced in Senate",
+            "text": "<p><strong>Lulu’s Law</strong></p><p>This bill requires the Federal Communications Commission to issue an order explicitly permitting the transmission of wireless emergency alerts to mobile phones in the event of a shark attack.&nbsp;</p><p>(Under current regulations, authorized government authorities are permitted to send wireless emergency alerts regarding public safety emergencies, including severe weather, missing children, and other threats to life or property.)</p>",
+            "updateDate": "2025-04-28T13:39:37Z",
+            "versionCode": "00"
+        },
+        {
+            "actionDate": "2026-06-26",
+            "actionDesc": "Public Law",
+            "text": "<p><strong>Lulu’s Law</strong></p><p>This act requires the Federal Communications Commission to issue an order explicitly permitting the transmission of wireless emergency alerts to mobile phones in the event of a shark attack.</p><p>(Under current regulations, authorized government authorities are permitted to send wireless emergency alerts regarding public safety emergencies, including severe weather, missing children, and other threats to life or property.)</p>",
+            "updateDate": "2026-06-30T12:39:56Z",
+            "versionCode": "49"
+        }
+    ]
+}

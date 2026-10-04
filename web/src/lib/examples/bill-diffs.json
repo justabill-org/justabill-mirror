@@ -1,0 +1,30 @@
+[
+    {
+        "id": "16403508-40f4-4510-818a-403dc0bc523f",
+        "bill_id": "hr-119-187",
+        "from_version_id": "aadae74f-ba7d-472d-a458-e67ea6ce39b7",
+        "to_version_id": "f298c08f-94d1-4b9d-8866-9746b7cba7f8",
+        "diff_stats": {
+            "sections_added": 7,
+            "sections_modified": 0,
+            "sections_removed": 7,
+            "words_added": 1285,
+            "words_removed": 135
+        },
+        "generated_at": "2026-03-19T20:54:01.202310628Z"
+    },
+    {
+        "id": "71deb1ad-c19d-485b-858e-9e1690902efc",
+        "bill_id": "hr-119-187",
+        "from_version_id": "b9e68946-5b52-4665-8d62-cb88aa865aa2",
+        "to_version_id": "aadae74f-ba7d-472d-a458-e67ea6ce39b7",
+        "diff_stats": {
+            "sections_added": 7,
+            "sections_modified": 0,
+            "sections_removed": 7,
+            "words_added": 135,
+            "words_removed": 135
+        },
+        "generated_at": "2026-03-19T20:54:00.290847647Z"
+    }
+]

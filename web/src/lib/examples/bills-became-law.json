@@ -1,0 +1,254 @@
+{
+    "items": [
+        {
+            "id": "hr-119-165",
+            "congress": 119,
+            "bill_type": "hr",
+            "number": 165,
+            "title": "Wounded Knee Massacre Memorial and Sacred Site Act",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-12-19",
+                "text": "Became Public Law No: 119-61."
+            },
+            "current_status": "became_law",
+            "status_date": "2025-12-19T00:00:00Z",
+            "policy_area": "Native Americans",
+            "sponsors": [
+                {
+                    "bioguideId": "J000301",
+                    "fullName": "Rep. Johnson, Dusty [R-SD-At Large]",
+                    "party": "R",
+                    "state": "SD"
+                }
+            ],
+            "committees": [
+                {
+                    "activities": [
+                        {
+                            "date": "2025-10-02T17:32:36Z",
+                            "name": "Reported By"
+                        },
+                        {
+                            "date": "2025-03-05T19:30:00Z",
+                            "name": "Markup By"
+                        },
+                        {
+                            "date": "2025-01-23T15:51:28Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "Senate",
+                    "name": "Indian Affairs Committee",
+                    "systemCode": "slia00",
+                    "type": "Other"
+                },
+                {
+                    "activities": [
+                        {
+                            "date": "2025-01-03T16:22:20Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "House",
+                    "name": "Natural Resources Committee",
+                    "systemCode": "hsii00",
+                    "type": "Standing"
+                }
+            ],
+            "subjects": [
+                "Federal-Indian relations",
+                "Indian lands and resources rights",
+                "Land transfers",
+                "South Dakota",
+                "State and local taxation"
+            ],
+            "related_bills": [
+                {
+                    "congress": 119,
+                    "number": 105,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "CRS",
+                            "type": "Identical bill"
+                        }
+                    ],
+                    "title": "Wounded Knee Massacre Memorial and Sacred Site Act",
+                    "type": "S"
+                }
+            ],
+            "updated_at": "2026-03-19T20:10:44.65759977Z",
+            "synced_at": "2026-03-19T20:10:44.664742Z"
+        },
+        {
+            "id": "hr-119-187",
+            "congress": 119,
+            "bill_type": "hr",
+            "number": 187,
+            "title": "MAPWaters Act of 2025",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-12-26",
+                "text": "Became Public Law No: 119-62."
+            },
+            "current_status": "became_law",
+            "status_date": "2025-12-26T00:00:00Z",
+            "policy_area": "Public Lands and Natural Resources",
+            "sponsors": [
+                {
+                    "bioguideId": "M001213",
+                    "fullName": "Rep. Moore, Blake D. [R-UT-1]",
+                    "party": "R",
+                    "state": "UT"
+                }
+            ],
+            "cosponsors": [
+                {
+                    "bioguideId": "P000613",
+                    "fullName": "Rep. Panetta, Jimmy [D-CA-19]",
+                    "isOriginalCosponsor": true,
+                    "party": "D",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "CA"
+                },
+                {
+                    "bioguideId": "F000469",
+                    "fullName": "Rep. Fulcher, Russ [R-ID-1]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "ID"
+                },
+                {
+                    "bioguideId": "D000624",
+                    "fullName": "Rep. Dingell, Debbie [D-MI-6]",
+                    "isOriginalCosponsor": true,
+                    "party": "D",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "MI"
+                }
+            ],
+            "committees": [
+                {
+                    "activities": [
+                        {
+                            "date": "2025-12-16T22:15:25Z",
+                            "name": "Discharged From"
+                        },
+                        {
+                            "date": "2025-01-22T17:57:25Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "Senate",
+                    "name": "Energy and Natural Resources Committee",
+                    "systemCode": "sseg00",
+                    "type": "Standing"
+                },
+                {
+                    "activities": [
+                        {
+                            "date": "2025-01-03T16:20:05Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "House",
+                    "name": "Agriculture Committee",
+                    "systemCode": "hsag00",
+                    "type": "Standing"
+                },
+                {
+                    "activities": [
+                        {
+                            "date": "2025-01-03T16:20:00Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "House",
+                    "name": "Natural Resources Committee",
+                    "systemCode": "hsii00",
+                    "type": "Standing"
+                }
+            ],
+            "subjects": [
+                "Congressional oversight",
+                "Geography and mapping",
+                "Government information and archives",
+                "Government studies and investigations",
+                "Hunting and fishing",
+                "Land use and conservation",
+                "Marine and coastal resources, fisheries",
+                "Marine and inland water transportation",
+                "Navigation, waterways, harbors",
+                "Outdoor recreation"
+            ],
+            "related_bills": [
+                {
+                    "congress": 119,
+                    "number": 2637,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "CRS",
+                            "type": "Identical bill"
+                        }
+                    ],
+                    "title": "MAPWaters Act of 2025",
+                    "type": "S"
+                }
+            ],
+            "updated_at": "2026-03-19T20:06:39.82520206Z",
+            "synced_at": "2026-03-19T20:06:39.827778Z"
+        },
+        {
+            "id": "hr-119-43",
+            "congress": 119,
+            "bill_type": "hr",
+            "number": 43,
+            "title": "Alaska Native Village Municipal Lands Restoration Act of 2025",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-07-07",
+                "text": "Became Public Law No: 119-23."
+            },
+            "current_status": "became_law",
+            "status_date": "2025-07-07T00:00:00Z",
+            "policy_area": "Native Americans",
+            "sponsors": [
+                {
+                    "bioguideId": "B001323",
+                    "fullName": "Rep. Begich, Nicholas [R-AK-At Large]",
+                    "party": "R",
+                    "state": "AK"
+                }
+            ],
+            "committees": [
+                {
+                    "activities": [
+                        {
+                            "date": "2025-01-03T16:28:25Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "House",
+                    "name": "Natural Resources Committee",
+                    "systemCode": "hsii00",
+                    "type": "Standing"
+                }
+            ],
+            "subjects": [
+                "Alaska",
+                "Alaska Natives and Hawaiians",
+                "Indian lands and resources rights",
+                "Land transfers"
+            ],
+            "updated_at": "2026-03-19T20:11:12.982824783Z",
+            "synced_at": "2026-03-19T20:11:12.985582Z"
+        }
+    ],
+    "total": 3,
+    "offset": 0,
+    "limit": 20
+}

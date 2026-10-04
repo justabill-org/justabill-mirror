@@ -1,0 +1,8 @@
+version: "3"
+
+# The repository's own tasks, which Taskfile.yml includes (task lint runs lint:repo). This
+# repository has none beyond the modules' yet.
+tasks:
+  lint:repo:
+    desc: This repository's own checks (none yet)
+    cmds: []

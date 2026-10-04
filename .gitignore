@@ -1,0 +1,62 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Go
+api/bin/
+pipeline/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.prof
+vendor/
+
+# Node / Next.js
+web/node_modules/
+web/.next/
+web/out/
+web/.turbo/
+web/.vercel/
+web/playwright-report/
+web/test-results/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Test coverage
+coverage/
+*.coverprofile
+coverage.out
+coverage.html
+coverage-summary/
+coverage-summary.json
+web/coverage/
+
+# Build artifacts
+dist/
+build/
+tmp/
+
+# Logs
+*.log
+
+# Go workspace (local dev only, CI uses go.mod replace directives)
+go.work
+go.work.sum
+
+# Task checksum state (sources/generates)
+.task/

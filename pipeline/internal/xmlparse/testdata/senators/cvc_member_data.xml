@@ -1,0 +1,113 @@
+<senators>
+<lastUpdate>
+<date>Sunday, September 27, 2026</date>
+<time>5:00:13 AM EDT</time>
+</lastUpdate>
+<senator lis_member_id="S428">
+<name>
+<prefix>Ms.</prefix>
+<first>Angela D.</first>
+<last>Alsobrooks</last>
+<suffix>        
+</suffix>
+</name>
+<party>D</party>
+<state>MD</state>
+<homeTown>Upper Marlboro</homeTown>
+<stateRank>2</stateRank>
+<bioguideId>A000382</bioguideId>
+<office>374 Russell </office>
+<committees>
+<committee code="SSEV00">Committee on Environment and Public Works</committee>
+<committee code="SPAG00">Special Committee on Aging</committee>
+<committee code="SSBK00">Committee on Banking, Housing, and Urban Affairs</committee>
+<committee code="SSHR00">Committee on Health, Education, Labor, and Pensions</committee>
+</committees>
+</senator>
+<senator lis_member_id="S354">
+<name>
+<prefix>Ms.</prefix>
+<first>Tammy </first>
+<last>Baldwin</last>
+<suffix>        
+</suffix>
+</name>
+<party>D</party>
+<state>WI</state>
+<homeTown>Madison</homeTown>
+<stateRank>2</stateRank>
+<bioguideId>B001230</bioguideId>
+<office>141 Hart </office>
+<committees>
+<committee code="SSCM00">Committee on Commerce, Science, and Transportation</committee>
+<committee code="SSAP00">Committee on Appropriations</committee>
+<committee code="SSHR00">Committee on Health, Education, Labor, and Pensions</committee>
+</committees>
+</senator>
+<senator lis_member_id="S409">
+<name>
+<prefix>Mr.</prefix>
+<first>Ben Ray</first>
+<last>Lujan</last>
+<suffix>        
+</suffix>
+</name>
+<party>D</party>
+<state>NM</state>
+<homeTown>Nambe</homeTown>
+<stateRank>2</stateRank>
+<bioguideId>L000570</bioguideId>
+<office>498 Russell </office>
+<committees>
+<committee code="SSAF00">Committee on Agriculture, Nutrition, and Forestry</committee>
+<committee code="SSBU00">Committee on the Budget</committee>
+<committee code="SSCM00">Committee on Commerce, Science, and Transportation</committee>
+<committee code="SSFI00">Committee on Finance</committee>
+<committee code="SCNC00">United States Senate Caucus on International Narcotics Control</committee>
+<committee code="SLIA00">Committee on Indian Affairs</committee>
+</committees>
+</senator>
+<senator lis_member_id="S313">
+<name>
+<prefix>Mr.</prefix>
+<first>Bernard </first>
+<last>Sanders</last>
+<suffix>        
+</suffix>
+</name>
+<party>I</party>
+<state>VT</state>
+<homeTown>Burlington</homeTown>
+<stateRank>1</stateRank>
+<bioguideId>S000033</bioguideId>
+<office>332 Dirksen </office>
+<committees>
+<committee code="SSEV00">Committee on Environment and Public Works</committee>
+<committee code="SSBU00">Committee on the Budget</committee>
+<committee code="SSFI00">Committee on Finance</committee>
+<committee code="SSHR00" position="Ranking">Committee on Health, Education, Labor, and Pensions</committee>
+<committee code="SSVA00">Committee on Veterans' Affairs</committee>
+</committees>
+</senator>
+<senator lis_member_id="S270">
+<name>
+<prefix>Mr.</prefix>
+<first>Charles E.</first>
+<last>Schumer</last>
+<suffix>        
+</suffix>
+</name>
+<party>D</party>
+<state>NY</state>
+<homeTown>Brooklyn</homeTown>
+<stateRank>1</stateRank>
+<bioguideId>S000148</bioguideId>
+<office>322 Hart </office>
+<leadership_position>Democratic Leader Chair of the Conference</leadership_position>
+<committees>
+<committee code="JSIK00">Joint Congressional Committee on Inaugural Ceremonies - 2024</committee>
+<committee code="SLIN00">Select Committee on Intelligence</committee>
+<committee code="SSRA00">Committee on Rules and Administration</committee>
+</committees>
+</senator>
+</senators>

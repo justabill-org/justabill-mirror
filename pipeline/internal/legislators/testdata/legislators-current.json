@@ -1,0 +1,36 @@
+[
+  {
+    "id": {"bioguide": "S001150", "lis": "S427", "govtrack": 400361},
+    "name": {"first": "Adam", "last": "Schiff"},
+    "terms": [
+      {"type": "rep", "start": "2021-01-03", "end": "2023-01-03", "state": "CA", "district": 28, "party": "Democrat"},
+      {"type": "rep", "start": "2023-01-03", "end": "2024-12-08", "state": "CA", "district": 30, "party": "Democrat"},
+      {"type": "sen", "start": "2024-12-09", "end": "2025-01-03", "how": "special-election", "state": "CA", "party": "Democrat", "class": 1},
+      {"type": "sen", "start": "2025-01-03", "end": "2031-01-03", "state": "CA", "party": "Democrat", "class": 1}
+    ]
+  },
+  {
+    "id": {"bioguide": "M001212"},
+    "name": {"first": "Barry", "last": "Moore"},
+    "terms": [
+      {"type": "rep", "start": "2021-01-03", "end": "2023-01-03", "state": "AL", "district": 2, "party": "Republican"},
+      {"type": "rep", "start": "2023-01-03", "end": "2025-01-03", "state": "AL", "district": 2, "party": "Republican"},
+      {"type": "rep", "start": "2025-01-03", "end": "2027-01-03", "state": "AL", "district": 1, "party": "Republican"}
+    ]
+  },
+  {
+    "id": {"bioguide": "N000147"},
+    "name": {"first": "Eleanor", "last": "Norton"},
+    "terms": [
+      {"type": "rep", "start": "2023-01-03", "end": "2025-01-03", "state": "DC", "district": 0, "party": "Democrat"}
+    ]
+  },
+  {
+    "id": {"bioguide": "R000618", "lis": "S423"},
+    "name": {"first": "Pete", "last": "Ricketts"},
+    "terms": [
+      {"type": "sen", "start": "2023-01-23", "end": "2024-11-05", "how": "appointment", "state": "NE", "party": "Republican"},
+      {"type": "sen", "start": "2024-11-05", "end": "2027-01-03", "how": "special-election", "state": "NE", "party": "Republican"}
+    ]
+  }
+]

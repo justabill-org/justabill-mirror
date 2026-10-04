@@ -1,0 +1,17 @@
+# Coverage floors for go-test-coverage (docs/design/172-testing-linting.md), checked in CI by
+# .github/scripts/go-coverage.sh and locally by `task cover`. Floors are the hard minimum, raised by
+# hand now and then, never in a feature PR; CI also fails a PR whose total drops below main's.
+# The long-term target is 70% per module; new packages must reach 70% from the start.
+profile: coverage.out
+
+threshold:
+  package: 70
+  total: 74
+override:
+  # Existing packages below 70%, pinned at their coverage when the floor was set.
+  - path: ^internal/handler$
+    threshold: 69
+exclude:
+  paths:
+    - ^cmd/                      # main packages: wiring, covered by the smoke tests (#84)
+    - ^internal/auth/authtest/   # test helpers

@@ -1,0 +1,18 @@
+# Coverage floors for go-test-coverage (docs/design/172-testing-linting.md), checked in CI by
+# .github/scripts/go-coverage.sh and locally by `task cover`. Floors are the hard minimum, raised by
+# hand now and then, never in a feature PR; CI also fails a PR whose total drops below main's.
+# The long-term target is 70% per module; new packages must reach 70% from the start.
+profile: coverage.out
+
+threshold:
+  package: 70
+  total: 90
+override:
+  # sync holds almost half of the module's statements. It was pinned at 63% when the floors were set
+  # and raised to 90% once its orchestration had fake-store and emulator tests (#226, 96.6% then,
+  # the module 95.6%), a few points of room below its coverage.
+  - path: ^internal/sync$
+    threshold: 90
+exclude:
+  paths:
+    - ^cmd/     # main packages: wiring, covered by the smoke tests (#84)

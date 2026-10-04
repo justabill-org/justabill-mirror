@@ -1,0 +1,101 @@
+{
+  "pagination": {
+    "count": 5
+  },
+  "textVersions": [
+    {
+      "date": null,
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35enr.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35enr.pdf"
+        },
+        {
+          "type": "United States Legislative Markup",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35enr_uslm.xml"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35enr.xml"
+        }
+      ],
+      "type": "Enrolled Bill"
+    },
+    {
+      "date": "2025-02-27T05:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35rds.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35rds.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35rds.xml"
+        }
+      ],
+      "type": "Received in Senate"
+    },
+    {
+      "date": "2025-02-26T05:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35eh.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35eh.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35eh.xml"
+        }
+      ],
+      "type": "Engrossed in House"
+    },
+    {
+      "date": "2025-02-04T05:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35ih.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35ih.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/119/bills/hjres35/BILLS-119hjres35ih.xml"
+        }
+      ],
+      "type": "Introduced in House"
+    },
+    {
+      "date": "2025-03-15T03:59:59Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/119/plaws/publ2/PLAW-119publ2.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/119/plaws/publ2/PLAW-119publ2.pdf"
+        },
+        {
+          "type": "United States Legislative Markup",
+          "url": "https://www.congress.gov/119/plaws/publ2/PLAW-119publ2_uslm.xml"
+        }
+      ],
+      "type": "Public Law"
+    }
+  ]
+}

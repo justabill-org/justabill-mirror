@@ -1,0 +1,3 @@
+{"bill_id":"hr-119-1234","version_id":"hr-119-1234-ih","version_code":"ih","content_hash":"hash-hr-119-1234","line":1,"model":"gemini-3.8-flash","prompt_version":"bill-v4","input_truncated":false}
+{"bill_id":"sres-119-7","version_id":"sres-119-7-ats","version_code":"ats","content_hash":"hash-sres-119-7","line":2,"model":"gemini-3.8-flash","prompt_version":"bill-v4","input_truncated":false}
+{"bill_id":"sjres-119-18","version_id":"sjres-119-18-enr","version_code":"enr","content_hash":"hash-sjres-119-18","rule_hash":"rule-sjres-119-18","line":3,"model":"gemini-3.8-flash","prompt_version":"bill-v4","input_truncated":false}

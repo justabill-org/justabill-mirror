@@ -1,0 +1,103 @@
+{
+  "id": "b9932a56-9622-4d72-9f1e-6bee1534d49a",
+  "text_version_id": "86f2012e-8429-4fe6-aef2-84a4a5920fcb",
+  "format": "Formatted XML",
+  "content_hash": "1f96278ba6ea79bc0f3b560fd9cfcd393aab3347dce135b52baaa37b42e5a88c",
+  "sections": [
+    {
+      "content": "This Act may be cited as the  or the .",
+      "header": "Short title",
+      "id": "HC2A480AE515A477EAA68B66D860BDBE8"
+    },
+    {
+      "content": "In this Act:",
+      "header": "Definitions",
+      "id": "H3914C8918724477BBF39564C412699AA"
+    },
+    {
+      "content": "Not later than 30 months after the date of enactment of this Act, the Secretaries, in coordination with the Federal Geographic Data Committee established by section 753(a) of the FAA Reauthorization Act of 2018 (), shall jointly develop and adopt interagency standards to ensure compatibility and interoperability among applicable Federal databases with respect to the collection and dissemination of geospatial data relating to public outdoor recreational access of Federal waterways and Federal fishing restrictions.",
+      "header": "Interagency data standardization",
+      "id": "HE15ADDCF2BA343B09423CE5034FCC675"
+    },
+    {
+      "children": [
+        {
+          "content": "Not later than 5 years after the date of enactment of this Act, each of the Secretaries, to the maximum extent practicable, shall digitize and make publicly available online, as applicable, geographic information system data that includes, with respect to Federal waterway restrictions\u2014",
+          "header": "Federal waterway restrictions",
+          "id": "H1B4984E872E040258B14404D36DC0653"
+        },
+        {
+          "content": "Not later than 5 years after the date of enactment of this Act, each of the Secretaries, to the maximum extent practicable, shall digitize and make publicly available online, as applicable, geographic information system data that includes, with respect to Federal waterway access and navigation information\u2014",
+          "header": "Federal waterway access and navigation information",
+          "id": "H829E9A5E98794DD4A79F542776ADDFE9"
+        },
+        {
+          "content": "Not later than 5 years after the date of enactment of this Act, each of the Secretaries, to the maximum extent practicable, shall digitize and make publicly available online geographic information system data that describes, with respect to Federal fishing restrictions\u2014",
+          "header": "Federal fishing restrictions",
+          "id": "H7057E7D893B84D98B90898AE97FDE04C"
+        },
+        {
+          "content": "The Secretaries shall develop a process to allow members of the public to submit questions or comments regarding the information described in subsections (a) and (b).",
+          "header": "Public comment",
+          "id": "H8120694A223C40FF814564A166DB368F"
+        },
+        {
+          "content": "The Secretaries, to the maximum extent practicable, shall update\u2014",
+          "header": "Updates",
+          "id": "H7046F8D20DB140A88175B2A4126C8016"
+        },
+        {
+          "content": "This section shall not apply to irrigation canals and flowage easements.",
+          "header": "Exclusion",
+          "id": "HE8EE9AEACA4C40169012691DB0C43B39"
+        },
+        {
+          "content": "Any geographic information system data made publicly available under this section shall not disclose information regarding the nature, location, character, or ownership of historic, paleontological, or archaeological resources, consistent with applicable law.",
+          "header": "Disclosure",
+          "id": "H33BFF962A3544884B7246FD858D95262"
+        }
+      ],
+      "content": "",
+      "header": "Data consolidation and publication",
+      "id": "H97A15AA30376470CBBE8FDAD94625E43"
+    },
+    {
+      "children": [
+        {
+          "content": "For purposes of carrying out this Act, the Secretaries may\u2014",
+          "header": "Community partners and third-party providers",
+          "id": "HBC067C82FC0545E3888E2BAD74F8DB0F"
+        },
+        {
+          "content": "The Secretaries may work with the Director of the United States Geological Survey to collect, aggregate, digitize, standardize, and publish data on behalf of the Secretaries to meet the requirements of this Act.",
+          "header": "United states geological survey",
+          "id": "H324267C53002402BB41F21E2A81EF801"
+        },
+        {
+          "content": "With respect to data developed and distributed under this Act, the Secretaries shall\u2014",
+          "header": "Requirement",
+          "id": "HF47F0B03F3CA417E8DB1980434F0382F"
+        },
+        {
+          "content": "To the extent practicable, the Secretary concerned shall use or incorporate existing applicable data, maps, and resources in carrying out this Act, including data, maps, and resources developed and published under\u2014",
+          "header": "Existing efforts",
+          "id": "H3A6D7E6858274D73942CA2876FFC0A7C"
+        }
+      ],
+      "content": "",
+      "header": "Cooperation and coordination",
+      "id": "HC31ADCAE308B4C4BA6431DC2A8D50313"
+    },
+    {
+      "content": "Not later than 1 year after the date of enactment of this Act and annually thereafter through March 30, 2034, the Secretaries shall submit a report that describes the progress made by the Secretaries with respect to meeting the requirements of this Act to\u2014",
+      "header": "Reports",
+      "id": "H707B6F2C16754AA48D836F84B207BFED"
+    },
+    {
+      "content": "Nothing in this Act\u2014",
+      "header": "Effect",
+      "id": "H84A8DB1D0A544C438694F77EAF2123B6"
+    }
+  ],
+  "fetched_at": "2026-03-19T20:53:57.249491467Z"
+}

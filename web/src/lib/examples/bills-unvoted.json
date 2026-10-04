@@ -1,0 +1,340 @@
+{
+    "items": [
+        {
+            "id": "hjres-119-1",
+            "congress": 119,
+            "bill_type": "hjres",
+            "number": 1,
+            "title": "Proposing an amendment to the Constitution of the United States to require that the Supreme Court of the United States be composed of nine justices.",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-01-03",
+                "text": "Referred to the House Committee on the Judiciary."
+            },
+            "current_status": "in_committee",
+            "status_date": "2025-01-03T00:00:00Z",
+            "policy_area": "Law",
+            "sponsors": [
+                {
+                    "bioguideId": "B001302",
+                    "fullName": "Rep. Biggs, Andy [R-AZ-5]",
+                    "party": "R",
+                    "state": "AZ"
+                }
+            ],
+            "cosponsors": [
+                {
+                    "bioguideId": "A000372",
+                    "fullName": "Rep. Allen, Rick W. [R-GA-12]",
+                    "isOriginalCosponsor": false,
+                    "party": "R",
+                    "sponsorshipDate": "2025-07-16",
+                    "state": "GA"
+                }
+            ],
+            "committees": [
+                {
+                    "activities": [
+                        {
+                            "date": "2025-01-03T16:06:35Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "House",
+                    "name": "Judiciary Committee",
+                    "systemCode": "hsju00",
+                    "type": "Standing"
+                }
+            ],
+            "subjects": [
+                "Constitution and constitutional amendments",
+                "Judges",
+                "Supreme Court"
+            ],
+            "related_bills": [
+                {
+                    "congress": 119,
+                    "number": 16,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "CRS",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "A joint resolution proposing an amendment to the Constitution of the United States to require that the Supreme Court of the United States be composed of nine justices.",
+                    "type": "SJRES"
+                }
+            ],
+            "updated_at": "2026-03-19T20:06:34.539862743Z",
+            "synced_at": "2026-03-19T20:06:34.542471Z"
+        },
+        {
+            "id": "hjres-119-10",
+            "congress": 119,
+            "bill_type": "hjres",
+            "number": 10,
+            "title": "Proposing a balanced budget amendment to the Constitution of the United States.",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-01-03",
+                "text": "Referred to the House Committee on the Judiciary."
+            },
+            "current_status": "in_committee",
+            "status_date": "2025-01-03T00:00:00Z",
+            "policy_area": "Economics and Public Finance",
+            "sponsors": [
+                {
+                    "bioguideId": "N000193",
+                    "fullName": "Rep. Nunn, Zachary [R-IA-3]",
+                    "party": "R",
+                    "state": "IA"
+                }
+            ],
+            "cosponsors": [
+                {
+                    "bioguideId": "A000372",
+                    "fullName": "Rep. Allen, Rick W. [R-GA-12]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "GA"
+                },
+                {
+                    "bioguideId": "L000566",
+                    "fullName": "Rep. Latta, Robert E. [R-OH-5]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "OH"
+                },
+                {
+                    "bioguideId": "Z000018",
+                    "fullName": "Rep. Zinke, Ryan K. [R-MT-1]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "MT"
+                },
+                {
+                    "bioguideId": "H001072",
+                    "fullName": "Rep. Hill, J. French [R-AR-2]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "AR"
+                },
+                {
+                    "bioguideId": "E000298",
+                    "fullName": "Rep. Estes, Ron [R-KS-4]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "KS"
+                },
+                {
+                    "bioguideId": "H001093",
+                    "fullName": "Rep. Houchin, Erin [R-IN-9]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "IN"
+                },
+                {
+                    "bioguideId": "G000576",
+                    "fullName": "Rep. Grothman, Glenn [R-WI-6]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "WI"
+                },
+                {
+                    "bioguideId": "M000871",
+                    "fullName": "Rep. Mann, Tracey [R-KS-1]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "KS"
+                },
+                {
+                    "bioguideId": "C000059",
+                    "fullName": "Rep. Calvert, Ken [R-CA-41]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "CA"
+                },
+                {
+                    "bioguideId": "B001298",
+                    "fullName": "Rep. Bacon, Don [R-NE-2]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "NE"
+                },
+                {
+                    "bioguideId": "G000558",
+                    "fullName": "Rep. Guthrie, Brett [R-KY-2]",
+                    "isOriginalCosponsor": false,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-13",
+                    "state": "KY"
+                },
+                {
+                    "bioguideId": "F000470",
+                    "fullName": "Rep. Fischbach, Michelle [R-MN-7]",
+                    "isOriginalCosponsor": false,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-15",
+                    "state": "MN"
+                },
+                {
+                    "bioguideId": "S001228",
+                    "fullName": "Rep. Schmidt, Derek [R-KS-2]",
+                    "isOriginalCosponsor": false,
+                    "party": "R",
+                    "sponsorshipDate": "2025-07-15",
+                    "state": "KS"
+                },
+                {
+                    "bioguideId": "W000829",
+                    "fullName": "Rep. Wied, Tony [R-WI-8]",
+                    "isOriginalCosponsor": false,
+                    "party": "R",
+                    "sponsorshipDate": "2025-07-17",
+                    "state": "WI"
+                },
+                {
+                    "bioguideId": "E000246",
+                    "fullName": "Rep. Edwards, Chuck [R-NC-11]",
+                    "isOriginalCosponsor": false,
+                    "party": "R",
+                    "sponsorshipDate": "2025-12-09",
+                    "state": "NC"
+                }
+            ],
+            "committees": [
+                {
+                    "activities": [
+                        {
+                            "date": "2025-01-03T16:19:30Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "House",
+                    "name": "Judiciary Committee",
+                    "systemCode": "hsju00",
+                    "type": "Standing"
+                }
+            ],
+            "subjects": [
+                "Budget deficits and national debt",
+                "Constitution and constitutional amendments",
+                "Economic performance and conditions",
+                "Income tax rates",
+                "Legislative rules and procedure"
+            ],
+            "related_bills": [
+                {
+                    "congress": 119,
+                    "number": 11,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "CRS",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": ".Proposing a balanced budget amendment to the Constitution requiring that each agency and department's funding is justified.",
+                    "type": "HJRES"
+                },
+                {
+                    "congress": 119,
+                    "number": 17,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "CRS",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "Proposing a balanced budget amendment to the Constitution of the United States.",
+                    "type": "HJRES"
+                },
+                {
+                    "congress": 119,
+                    "number": 2,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "CRS",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "Proposing a balanced budget amendment to the Constitution of the United States.",
+                    "type": "HJRES"
+                }
+            ],
+            "updated_at": "2026-03-19T20:07:09.796225163Z",
+            "synced_at": "2026-03-19T20:07:09.798923Z"
+        },
+        {
+            "id": "hjres-119-3",
+            "congress": 119,
+            "bill_type": "hjres",
+            "number": 3,
+            "title": "Proposing an amendment to the Constitution of the United States relative to balancing the budget.",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-01-03",
+                "text": "Referred to the House Committee on the Judiciary."
+            },
+            "current_status": "in_committee",
+            "status_date": "2025-01-03T00:00:00Z",
+            "policy_area": "Economics and Public Finance",
+            "sponsors": [
+                {
+                    "bioguideId": "B001260",
+                    "fullName": "Rep. Buchanan, Vern [R-FL-16]",
+                    "party": "R",
+                    "state": "FL"
+                }
+            ],
+            "cosponsors": [
+                {
+                    "bioguideId": "F000484",
+                    "fullName": "Rep. Fine, Randy [R-FL-6]",
+                    "isOriginalCosponsor": false,
+                    "party": "R",
+                    "sponsorshipDate": "2025-06-11",
+                    "state": "FL"
+                }
+            ],
+            "committees": [
+                {
+                    "activities": [
+                        {
+                            "date": "2025-01-03T16:25:35Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "House",
+                    "name": "Judiciary Committee",
+                    "systemCode": "hsju00",
+                    "type": "Standing"
+                }
+            ],
+            "subjects": [
+                "Budget deficits and national debt",
+                "Budget process",
+                "Constitution and constitutional amendments",
+                "Income tax rates",
+                "Legislative rules and procedure"
+            ],
+            "updated_at": "2026-03-19T20:07:06.886700725Z",
+            "synced_at": "2026-03-19T20:07:06.889342Z"
+        }
+    ],
+    "total": 97,
+    "offset": 0,
+    "limit": 3
+}

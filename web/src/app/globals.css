@@ -1,0 +1,262 @@
+@import "tailwindcss";
+
+:root {
+  /* Core palette - nonpartisan civic tech */
+  --background: #fafafa;
+  --foreground: #0f172a;
+  
+  /* Neutral scale */
+  --muted: #f1f5f9;
+  /* #5b6779, not slate-500: muted text sits on --muted too (5.2:1 there, #83) */
+  --muted-foreground: #5b6779;
+  --border: #e2e8f0;
+  
+  /* Primary - deep slate/navy */
+  --primary: #0f172a;
+  --primary-foreground: #ffffff;
+  
+  /* Secondary - warm gray */
+  --secondary: #f1f5f9;
+  --secondary-foreground: #334155;
+  
+  /* Link - warm gold, for links and nothing else (#717, #764; ink marks the chosen thing and
+     progress). Amber-700 darkened 10% so text stays AA (5.0:1) on its own 10% tint, not just on
+     --background (amber-600 was 3.0:1, #83; amber-700 4.2:1 on the tint, #335) */
+  --link: #a14a08;
+  
+  /* Semantic colors. Each is text on the surfaces and on its own 10% tint (Badge), and a fill
+     under its -foreground, so each pair is at least 4.5:1 (#335): red-700, green-700 darkened 10% */
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --success: #127235;
+  --success-foreground: #ffffff;
+  
+  /* Card surfaces */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  
+  /* Input states */
+  --input: #e2e8f0;
+  --ring: #0f172a;
+  
+  /* Radius */
+  --radius: 0.5rem;
+  
+  /* Party colors - only for member badges (blue-700, red-700, violet-600: AA on their tints) */
+  --party-d: #1d4ed8;
+  --party-r: #b91c1c;
+  --party-i: #7c3aed;
+  
+  /* Vote colors: text on tints, and fills under the -foreground text (vote buttons) */
+  --vote-yea: #127235;
+  --vote-yea-foreground: #ffffff;
+  --vote-nay: #b91c1c;
+  --vote-nay-foreground: #ffffff;
+  --vote-skip: #475569;
+  --vote-skip-foreground: #ffffff;
+  
+  /* Status colors */
+  --status-introduced: #64748b;
+  --status-in-committee: #0ea5e9;
+  --status-passed: #16a34a;
+  --status-law: #7c3aed;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0f1a;
+    --foreground: #f8fafc;
+    
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --border: #334155;
+    
+    --primary: #f8fafc;
+    --primary-foreground: #0f172a;
+    
+    --secondary: #1e293b;
+    --secondary-foreground: #e2e8f0;
+    
+    --link: #f59e0b;
+    
+    /* No one color is both AA text on these dark surfaces and AA under white text, so dark
+       fills carry dark -foreground text (#335) */
+    --destructive: #f87171;
+    --destructive-foreground: #0f172a;
+    --success: #22c55e;
+    --success-foreground: #0f172a;
+    
+    --party-d: #60a5fa;
+    --party-r: #f87171;
+    --party-i: #a78bfa;
+    
+    --vote-yea: #4ade80;
+    --vote-yea-foreground: #0f172a;
+    --vote-nay: #f87171;
+    --vote-nay-foreground: #0f172a;
+    --vote-skip: #94a3b8;
+    --vote-skip-foreground: #0f172a;
+    
+    --card: #0f172a;
+    --card-foreground: #f8fafc;
+    --popover: #0f172a;
+    --popover-foreground: #f8fafc;
+    
+    --input: #334155;
+    --ring: #f8fafc;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-link: var(--link);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius: var(--radius);
+  
+  /* Party colors */
+  --color-party-d: var(--party-d);
+  --color-party-r: var(--party-r);
+  --color-party-i: var(--party-i);
+  
+  /* Vote colors */
+  --color-vote-yea: var(--vote-yea);
+  --color-vote-yea-foreground: var(--vote-yea-foreground);
+  --color-vote-nay: var(--vote-nay);
+  --color-vote-nay-foreground: var(--vote-nay-foreground);
+  --color-vote-skip: var(--vote-skip);
+  --color-vote-skip-foreground: var(--vote-skip-foreground);
+  
+  /* Status colors */
+  --color-status-introduced: var(--status-introduced);
+  --color-status-in-committee: var(--status-in-committee);
+  --color-status-passed: var(--status-passed);
+  --color-status-law: var(--status-law);
+  
+  /* Fonts */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+/* Focus visible styles */
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Animation keyframes */
+@keyframes slide-in-from-bottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-top {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* A centered popup (the sheet's "center" side) fades in where it stands instead of sliding. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation-duration: 0.3s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+.slide-in-from-bottom {
+  animation-name: slide-in-from-bottom;
+}
+
+.slide-in-from-top {
+  animation-name: slide-in-from-top;
+}
+
+.slide-in-from-left {
+  animation-name: slide-in-from-left;
+}
+
+.slide-in-from-right {
+  animation-name: slide-in-from-right;
+}
+
+.fade-in {
+  animation-name: fade-in;
+  animation-duration: 0.15s;
+}

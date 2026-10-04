@@ -1,0 +1,133 @@
+{
+  "pagination": {
+    "count": 7
+  },
+  "textVersions": [
+    {
+      "date": null,
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670enr.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670enr.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670enr.xml"
+        }
+      ],
+      "type": "Enrolled Bill"
+    },
+    {
+      "date": "2023-07-27T04:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670eas.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670eas.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670eas.xml"
+        }
+      ],
+      "type": "Engrossed Amendment Senate"
+    },
+    {
+      "date": "2023-07-26T04:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670rds.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670rds.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670rds.xml"
+        }
+      ],
+      "type": "Received in Senate"
+    },
+    {
+      "date": "2023-07-14T04:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670eh.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670eh.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670eh.xml"
+        }
+      ],
+      "type": "Engrossed in House"
+    },
+    {
+      "date": "2023-06-30T04:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670rh.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670rh.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670rh.xml"
+        }
+      ],
+      "type": "Reported in House"
+    },
+    {
+      "date": "2023-04-18T04:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670ih.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670ih.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/118/bills/hr2670/BILLS-118hr2670ih.xml"
+        }
+      ],
+      "type": "Introduced in House"
+    },
+    {
+      "date": "2023-12-23T04:59:59Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/118/plaws/publ31/PLAW-118publ31.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/118/plaws/publ31/PLAW-118publ31.pdf"
+        },
+        {
+          "type": "United States Legislative Markup",
+          "url": "https://www.congress.gov/118/plaws/publ31/PLAW-118publ31_uslm.xml"
+        }
+      ],
+      "type": "Public Law"
+    }
+  ]
+}

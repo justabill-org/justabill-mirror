@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="billres.xsl"?>
+<!DOCTYPE bill PUBLIC "-//US Congress//DTDs/bill.dtd//EN" "bill.dtd">
+<bill bill-stage="Introduced-in-House" dms-id="H740BD06282AD41DC8DB4575C7C13A3E1" public-private="public" key="H" bill-type="olc"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dublinCore>
+<dc:title>119 HR 3404 IH: Fair Access for Individuals to Receive Leave Act</dc:title>
+<dc:publisher>U.S. House of Representatives</dc:publisher>
+<dc:date>2025-05-14</dc:date>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+</dublinCore>
+</metadata>
+<form>
+<distribution-code display="yes">I</distribution-code><congress display="yes">119th CONGRESS</congress><session display="yes">1st Session</session><legis-num display="yes">H. R. 3404</legis-num><current-chamber>IN THE HOUSE OF REPRESENTATIVES</current-chamber><action display="yes"><action-date date="20250514">May 14, 2025</action-date><action-desc><sponsor name-id="M001238">Ms. McBride</sponsor> (for herself, <cosponsor name-id="F000466">Mr. Fitzpatrick</cosponsor>, and <cosponsor name-id="S001215">Ms. Stevens</cosponsor>) introduced the following bill; which was referred to the <committee-name committee-id="HED00">Committee on Education and Workforce</committee-name>, and in addition to the Committees on <committee-name committee-id="HHA00">House Administration</committee-name>, and <committee-name committee-id="HGO00">Oversight and Government Reform</committee-name>, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned</action-desc></action><legis-type>A BILL</legis-type><official-title display="yes">To amend the Family and Medical Leave Act of 1993, to repeal certain limits on leave for married individuals employed by the same employer.</official-title></form><legis-body id="H091F49DACABE4BC9B52422AD1ED506D3" style="OLC"> 
+<section id="HE58D6E61798C498297CAD8E8F8EED295" section-type="section-one"><enum>1.</enum><header>Short title</header><text display-inline="no-display-inline">This Act may be cited as the <quote><short-title>Fair Access for Individuals to Receive Leave Act</short-title></quote> or the <quote><short-title>FAIR Leave Act</short-title></quote>.</text></section> <section id="H5092D78E7FF5469EB8F450DBFC91B0A0"><enum>2.</enum><header>Repeal of certain time limitations on leave for spouses</header><text display-inline="no-display-inline">Section 102(f) of the Family and Medical Leave Act of 1993 (<external-xref legal-doc="usc" parsable-cite="usc/29/2612">29 U.S.C. 2612(f)</external-xref>) is repealed.</text></section> 
+</legis-body></bill>
+

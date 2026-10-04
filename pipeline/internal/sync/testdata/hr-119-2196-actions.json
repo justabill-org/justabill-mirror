@@ -1,0 +1,383 @@
+{
+    "actions": [
+        {
+            "actionCode": "E40000",
+            "actionDate": "2026-09-11",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Became Public Law No: 119-107.",
+            "type": "President"
+        },
+        {
+            "actionCode": "36000",
+            "actionDate": "2026-09-11",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Became Public Law No: 119-107.",
+            "type": "BecameLaw"
+        },
+        {
+            "actionCode": "E30000",
+            "actionDate": "2026-09-11",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Signed by President.",
+            "type": "President"
+        },
+        {
+            "actionCode": "36000",
+            "actionDate": "2026-09-11",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Signed by President.",
+            "type": "BecameLaw"
+        },
+        {
+            "actionCode": "E20000",
+            "actionDate": "2026-09-03",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Presented to President.",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "28000",
+            "actionDate": "2026-09-03",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Presented to President.",
+            "type": "President"
+        },
+        {
+            "actionDate": "2026-08-10",
+            "sourceSystem": {
+                "name": "Senate"
+            },
+            "text": "Message on Senate action sent to the House.",
+            "type": "Floor"
+        },
+        {
+            "actionDate": "2026-08-07",
+            "sourceSystem": {
+                "name": "Senate"
+            },
+            "text": "Passed Senate without amendment by Unanimous Consent. (consideration: CR S4551)",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "17000",
+            "actionDate": "2026-08-07",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Passed/agreed to in Senate: Passed Senate without amendment by Unanimous Consent.",
+            "type": "Floor"
+        },
+        {
+            "actionDate": "2026-08-07",
+            "committees": [
+                {
+                    "name": "Energy and Natural Resources Committee",
+                    "systemCode": "sseg00",
+                    "url": "https://api.congress.gov/v3/committee/senate/sseg00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "name": "Senate"
+            },
+            "text": "Senate Committee on Energy and Natural Resources discharged by Unanimous Consent.",
+            "type": "Discharge"
+        },
+        {
+            "actionCode": "14500",
+            "actionDate": "2026-08-07",
+            "committees": [
+                {
+                    "name": "Energy and Natural Resources Committee",
+                    "systemCode": "sseg00",
+                    "url": "https://api.congress.gov/v3/committee/senate/sseg00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Senate Committee on Energy and Natural Resources discharged by Unanimous Consent.",
+            "type": "Committee"
+        },
+        {
+            "actionDate": "2026-03-17",
+            "committees": [
+                {
+                    "name": "Energy and Natural Resources Committee",
+                    "systemCode": "sseg00",
+                    "url": "https://api.congress.gov/v3/committee/senate/sseg00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "name": "Senate"
+            },
+            "text": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources.",
+            "type": "IntroReferral"
+        },
+        {
+            "actionCode": "H38310",
+            "actionDate": "2026-03-16",
+            "actionTime": "17:35:21",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Motion to reconsider laid on the table Agreed to without objection.",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "H37300",
+            "actionDate": "2026-03-16",
+            "actionTime": "17:35:18",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "On motion to suspend the rules and pass the bill, as amended Agreed to by voice vote. (text: CR H2523)",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "8000",
+            "actionDate": "2026-03-16",
+            "actionTime": "17:35:18",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Passed/agreed to in House: On motion to suspend the rules and pass the bill, as amended Agreed to by voice vote. (text: CR H2523)",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "H8D000",
+            "actionDate": "2026-03-16",
+            "actionTime": "17:29:48",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "DEBATE - The House proceeded with forty minutes of debate on H.R. 2196.",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "H30000",
+            "actionDate": "2026-03-16",
+            "actionTime": "17:29:47",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Considered under suspension of the rules. (consideration: CR H2523-2524)",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "H30300",
+            "actionDate": "2026-03-16",
+            "actionTime": "17:29:35",
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Mr. Wittman moved to suspend the rules and pass the bill, as amended.",
+            "type": "Floor"
+        },
+        {
+            "actionCode": "H12410",
+            "actionDate": "2026-02-24",
+            "calendarNumber": {
+                "calendar": "U00443"
+            },
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Placed on the Union Calendar, Calendar No. 443.",
+            "type": "Calendars"
+        },
+        {
+            "actionCode": "H12200",
+            "actionDate": "2026-02-24",
+            "committees": [
+                {
+                    "name": "Natural Resources Committee",
+                    "systemCode": "hsii00",
+                    "url": "https://api.congress.gov/v3/committee/house/hsii00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Reported (Amended) by the Committee on Natural Resources. H. Rept. 119-518.",
+            "type": "Committee"
+        },
+        {
+            "actionCode": "5000",
+            "actionDate": "2026-02-24",
+            "committees": [
+                {
+                    "name": "Natural Resources Committee",
+                    "systemCode": "hsii00",
+                    "url": "https://api.congress.gov/v3/committee/house/hsii00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Reported (Amended) by the Committee on Natural Resources. H. Rept. 119-518.",
+            "type": "Committee"
+        },
+        {
+            "actionCode": "H19000",
+            "actionDate": "2026-02-11",
+            "committees": [
+                {
+                    "name": "Natural Resources Committee",
+                    "systemCode": "hsii00",
+                    "url": "https://api.congress.gov/v3/committee/house/hsii00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "code": 1,
+                "name": "House committee actions"
+            },
+            "text": "Ordered to be Reported in the Nature of a Substitute (Amended) by Unanimous Consent.",
+            "type": "Committee"
+        },
+        {
+            "actionCode": "H15001",
+            "actionDate": "2026-02-11",
+            "committees": [
+                {
+                    "name": "Natural Resources Committee",
+                    "systemCode": "hsii00",
+                    "url": "https://api.congress.gov/v3/committee/house/hsii00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "code": 1,
+                "name": "House committee actions"
+            },
+            "text": "Committee Consideration and Mark-up Session Held",
+            "type": "Committee"
+        },
+        {
+            "actionCode": "H25000",
+            "actionDate": "2026-02-11",
+            "committees": [
+                {
+                    "name": "Natural Resources Committee",
+                    "systemCode": "hsii00",
+                    "url": "https://api.congress.gov/v3/committee/house/hsii00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "code": 1,
+                "name": "House committee actions"
+            },
+            "text": "Subcommittee on Federal Lands Discharged",
+            "type": "Committee"
+        },
+        {
+            "actionCode": "H21000",
+            "actionDate": "2025-09-18",
+            "committees": [
+                {
+                    "name": "Federal Lands Subcommittee",
+                    "systemCode": "hsii10",
+                    "url": "https://api.congress.gov/v3/committee/house/hsii10?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "code": 1,
+                "name": "House committee actions"
+            },
+            "text": "Subcommittee Hearings Held",
+            "type": "Committee"
+        },
+        {
+            "actionCode": "H11000",
+            "actionDate": "2025-09-11",
+            "committees": [
+                {
+                    "name": "Federal Lands Subcommittee",
+                    "systemCode": "hsii10",
+                    "url": "https://api.congress.gov/v3/committee/house/hsii10?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "code": 1,
+                "name": "House committee actions"
+            },
+            "text": "Referred to the Subcommittee on Federal Lands.",
+            "type": "Committee"
+        },
+        {
+            "actionCode": "H11100",
+            "actionDate": "2025-03-18",
+            "committees": [
+                {
+                    "name": "Natural Resources Committee",
+                    "systemCode": "hsii00",
+                    "url": "https://api.congress.gov/v3/committee/house/hsii00?format=json"
+                }
+            ],
+            "sourceSystem": {
+                "code": 2,
+                "name": "House floor actions"
+            },
+            "text": "Referred to the House Committee on Natural Resources.",
+            "type": "IntroReferral"
+        },
+        {
+            "actionCode": "Intro-H",
+            "actionDate": "2025-03-18",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Introduced in House",
+            "type": "IntroReferral"
+        },
+        {
+            "actionCode": "1000",
+            "actionDate": "2025-03-18",
+            "sourceSystem": {
+                "code": 9,
+                "name": "Library of Congress"
+            },
+            "text": "Introduced in House",
+            "type": "IntroReferral"
+        }
+    ],
+    "pagination": {
+        "count": 29
+    },
+    "request": {
+        "billNumber": "2196",
+        "billType": "hr",
+        "billUrl": "https://api.congress.gov/v3/bill/119/hr/2196?format=json",
+        "congress": "119",
+        "contentType": "application/json",
+        "format": "json"
+    }
+}

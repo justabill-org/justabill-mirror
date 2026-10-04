@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="billres.xsl"?>
+<!DOCTYPE bill PUBLIC "-//US Congress//DTDs/bill.dtd//EN" "bill.dtd">
+<bill bill-stage="Introduced-in-House" dms-id="H6F27DCED2F2B4EE18380CB37A9851393" public-private="public" key="H" bill-type="olc"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dublinCore>
+<dc:title>119 HR 1603 IH: Repeal CFPB Act</dc:title>
+<dc:publisher>U.S. House of Representatives</dc:publisher>
+<dc:date>2025-02-26</dc:date>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+</dublinCore>
+</metadata>
+<form>
+<distribution-code display="yes">I</distribution-code><congress display="yes">119th CONGRESS</congress><session display="yes">1st Session</session><legis-num display="yes">H. R. 1603</legis-num><current-chamber>IN THE HOUSE OF REPRESENTATIVES</current-chamber><action display="yes"><action-date date="20250226">February 26, 2025</action-date><action-desc><sponsor name-id="D000032">Mr. Donalds</sponsor> (for himself, <cosponsor name-id="O000175">Mr. Ogles</cosponsor>, <cosponsor name-id="N000190">Mr. Norman</cosponsor>, and <cosponsor name-id="M001218">Mr. McCormick</cosponsor>) introduced the following bill; which was referred to the <committee-name committee-id="HBA00">Committee on Financial Services</committee-name></action-desc></action><legis-type>A BILL</legis-type><official-title display="yes">To eliminate the Bureau of Consumer Financial Protection.</official-title></form><legis-body id="HB7EA5FFD1FD44068B585234B5FC00472" style="OLC"> 
+<section id="HA26AB5C218D646D0809D33A9DF19FF18" section-type="section-one"><enum>1.</enum><header>Short title</header><text display-inline="no-display-inline">This Act may be cited as the <quote><short-title>Repeal CFPB Act</short-title></quote>.</text></section> <section id="H7E503CEEB6E2423F809B5383BED654C3"><enum>2.</enum><header>Repeal</header><text display-inline="no-display-inline"> The Consumer Financial Protection Act of 2010 (<external-xref legal-doc="usc" parsable-cite="usc/12/5481">12 U.S.C. 5481 et seq.</external-xref>) is repealed, and the provisions of law amended or repealed by that Act are restored or revived as if the Act had not been enacted.</text></section> 
+</legis-body></bill>
+

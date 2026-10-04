@@ -1,0 +1,278 @@
+{
+  "result": {
+    "input": {
+      "address": {
+        "address": "1100 Congress Ave, Austin, TX 78701"
+      },
+      "vintage": {
+        "isDefault": true,
+        "id": "4",
+        "vintageName": "Current_Current",
+        "vintageDescription": "Current Vintage - Current Benchmark"
+      },
+      "benchmark": {
+        "isDefault": true,
+        "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+        "id": "4",
+        "benchmarkName": "Public_AR_Current"
+      }
+    },
+    "addressMatches": [
+      {
+        "tigerLine": {
+          "side": "L",
+          "tigerLineId": "656281944"
+        },
+        "geographies": {
+          "States": [
+            {
+              "STATENS": "01779801",
+              "GEOID": "48",
+              "CENTLAT": "+31.4276892",
+              "AREAWATER": 19009359594,
+              "STATE": "48",
+              "BASENAME": "Texas",
+              "STUSAB": "TX",
+              "OID": "2749098452115",
+              "LSADC": "00",
+              "FUNCSTAT": "A",
+              "INTPTLAT": "+31.4347032",
+              "DIVISION": "7",
+              "NAME": "Texas",
+              "REGION": "3",
+              "OBJECTID": 49,
+              "CENTLON": "-099.2890539",
+              "AREALAND": 676658961621,
+              "INTPTLON": "-099.2818238",
+              "MTFCC": "G4000"
+            }
+          ],
+          "County Subdivisions": [
+            {
+              "COUSUB": "90165",
+              "GEOID": "4845390165",
+              "CENTLAT": "+30.2398885",
+              "AREAWATER": 14347784,
+              "STATE": "48",
+              "BASENAME": "Austin",
+              "OID": "27690377965786",
+              "LSADC": "22",
+              "FUNCSTAT": "S",
+              "INTPTLAT": "+30.2395263",
+              "NAME": "Austin CCD",
+              "OBJECTID": 16351,
+              "CENTLON": "-097.6922280",
+              "COUSUBCC": "Z5",
+              "AREALAND": 1212517203,
+              "INTPTLON": "-097.6910527",
+              "MTFCC": "G4040",
+              "COUSUBNS": "01938508",
+              "COUNTY": "453"
+            }
+          ],
+          "Urban Areas": [
+            {
+              "GEOID": "04384",
+              "CENTLAT": "+30.3774192",
+              "AREAWATER": 12571948,
+              "BASENAME": "Austin, TX",
+              "OID": "27021327918298",
+              "UA": "04384",
+              "LSADC": "67",
+              "FUNCSTAT": "S",
+              "INTPTLAT": "+30.3743936",
+              "NAME": "Austin, TX Urban Area",
+              "OBJECTID": 1828,
+              "CENTLON": "-097.7655116",
+              "AREALAND": 1604832120,
+              "INTPTLON": "-097.7649819",
+              "MTFCC": "G3500"
+            }
+          ],
+          "Incorporated Places": [
+            {
+              "DISP_CLR": 3,
+              "STGEOMETRY_Area": 1154867329.1476536,
+              "NECTAPCI": "N",
+              "GEOID": "4805000",
+              "CENTLAT": "+30.2984886",
+              "AREAWATER": 16923733,
+              "BASENAME": "Austin",
+              "STATE": "48",
+              "OID": "27890327911139",
+              "LSADC": "25",
+              "PLACE": "05000",
+              "FUNCSTAT": "A",
+              "INTPTLAT": "+30.2986219",
+              "NAME": "Austin city",
+              "OBJECTID": 31956,
+              "PLACECC": "C1",
+              "CENTLON": "-097.7536575",
+              "STGEOMETRY_Length": 1015591.1856887105,
+              "CBSAPCI": "Y",
+              "AREALAND": 841154563,
+              "INTPTLON": "-097.7541339",
+              "PLACENS": "02409761",
+              "MTFCC": "G4110"
+            }
+          ],
+          "Counties": [
+            {
+              "GEOID": "48453",
+              "CENTLAT": "+30.3343599",
+              "AREAWATER": 79451592,
+              "STATE": "48",
+              "BASENAME": "Travis",
+              "OID": "27590377912845",
+              "LSADC": "06",
+              "FUNCSTAT": "A",
+              "INTPTLAT": "+30.2395263",
+              "NAME": "Travis County",
+              "OBJECTID": 2500,
+              "CENTLON": "-097.7818171",
+              "COUNTYCC": "H1",
+              "COUNTYNS": "01384012",
+              "AREALAND": 2575354868,
+              "INTPTLON": "-097.6910527",
+              "MTFCC": "G4020",
+              "COUNTY": "453"
+            }
+          ],
+          "2026 State Legislative Districts - Upper": [
+            {
+              "GEOID": "48014",
+              "CENTLAT": "+30.3276171",
+              "AREAWATER": 13661972,
+              "STATE": "48",
+              "BASENAME": "14",
+              "OID": "2129042579652186",
+              "SLDU": "014",
+              "LSADC": "LU",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+30.3276222",
+              "NAME": "State Senate District 14",
+              "OBJECTID": 841,
+              "CENTLON": "-097.6765074",
+              "LSY": "2026",
+              "AREALAND": 1333781950,
+              "INTPTLON": "-097.6766210",
+              "MTFCC": "G5210",
+              "LDTYP": "O"
+            }
+          ],
+          "120th Congressional Districts": [
+            {
+              "STGEOMETRY_Area": 31652204758.171242,
+              "CD120": "10",
+              "GEOID": "4810",
+              "CENTLAT": "+30.8368739",
+              "CDSESSN": "120",
+              "AREAWATER": 599864221,
+              "STATE": "48",
+              "BASENAME": "10",
+              "OID": "2119042393348413",
+              "LSADC": "C2",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+30.8460626",
+              "NAME": "Congressional District 10",
+              "OBJECTID": 348,
+              "CENTLON": "-095.8456381",
+              "STGEOMETRY_Length": 1655201.6152337315,
+              "AREALAND": 22660297989,
+              "INTPTLON": "-095.8392688",
+              "MTFCC": "G5200"
+            }
+          ],
+          "2026 State Legislative Districts - Lower": [
+            {
+              "GEOID": "48049",
+              "CENTLAT": "+30.2953482",
+              "SLDL": "049",
+              "AREAWATER": 252516,
+              "STATE": "48",
+              "BASENAME": "49",
+              "OID": "2139042579652474",
+              "LSADC": "LL",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+30.2943871",
+              "NAME": "State House District 49",
+              "OBJECTID": 3998,
+              "CENTLON": "-097.7557976",
+              "LSY": "2026",
+              "AREALAND": 92144751,
+              "INTPTLON": "-097.7562946",
+              "MTFCC": "G5220",
+              "LDTYP": "O"
+            }
+          ],
+          "2020 Census Blocks": [
+            {
+              "SUFFIX": "",
+              "GEOID": "484530007001068",
+              "CENTLAT": "+30.2755620",
+              "BLOCK": "1068",
+              "AREAWATER": 0,
+              "STATE": "48",
+              "BASENAME": "1068",
+              "OID": "210701000428270",
+              "LSADC": "BK",
+              "FUNCSTAT": "S",
+              "INTPTLAT": "+30.2755620",
+              "NAME": "Block 1068",
+              "OBJECTID": 6166840,
+              "TRACT": "000700",
+              "CENTLON": "-097.7408622",
+              "BLKGRP": "1",
+              "AREALAND": 74739,
+              "INTPTLON": "-097.7408622",
+              "MTFCC": "G5040",
+              "LWBLKTYP": "L",
+              "UR": "U",
+              "COUNTY": "453"
+            }
+          ],
+          "Census Tracts": [
+            {
+              "GEOID": "48453000700",
+              "CENTLAT": "+30.2777004",
+              "AREAWATER": 0,
+              "STATE": "48",
+              "BASENAME": "7",
+              "OID": "20790378117045",
+              "LSADC": "CT",
+              "FUNCSTAT": "S",
+              "INTPTLAT": "+30.2777004",
+              "NAME": "Census Tract 7",
+              "OBJECTID": 53627,
+              "TRACT": "000700",
+              "CENTLON": "-097.7411232",
+              "AREALAND": 1615143,
+              "INTPTLON": "-097.7411232",
+              "MTFCC": "G5020",
+              "COUNTY": "453"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -97.739754035328,
+          "y": 30.27644199222
+        },
+        "addressComponents": {
+          "zip": "78701",
+          "streetName": "CONGRESS",
+          "preType": "",
+          "city": "AUSTIN",
+          "preDirection": "",
+          "suffixDirection": "",
+          "fromAddress": "1100",
+          "state": "TX",
+          "suffixType": "AVE",
+          "toAddress": "1498",
+          "suffixQualifier": "",
+          "preQualifier": ""
+        },
+        "matchedAddress": "1100 CONGRESS AVE, AUSTIN, TX, 78701"
+      }
+    ]
+  }
+}

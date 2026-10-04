@@ -1,0 +1,44 @@
+{
+  "result": {
+    "geographies": {
+      "119th Congressional Districts": [
+        {
+          "GEOID": "1198",
+          "CENTLAT": "+38.9047586",
+          "CDSESSN": "119",
+          "AREAWATER": "18706999",
+          "STATE": "11",
+          "BASENAME": "Delegate District (at Large)",
+          "OID": "2119035963374576",
+          "LSADC": "C4",
+          "FUNCSTAT": "N",
+          "INTPTLAT": "+38.9042429",
+          "NAME": "Delegate District (at Large)",
+          "OBJECTID": 314,
+          "CENTLON": "-077.0162860",
+          "AREALAND": "158318961",
+          "INTPTLON": "-077.0165243",
+          "MTFCC": "G5200"
+        }
+      ]
+    },
+    "input": {
+      "vintage": {
+        "isDefault": false,
+        "id": "425",
+        "vintageName": "ACS2025_Current",
+        "vintageDescription": "ACS2025 Vintage - Current Benchmark"
+      },
+      "location": {
+        "x": -77.0365,
+        "y": 38.8977
+      },
+      "benchmark": {
+        "isDefault": true,
+        "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+        "id": "4",
+        "benchmarkName": "Public_AR_Current"
+      }
+    }
+  }
+}

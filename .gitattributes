@@ -1,0 +1,5 @@
+db/schema.sql linguist-generated=true
+# The agents' notes (CLAUDE.md in each module) collect lines from many PRs at once. A union merge
+# keeps both sides' lines instead of conflicting: #466 conflicted on web/CLAUDE.md three times.
+# Local merges honor it.
+CLAUDE.md merge=union

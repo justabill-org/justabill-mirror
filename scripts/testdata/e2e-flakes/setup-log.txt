@@ -1,0 +1,23 @@
+2026-10-03T06:14:29.9445609Z ##[group]Run go build -o bin/e2e-api ./cmd/server
+2026-10-03T06:14:29.9446282Z [36;1mgo build -o bin/e2e-api ./cmd/server[0m
+2026-10-03T06:14:29.9483105Z shell: /usr/bin/bash -e {0}
+2026-10-03T06:14:29.9483530Z env:
+2026-10-03T06:14:29.9484464Z   PLAYWRIGHT_IMAGE: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+2026-10-03T06:14:29.9486102Z   SPANNER_PROJECT: justabill-local
+2026-10-03T06:14:29.9486529Z   SPANNER_INSTANCE: test-instance
+2026-10-03T06:14:29.9486939Z   E2E_SPANNER_DATABASE: justabill_e2e
+2026-10-03T06:14:29.9487700Z   E2E_API_PORT: 18080
+2026-10-03T06:14:29.9488098Z   E2E_WEB_PORT: 13000
+2026-10-03T06:14:29.9490033Z   NEXT_TELEMETRY_DISABLED: 1
+2026-10-03T06:14:29.9491021Z   AUTH_PROJECT_ID: demo-justabill
+2026-10-03T06:14:29.9491542Z   AUTH_EMULATOR: auth-emulator-e2e-off-37102337309-1
+2026-10-03T06:14:29.9493062Z   E2E_AUTH_EMULATOR_HOST: auth-emulator:9099
+2026-10-03T06:14:29.9493700Z   GOTOOLCHAIN: local
+2026-10-03T06:14:29.9494038Z   CGO_ENABLED: 0
+2026-10-03T06:14:29.9494403Z ##[endgroup]
+2026-10-03T06:14:30.7903284Z # github.com/justabill-org/justabill/db/model
+2026-10-03T06:14:30.8058832Z ##[error]../db/model/model.go:101:2: LawTypePublic redeclared in this block
+2026-10-03T06:14:30.8322951Z ##[error]	../db/model/card.go:20:2: other declaration of LawTypePublic
+2026-10-03T06:14:30.8325855Z ##[error]../db/model/model.go:102:2: LawTypePrivate redeclared in this block
+2026-10-03T06:14:30.8327853Z ##[error]	../db/model/card.go:21:2: other declaration of LawTypePrivate
+2026-10-03T06:14:30.8333495Z ##[error]Process completed with exit code 1.

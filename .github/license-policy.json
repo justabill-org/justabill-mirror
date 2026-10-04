@@ -1,0 +1,44 @@
+{
+  "$comment": [
+    "The dependency license allowlist, checked by .github/scripts/license-check.mjs (CI job Licenses).",
+    "The maintainer's decision: the ASF's Category A licenses, plus MPL-2.0 for dependencies we use unmodified.",
+    "Each exception names its packages (a trailing * matches any suffix), the license it allows for them, and why.",
+    "Changing this file is a CODEOWNERS path: every new exception is a PR the maintainer reviews."
+  ],
+  "allow": [
+    "0BSD",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BlueOak-1.0.0",
+    "CC0-1.0",
+    "ISC",
+    "MIT",
+    "Python-2.0",
+    "Unlicense"
+  ],
+  "allowUnmodified": {
+    "licenses": ["MPL-2.0"],
+    "reason": "File-level copyleft: fine to use as is. Never patch or vendor a modified copy of an MPL file."
+  },
+  "exceptions": [
+    {
+      "ecosystem": "npm",
+      "packages": ["@img/sharp-libvips-*", "@img/sharp-win32-*", "@img/sharp-wasm32"],
+      "license": "LGPL-3.0-or-later",
+      "reason": "sharp's prebuilt libvips, dynamically linked; optional platform packages of sharp under next. The win32 and wasm32 packages bundle the same libvips build."
+    },
+    {
+      "ecosystem": "npm",
+      "packages": ["caniuse-lite"],
+      "license": "CC-BY-4.0",
+      "reason": "Data (browser support tables), not code."
+    },
+    {
+      "ecosystem": "npm",
+      "packages": ["@csstools/color-helpers", "@csstools/css-syntax-patches-for-csstree"],
+      "license": "MIT-0",
+      "reason": "MIT without its attribution clause, so more permissive than MIT; dev-only CSS tooling under jsdom."
+    }
+  ]
+}

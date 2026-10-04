@@ -1,0 +1,70 @@
+{
+  "result": {
+    "input": {
+      "address": {
+        "address": "600 E Boulevard Ave, Bismarck, ND 58505"
+      },
+      "vintage": {
+        "isDefault": false,
+        "id": "425",
+        "vintageName": "ACS2025_Current",
+        "vintageDescription": "ACS2025 Vintage - Current Benchmark"
+      },
+      "benchmark": {
+        "isDefault": true,
+        "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+        "id": "4",
+        "benchmarkName": "Public_AR_Current"
+      }
+    },
+    "addressMatches": [
+      {
+        "tigerLine": {
+          "side": "R",
+          "tigerLineId": "198880703"
+        },
+        "geographies": {
+          "119th Congressional Districts": [
+            {
+              "GEOID": "3800",
+              "CENTLAT": "+47.4504657",
+              "CDSESSN": "119",
+              "AREAWATER": "4414688315",
+              "STATE": "38",
+              "BASENAME": "Congressional District (at Large)",
+              "OID": "2119035964490424",
+              "LSADC": "C1",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+47.4421740",
+              "NAME": "Congressional District (at Large)",
+              "OBJECTID": 343,
+              "CENTLON": "-100.4660576",
+              "AREALAND": "178694402328",
+              "INTPTLON": "-100.4608258",
+              "MTFCC": "G5200"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -100.781294062003,
+          "y": 46.816799487321
+        },
+        "addressComponents": {
+          "zip": "58505",
+          "streetName": "BOULEVARD",
+          "preType": "",
+          "city": "BISMARCK",
+          "preDirection": "E",
+          "suffixDirection": "",
+          "fromAddress": "698",
+          "state": "ND",
+          "suffixType": "AVE",
+          "toAddress": "600",
+          "suffixQualifier": "",
+          "preQualifier": ""
+        },
+        "matchedAddress": "600 E BOULEVARD AVE, BISMARCK, ND, 58505"
+      }
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+2026-10-03T00:22:04.8662286Z   ✓  22 [chromium] › e2e/sign-in.spec.ts:56:5 › signs in with Google, saves a district, stays signed in and signs out (3.9s)
+2026-10-03T00:22:37.7001710Z   ✘  23 [chromium] › e2e/sign-in.spec.ts:102:5 › a signed-in visitor on /login goes straight to ?next= (32.8s)
+2026-10-03T00:22:43.7468994Z   ✓  24 [chromium] › e2e/sign-in.spec.ts:102:5 › a signed-in visitor on /login goes straight to ?next= (retry #1) (4.4s)
+2026-10-03T00:22:43.7469951Z 
+2026-10-03T00:22:43.7527952Z ##[error]  1) [chromium] › e2e/sign-in.spec.ts:102:5 › a signed-in visitor on /login goes straight to ?next= 
+    Error: gave up: sign-in attempt 3 stuck (frame.waitForFunction: Timeout 10000ms exceeded.; frames: http://localhost:13000/login?next=/bills, http://auth-emulator:9099/emulator/auth/iframe?apiKey=fake-api-key&appName=%5BDEFAULT%5D&v=12.19.0&eid=p&usegapi=1&jsh=m%3B%2F_%2Fscs%2Fabc-static%2F_%2Fjs%2Fk%3Dgapi.lb.en.gh7qIZtzO5w.O%2Fd%3D1%2Frs%3DAHpOoo84YKT1RVy0T6hcXi5rH3LooB1WCw%2Fm%3D__features__#id=I0_1790986947259&_gfid=I0_1790986947259&parent=http%3A%2F%2Flocalhost%3A13000&pfname=&rpctoken=20684814)
+
+       at flows.ts:102
+
+      100 |       const frames = page.frames().map((f) => f.url());
+      101 |       const why = `sign-in attempt ${attempt} stuck (${err instanceof Error ? err.message : String(err)}; frames: ${frames.join(", ")})`;
+    > 102 |       if (attempt === POPUP_ATTEMPTS) throw new Error(`gave up: ${why}`, { cause: err });
+          |                                             ^
+      103 |       test.info().annotations.push({ type: "warning", description: why });
+      104 |       closed.catch(() => {});
+      105 |       if (!popup.isClosed()) await popup.close();
+        at signInThroughPopup (/work/web/e2e/flows.ts:102:45)
+        at signInWithGoogle (/work/web/e2e/sign-in.spec.ts:17:3)
+        at /work/web/e2e/sign-in.spec.ts:105:3
+    [cause]: TimeoutError: frame.waitForFunction: Timeout 10000ms exceeded.
+        at helperIframeReady (/work/web/e2e/flows.ts:68:16)
+        at signInThroughPopup (/work/web/e2e/flows.ts:92:7)
+        at signInWithGoogle (/work/web/e2e/sign-in.spec.ts:17:3)
+        at /work/web/e2e/sign-in.spec.ts:105:3
+2026-10-03T00:24:17.1931101Z   ✓  29 [chromium] › e2e/signed-in.spec.ts:90:5 › the API takes no dev-auth shortcut: /me/votes needs a real token (23ms)
+2026-10-03T00:24:17.3817271Z 
+2026-10-03T00:24:17.3825519Z 
+2026-10-03T00:24:17.3836015Z   1) [chromium] › e2e/sign-in.spec.ts:102:5 › a signed-in visitor on /login goes straight to ?next= 
+2026-10-03T00:24:17.3837156Z 
+2026-10-03T00:24:17.3842249Z     Error: gave up: sign-in attempt 3 stuck (frame.waitForFunction: Timeout 10000ms exceeded.; frames: http://localhost:13000/login?next=/bills, http://auth-emulator:9099/emulator/auth/iframe?apiKey=fake-api-key&appName=%5BDEFAULT%5D&v=12.19.0&eid=p&usegapi=1&jsh=m%3B%2F_%2Fscs%2Fabc-static%2F_%2Fjs%2Fk%3Dgapi.lb.en.gh7qIZtzO5w.O%2Fd%3D1%2Frs%3DAHpOoo84YKT1RVy0T6hcXi5rH3LooB1WCw%2Fm%3D__features__#id=I0_1790986947259&_gfid=I0_1790986947259&parent=http%3A%2F%2Flocalhost%3A13000&pfname=&rpctoken=20684814)
+2026-10-03T00:24:17.3846140Z 
+2026-10-03T00:24:17.3846449Z        at flows.ts:102
+2026-10-03T00:24:17.3846724Z 
+2026-10-03T00:24:17.3847274Z       100 |       const frames = page.frames().map((f) => f.url());
+2026-10-03T00:24:17.3849246Z       101 |       const why = `sign-in attempt ${attempt} stuck (${err instanceof Error ? err.message : String(err)}; frames: ${frames.join(", ")})`;
+2026-10-03T00:24:17.3850944Z     > 102 |       if (attempt === POPUP_ATTEMPTS) throw new Error(`gave up: ${why}`, { cause: err });
+2026-10-03T00:24:17.3852111Z           |                                             ^
+2026-10-03T00:24:17.3853243Z       103 |       test.info().annotations.push({ type: "warning", description: why });
+2026-10-03T00:24:17.3854166Z       104 |       closed.catch(() => {});
+2026-10-03T00:24:17.3855159Z       105 |       if (!popup.isClosed()) await popup.close();
+2026-10-03T00:24:17.3856199Z         at signInThroughPopup (/work/web/e2e/flows.ts:102:45)
+2026-10-03T00:24:17.3857243Z         at signInWithGoogle (/work/web/e2e/sign-in.spec.ts:17:3)
+2026-10-03T00:24:17.3858213Z         at /work/web/e2e/sign-in.spec.ts:105:3
+2026-10-03T00:24:17.3859205Z     [cause]: TimeoutError: frame.waitForFunction: Timeout 10000ms exceeded.
+2026-10-03T00:24:17.3860275Z         at helperIframeReady (/work/web/e2e/flows.ts:68:16)
+2026-10-03T00:24:17.3861254Z         at signInThroughPopup (/work/web/e2e/flows.ts:92:7)
+2026-10-03T00:24:17.3863014Z         at signInWithGoogle (/work/web/e2e/sign-in.spec.ts:17:3)
+2026-10-03T00:24:17.3863901Z         at /work/web/e2e/sign-in.spec.ts:105:3
+2026-10-03T00:24:17.3864274Z 
+2026-10-03T00:24:17.3865587Z     Error Context: test-results/sign-in-a-signed-in-visitor-on-login-goes-straight-to-next--chromium/error-context.md
+2026-10-03T00:24:17.3866545Z 
+2026-10-03T00:24:17.3866729Z   1 flaky
+2026-10-03T00:24:17.3868133Z     [chromium] › e2e/sign-in.spec.ts:102:5 › a signed-in visitor on /login goes straight to ?next= ─
+2026-10-03T00:24:17.3868973Z   27 passed (4.3m)
+2026-10-03T00:24:17.3878988Z ##[notice]  1 flaky
+    [chromium] › e2e/sign-in.spec.ts:102:5 › a signed-in visitor on /login goes straight to ?next= ─
+  27 passed (4.3m)
+2026-10-03T00:24:17.9131343Z ##[error]Process completed with exit code 1.

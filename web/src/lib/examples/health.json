@@ -1,0 +1,7 @@
+{
+    "checks": {
+        "cache": "healthy",
+        "database": "healthy"
+    },
+    "status": "ok"
+}

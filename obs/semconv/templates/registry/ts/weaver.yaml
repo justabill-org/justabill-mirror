@@ -1,0 +1,18 @@
+# Generates web/src/lib/obs/names.ts from the registry (scripts/semconv.sh).
+whitespace_control:
+  trim_blocks: true
+  lstrip_blocks: true
+  keep_trailing_newline: true
+
+templates:
+  - template: names.ts.j2
+    application_mode: single
+    file_name: names.ts
+    # Only this registry's own names: upstream ones come from @opentelemetry/semantic-conventions.
+    filter: >
+      {
+        attributes: [.groups[] | select(.type == "attribute_group") | .attributes[]
+          | select(.name | startswith("justabill."))] | sort_by(.name),
+        metrics: [.groups[] | select(.type == "metric")] | sort_by(.metric_name),
+        events: [.groups[] | select(.type == "event")] | sort_by(.name)
+      }

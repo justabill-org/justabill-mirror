@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Running pre-commit checks..."
+
+# Detect which directories have staged changes
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Git exports GIT_DIR, GIT_INDEX_FILE and the like to its hooks (a commit in a linked worktree sets
+# GIT_DIR). Tests that build throwaway repos would inherit them and run their git against this one:
+# on 2026-09-30 web/scripts/vercel-ignore.test.ts made the repo bare, set its user to the test's and
+# committed onto the branch. Nothing below needs them.
+while IFS= read -r var; do unset "$var"; done < <(compgen -e | grep '^GIT_')
+
+run_db=false
+run_api=false
+run_obs=false
+run_pipeline=false
+run_web=false
+
+while IFS= read -r file; do
+  case "$file" in
+    db/*) run_db=true ;;
+    api/*) run_api=true ;;
+    obs/*) run_obs=true ;;
+    pipeline/*) run_pipeline=true ;;
+    web/*) run_web=true ;;
+    .golangci.yml) run_db=true; run_api=true; run_obs=true; run_pipeline=true ;;
+  esac
+done <<< "$STAGED_FILES"
+
+# Changes to db/ affect both api and pipeline
+if $run_db; then
+  run_api=true
+  run_pipeline=true
+fi
+
+modules=""
+$run_db && modules+=" db"
+$run_api && modules+=" api"
+$run_obs && modules+=" obs"
+$run_pipeline && modules+=" pipeline"
+$run_web && modules+=" web"
+
+# scripts/check-modules.sh runs each module's tests and linters, in the dev container when go,
+# golangci-lint or npm is missing (JAB_HOOKS=native|docker picks one). Keep this file Bash 3.2-safe.
+if [ -n "$modules" ]; then
+  # shellcheck disable=SC2086 # modules is a word list
+  if ! scripts/check-modules.sh $modules; then
+    echo "Pre-commit checks failed."
+    exit 1
+  fi
+fi
+
+echo "Pre-commit checks passed."

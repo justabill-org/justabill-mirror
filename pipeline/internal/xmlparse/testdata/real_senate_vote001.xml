@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<roll_call_vote>
+  <congress>119</congress>
+  <session>1</session>
+  <congress_year>2025</congress_year>
+  <vote_number>1</vote_number>
+  <vote_date>January 9, 2025, 02:54 PM</vote_date>
+  <vote_question_text>On Cloture on the Motion to Proceed S. 5</vote_question_text>
+  <vote_result_text>Cloture on the Motion to Proceed Agreed to</vote_result_text>
+  <vote_title>Motion to Invoke Cloture: Motion to Proceed to S. 5</vote_title>
+  <majority_requirement>3/5</majority_requirement>
+  <vote_result>Cloture on the Motion to Proceed Agreed to</vote_result>
+  <count>
+    <yeas>84</yeas>
+    <nays>9</nays>
+    <present></present>
+    <absent>6</absent>
+  </count>
+  <members>
+    <member>
+      <member_full>Alsobrooks (D-MD)</member_full>
+      <last_name>Alsobrooks</last_name>
+      <first_name>Angela</first_name>
+      <party>D</party>
+      <state>MD</state>
+      <vote_cast>Yea</vote_cast>
+      <lis_member_id>S428</lis_member_id>
+    </member>
+    <member>
+      <member_full>Booker (D-NJ)</member_full>
+      <last_name>Booker</last_name>
+      <first_name>Cory</first_name>
+      <party>D</party>
+      <state>NJ</state>
+      <vote_cast>Nay</vote_cast>
+      <lis_member_id>S370</lis_member_id>
+    </member>
+    <member>
+      <member_full>Collins (R-ME)</member_full>
+      <last_name>Collins</last_name>
+      <first_name>Susan</first_name>
+      <party>R</party>
+      <state>ME</state>
+      <vote_cast>Yea</vote_cast>
+      <lis_member_id>S252</lis_member_id>
+    </member>
+    <member>
+      <member_full>Cruz (R-TX)</member_full>
+      <last_name>Cruz</last_name>
+      <first_name>Ted</first_name>
+      <party>R</party>
+      <state>TX</state>
+      <vote_cast>Yea</vote_cast>
+      <lis_member_id>S355</lis_member_id>
+    </member>
+    <member>
+      <member_full>Fetterman (D-PA)</member_full>
+      <last_name>Fetterman</last_name>
+      <first_name>John</first_name>
+      <party>D</party>
+      <state>PA</state>
+      <vote_cast>Yea</vote_cast>
+      <lis_member_id>S418</lis_member_id>
+    </member>
+    <member>
+      <member_full>Sanders (I-VT)</member_full>
+      <last_name>Sanders</last_name>
+      <first_name>Bernie</first_name>
+      <party>I</party>
+      <state>VT</state>
+      <vote_cast>Nay</vote_cast>
+      <lis_member_id>S313</lis_member_id>
+    </member>
+    <member>
+      <member_full>Schumer (D-NY)</member_full>
+      <last_name>Schumer</last_name>
+      <first_name>Charles</first_name>
+      <party>D</party>
+      <state>NY</state>
+      <vote_cast>Yea</vote_cast>
+      <lis_member_id>S270</lis_member_id>
+    </member>
+    <member>
+      <member_full>Warren (D-MA)</member_full>
+      <last_name>Warren</last_name>
+      <first_name>Elizabeth</first_name>
+      <party>D</party>
+      <state>MA</state>
+      <vote_cast>Nay</vote_cast>
+      <lis_member_id>S366</lis_member_id>
+    </member>
+    <member>
+      <member_full>Murkowski (R-AK)</member_full>
+      <last_name>Murkowski</last_name>
+      <first_name>Lisa</first_name>
+      <party>R</party>
+      <state>AK</state>
+      <vote_cast>Not Voting</vote_cast>
+      <lis_member_id>S288</lis_member_id>
+    </member>
+    <member>
+      <member_full>Thune (R-SD)</member_full>
+      <last_name>Thune</last_name>
+      <first_name>John</first_name>
+      <party>R</party>
+      <state>SD</state>
+      <vote_cast>Yea</vote_cast>
+      <lis_member_id>S303</lis_member_id>
+    </member>
+  </members>
+</roll_call_vote>

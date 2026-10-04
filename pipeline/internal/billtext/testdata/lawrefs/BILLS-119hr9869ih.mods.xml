@@ -1,0 +1,185 @@
+<mods xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.loc.gov/mods/v3" version="3.3" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-3.xsd" ID="P0b002ee1e5e4c93e">
+    <name type="corporate">
+         <namePart>United States Government Publishing Office</namePart>
+         <role>
+              <roleTerm authority="marcrelator" type="text">publisher</roleTerm>
+              <roleTerm authority="marcrelator" type="code">pbl</roleTerm>
+        </role>
+         <role>
+              <roleTerm authority="marcrelator" type="text">distributor</roleTerm>
+              <roleTerm authority="marcrelator" type="code">dst</roleTerm>
+        </role>
+    </name>
+    <name type="corporate">
+         <namePart>United States</namePart>
+         <namePart>Congress</namePart>
+         <namePart>House of Representatives</namePart>
+         <role>
+              <roleTerm authority="marcrelator" type="text">author</roleTerm>
+              <roleTerm authority="marcrelator" type="code">aut</roleTerm>
+        </role>
+         <description>Government Organization</description>
+    </name>
+    <typeOfResource>text</typeOfResource>
+    <genre authority="marcgt">government publication</genre>
+    <language>
+         <languageTerm type="code" authority="iso639-2b">eng</languageTerm>
+    </language>
+    <extension>
+         <collectionCode>BILLS</collectionCode>
+         <searchTitle>To amend chapter 81 of title 5, United States Code, to improve outcomes for injured Federal workers and reduce costs and fraud, and for other purposes.;FECA Modernization and Cost Containment Act of 2026;H.R. 9869 (IH)
+    </searchTitle>
+         <category>Bills and Statutes</category>
+         <waisDatabaseName>119_cong_bills</waisDatabaseName>
+         <branch>legislative</branch>
+         <dateIngested>2026-07-29</dateIngested>
+    </extension>
+    <titleInfo>
+         <title>To amend chapter 81 of title 5, United States Code, to improve outcomes for injured Federal workers and reduce costs and fraud, and for other purposes.</title>
+    </titleInfo>
+    <titleInfo type="alternative">
+         <title>FECA Modernization and Cost Containment Act of 2026</title>
+    </titleInfo>
+    <titleInfo type="alternative">
+         <title>H.R. 9869 (IH)
+    </title>
+    </titleInfo>
+    <originInfo>
+         <publisher>U.S. Government Publishing Office</publisher>
+         <dateIssued encoding="w3cdtf">2026-07-22</dateIssued>
+         <issuance>monographic</issuance>
+    </originInfo>
+    <physicalDescription>
+         <note type="source content type">deposited</note>
+         <digitalOrigin>born digital</digitalOrigin>
+         <extent>10 p.</extent>
+    </physicalDescription>
+    <classification authority="sudocs">Y 1.6:</classification>
+    <classification authority="sudocs">Y 1.4/6:</classification>
+    <identifier type="local">P0b002ee1e5e4c93e</identifier>
+    <identifier type="uri">https://www.govinfo.gov/app/details/BILLS-119hr9869ih</identifier>
+    <identifier type="preferred citation">H.R. 9869</identifier>
+    <identifier type="stock number">021-610-00252-9</identifier>
+    <identifier type="Parent ILS system id">000501532</identifier>
+    <identifier type="Child ILS system id">000325573</identifier>
+    <identifier type="Parent ILS title">Congressional bills</identifier>
+    <identifier type="Child ILS title">House bills</identifier>
+    <identifier type="former package identifier">f:h9869_ih.txt</identifier>
+    <location>
+         <url displayLabel="Content Detail" access="object in context">https://www.govinfo.gov/app/details/BILLS-119hr9869ih</url>
+         <url displayLabel="HTML rendition" access="raw object">https://www.govinfo.gov/content/pkg/BILLS-119hr9869ih/html/BILLS-119hr9869ih.htm</url>
+         <url displayLabel="PDF rendition" access="raw object">https://www.govinfo.gov/content/pkg/BILLS-119hr9869ih/pdf/BILLS-119hr9869ih.pdf</url>
+         <url displayLabel="XML rendition" access="raw object">https://www.govinfo.gov/content/pkg/BILLS-119hr9869ih/xml/BILLS-119hr9869ih.xml</url>
+    </location>
+    <accessCondition type="GPO scope determination">fdlp</accessCondition>
+    <recordInfo>
+         <recordContentSource authority="marcorg">DGPO</recordContentSource>
+         <recordCreationDate encoding="w3cdtf">2026-07-29</recordCreationDate>
+         <recordChangeDate encoding="w3cdtf">2026-07-29</recordChangeDate>
+         <recordIdentifier source="DGPO">BILLS-119hr9869ih</recordIdentifier>
+         <recordOrigin>machine generated</recordOrigin>
+         <languageOfCataloging>
+              <languageTerm type="code" authority="iso639-2b">eng</languageTerm>
+        </languageOfCataloging>
+    </recordInfo>
+    <name type="personal">
+         <namePart>Jimmy Patronis</namePart>
+         <affiliation>United States House of Representatives</affiliation>
+         <role>
+              <roleTerm authority="marcrelator" type="text">sponsor</roleTerm>
+              <roleTerm authority="marcrelator" type="code">spn</roleTerm>
+        </role>
+         <description>United States Congress Member</description>
+    </name>
+    <name type="personal">
+         <namePart>Aaron Bean</namePart>
+         <affiliation>United States House of Representatives</affiliation>
+         <role>
+              <roleTerm type="text">cosponsor</roleTerm>
+        </role>
+         <description>United States Congress Member</description>
+    </name>
+    <name type="corporate">
+         <namePart>United States</namePart>
+         <namePart>Congress</namePart>
+         <namePart>House of Representatives</namePart>
+         <namePart>Committee on Education and Workforce</namePart>
+         <role>
+              <roleTerm authority="marcrelator" type="text">associated name</roleTerm>
+              <roleTerm authority="marcrelator" type="code">asn</roleTerm>
+        </role>
+    </name>
+    <relatedItem type="isReferencedBy">
+         <titleInfo>
+              <title>United States Code</title>
+              <partNumber>Title 5 Section 8103</partNumber>
+              <partNumber>Title 5 Section 8103(a)</partNumber>
+              <partNumber>Title 5 Chapter 81</partNumber>
+        </titleInfo>
+         <identifier type="USC citation">5 U.S.C. 8103</identifier>
+         <identifier type="USC citation">5 U.S.C. 8103(a)</identifier>
+         <identifier type="USC citation">5 U.S.C. Chapter 81</identifier>
+    </relatedItem>
+    <relatedItem type="isReferencedBy">
+         <titleInfo>
+              <title>United States Code</title>
+              <partNumber>Title 15 Section 9401(3)</partNumber>
+        </titleInfo>
+         <identifier type="USC citation">15 U.S.C. 9401(3)</identifier>
+    </relatedItem>
+    <extension>
+         <docClass>hr</docClass>
+         <accessId>BILLS-119hr9869ih</accessId>
+         <congress>119</congress>
+         <session>2</session>
+         <originChamber>HOUSE</originChamber>
+         <currentChamber>HOUSE</currentChamber>
+         <billNumber>9869</billNumber>
+         <billVersion reprint="false">ih</billVersion>
+         <fileSuffix>ih</fileSuffix>
+         <shortTitle type="measure">FECA Modernization and Cost Containment Act of 2026</shortTitle>
+         <officialTitle>To amend chapter 81 of title 5, United States Code, to improve outcomes for injured Federal workers and reduce costs and fraud, and for other purposes.</officialTitle>
+         <action date="2026-07-22">Mr. Patronis (for himself and Mr. Bean of Florida) introduced the following bill; which was referred to the Committee on Education and Workforce</action>
+         <congCommittee authorityId="hsed00" chamber="H" congress="119" type="S">
+                                
+              <name type="authority-standard">Committee on Education and Workforce</name>
+                                
+              <name type="authority-short">Education and Workforce</name>
+                            
+        </congCommittee>
+         <congMember bioGuideId="P000622" chamber="H" congress="119" party="R" role="SPONSOR" state="FL">
+                                
+              <name type="parsed">Mr. Patronis</name>
+                                
+              <name type="authority-fnf">Jimmy Patronis</name>
+                                
+              <name type="authority-lnf">Patronis, Jimmy</name>
+                            
+        </congMember>
+         <congMember bioGuideId="B001314" chamber="H" congress="119" party="R" role="COSPONSOR" state="FL">
+                                
+              <name type="parsed">Mr. Bean of Florida</name>
+                                
+              <name type="authority-fnf">Aaron Bean</name>
+                                
+              <name type="authority-lnf">Bean, Aaron</name>
+                            
+        </congMember>
+         <isPrivate>false</isPrivate>
+         <isAppropriation>false</isAppropriation>
+         <USCode title="5">
+                                
+              <section number="8103"></section>
+                                
+              <section detail="(a)" number="8103"></section>
+                                
+              <chapter number="81"></chapter>
+                            
+        </USCode>
+         <USCode title="15">
+                                
+              <section detail="(3)" number="9401"></section>
+                            
+        </USCode>
+    </extension>
+</mods>

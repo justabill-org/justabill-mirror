@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><roll_call_vote>
+  <congress>119</congress>
+  <session>1</session>
+  <congress_year>2025</congress_year>
+  <vote_number>607</vote_number>
+  <vote_date>November 5, 2025,  02:09 PM</vote_date>
+  <modify_date>November 5, 2025,  03:18 PM</modify_date>
+  <vote_question_text>On the Nomination PN25-37</vote_question_text>
+  <vote_document_text>Caleb Orr, of Texas, to be an Assistant Secretary of State (Economic and Business Affairs)</vote_document_text>
+  <vote_result_text>Nomination Confirmed (57-43)</vote_result_text>
+  <question>On the Nomination</question>
+  <vote_title>Confirmation: Caleb Orr, of Texas, to be an Assistant Secretary of State (Economic and Business Affairs)</vote_title>
+  <majority_requirement>1/2</majority_requirement>
+  <vote_result>Nomination Confirmed</vote_result>
+  <document>
+    <document_congress>119</document_congress>
+    <document_type>PN</document_type>
+    <document_number>25-37</document_number>
+    <document_name>PN25-37</document_name>
+    <document_title>Caleb Orr, of Texas, to be an Assistant Secretary of State (Economic and Business Affairs)</document_title>
+    <document_short_title/>
+  </document>
+  <amendment>
+    <amendment_number/>
+    <amendment_to_amendment_number/>
+    <amendment_to_amendment_to_amendment_number/>
+    <amendment_to_document_number/>
+    <amendment_to_document_short_title/>
+    <amendment_purpose>No Statement of Purpose on File.</amendment_purpose>
+  </amendment>
+  <count>
+    <yeas>57</yeas>
+    <nays>43</nays>
+    <present/>
+    <absent/>
+  </count>
+  <tie_breaker>
+    <by_whom/>
+    <tie_breaker_vote/>
+  </tie_breaker>
+  <members>
+    <member>
+      <member_full>Alsobrooks (D-MD)</member_full>
+      <last_name>Alsobrooks</last_name>
+      <first_name>Angela</first_name>
+      <party>D</party>
+      <state>MD</state>
+      <vote_cast>Nay</vote_cast>
+      <lis_member_id>S428</lis_member_id>
+    </member>
+    <member>
+      <member_full>Baldwin (D-WI)</member_full>
+      <last_name>Baldwin</last_name>
+      <first_name>Tammy</first_name>
+      <party>D</party>
+      <state>WI</state>
+      <vote_cast>Nay</vote_cast>
+      <lis_member_id>S354</lis_member_id>
+    </member>
+    <member>
+      <member_full>Banks (R-IN)</member_full>
+      <last_name>Banks</last_name>
+      <first_name>Jim</first_name>
+      <party>R</party>
+      <state>IN</state>
+      <vote_cast>Yea</vote_cast>
+      <lis_member_id>S429</lis_member_id>
+    </member>
+  </members>
+</roll_call_vote>

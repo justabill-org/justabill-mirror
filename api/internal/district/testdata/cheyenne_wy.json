@@ -1,0 +1,70 @@
+{
+  "result": {
+    "input": {
+      "address": {
+        "address": "200 W 24th St, Cheyenne, WY 82001"
+      },
+      "vintage": {
+        "isDefault": false,
+        "id": "425",
+        "vintageName": "ACS2025_Current",
+        "vintageDescription": "ACS2025 Vintage - Current Benchmark"
+      },
+      "benchmark": {
+        "isDefault": true,
+        "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+        "id": "4",
+        "benchmarkName": "Public_AR_Current"
+      }
+    },
+    "addressMatches": [
+      {
+        "tigerLine": {
+          "side": "R",
+          "tigerLineId": "160149258"
+        },
+        "geographies": {
+          "119th Congressional Districts": [
+            {
+              "GEOID": "5600",
+              "CENTLAT": "+42.9960999",
+              "CDSESSN": "119",
+              "AREAWATER": "1868027102",
+              "STATE": "56",
+              "BASENAME": "Congressional District (at Large)",
+              "OID": "2119035963375329",
+              "LSADC": "C1",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+42.9896591",
+              "NAME": "Congressional District (at Large)",
+              "OBJECTID": 283,
+              "CENTLON": "-107.5514568",
+              "AREALAND": "251458188895",
+              "INTPTLON": "-107.5443922",
+              "MTFCC": "G5200"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -104.820004035339,
+          "y": 41.139850611856
+        },
+        "addressComponents": {
+          "zip": "82001",
+          "streetName": "24TH",
+          "preType": "",
+          "city": "CHEYENNE",
+          "preDirection": "W",
+          "suffixDirection": "",
+          "fromAddress": "200",
+          "state": "WY",
+          "suffixType": "ST",
+          "toAddress": "298",
+          "suffixQualifier": "",
+          "preQualifier": ""
+        },
+        "matchedAddress": "200 W 24TH ST, CHEYENNE, WY, 82001"
+      }
+    ]
+  }
+}

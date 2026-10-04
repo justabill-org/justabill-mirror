@@ -1,0 +1,55 @@
+[
+  {
+    "id": {"bioguide": "M001183", "lis": "S338"},
+    "name": {"first": "Joe", "last": "Manchin"},
+    "terms": [
+      {"type": "sen", "start": "2019-01-03", "end": "2025-01-03", "state": "WV", "party": "Independent", "caucus": "Democrat",
+       "party_affiliations": [
+         {"start": "2019-01-03", "end": "2024-05-31", "party": "Democrat"},
+         {"start": "2024-05-31", "end": "2025-01-03", "party": "Independent", "caucus": "Democrat"}
+       ]}
+    ]
+  },
+  {
+    "id": {"bioguide": "T000461", "lis": "S309"},
+    "name": {"first": "Pat", "last": "Toomey"},
+    "terms": [
+      {"type": "sen", "start": "2017-01-03", "end": "2023-01-03", "state": "PA", "party": "Republican"}
+    ]
+  },
+  {
+    "id": {"bioguide": "X000001"},
+    "name": {"first": "Bad", "last": "State"},
+    "terms": [
+      {"type": "rep", "start": "2023-01-03", "end": "2025-01-03", "state": "ZZ", "district": 1, "party": "Democrat"}
+    ]
+  },
+  {
+    "id": {"bioguide": "x1"},
+    "name": {"first": "Bad", "last": "Bioguide"},
+    "terms": [
+      {"type": "rep", "start": "2023-01-03", "end": "2025-01-03", "state": "OH", "district": 1, "party": "Republican"}
+    ]
+  },
+  {
+    "id": {"bioguide": "X000002", "lis": "L12"},
+    "name": {"first": "Bad", "last": "Lis"},
+    "terms": [
+      {"type": "sen", "start": "2023-01-03", "end": "2025-01-03", "state": "OH", "party": "Republican"}
+    ]
+  },
+  {
+    "id": {"bioguide": "X000003"},
+    "name": {"first": "Bad", "last": "District"},
+    "terms": [
+      {"type": "rep", "start": "2023-01-03", "end": "2025-01-03", "state": "TX", "district": 60, "party": "Republican"}
+    ]
+  },
+  {
+    "id": {"bioguide": "X000004"},
+    "name": {"first": "Bad", "last": "Date"},
+    "terms": [
+      {"type": "rep", "start": "2023-13-03", "end": "2025-01-03", "state": "TX", "district": 2, "party": "Republican"}
+    ]
+  }
+]

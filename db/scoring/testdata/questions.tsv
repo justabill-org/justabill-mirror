@@ -1,0 +1,92 @@
+# Golden cases for scoring.IsFinalVote (rule final-passage-v1).
+# Columns: chamber, question as stored in congressional_votes.question, want (final|excluded), source.
+# House questions are the Clerk's <vote-question>; Senate ones are <vote_question_text> from the
+# per-vote XML. Collected 2026-09-26/27 from clerk.house.gov/evs/<year>/ and senate.gov roll-call
+# files. Adding a question form means adding a line here.
+House	Call By States	excluded	clerk.house.gov 2023 roll 1 (QUORUM)
+House	Call by States	excluded	clerk.house.gov 2025 roll 1 (QUORUM)
+House	Call of the House	excluded	clerk.house.gov 2023 roll 526 (QUORUM)
+House	Election of the Speaker	excluded	clerk.house.gov 2025 roll 2
+House	On Agreeing to the Amendment	excluded	clerk.house.gov 2025 roll 82 (H R 1048)
+House	On Agreeing to the Amendment, as Modified	excluded	clerk.house.gov 2026 roll 150 (H R 7567)
+House	On Agreeing to the Resolution	final	clerk.house.gov 2025 roll 94 (H RES 313)
+House	On Agreeing to the Resolution, as Amended	final	clerk.house.gov 2025 roll 50 (H CON RES 14)
+House	On Closing Portions of the Conference	excluded	clerk.house.gov 2023 roll 396 (H R 2670)
+House	On Consideration of the Resolution	excluded	clerk.house.gov 2025 roll 186 (H RES 566)
+House	On Motion to Adjourn	excluded	clerk.house.gov 2025 roll 178 (ADJOURN)
+House	On Motion to Commit	excluded	clerk.house.gov 2025 roll 319 (S 1071)
+House	On Motion to Commit with Instructions	excluded	clerk.house.gov 2025 roll 4 (H RES 5)
+House	On Motion to Concur in the Senate Amendment	final	clerk.house.gov 2025 roll 190 (H R 1)
+House	On Motion to Concur in the Senate Amendment with an Amendment	final	clerk.house.gov 2024 roll 500 (H R 5009)
+House	On Motion to Concur in the Senate Amendments	final	clerk.house.gov 2026 roll 53 (H R 7148)
+House	On Motion to Discharge	excluded	clerk.house.gov 2025 roll 321 (H RES 432)
+House	On Motion to Instruct Conferees	excluded	clerk.house.gov 2025 roll 263 (H R 3944)
+House	On Motion to Recommit	excluded	clerk.house.gov 2025 roll 97 (H R 1526)
+House	On Motion to Reconsider	excluded	clerk.house.gov 2025 roll 197 (H RES 580)
+House	On Motion to Refer	excluded	clerk.house.gov 2025 roll 293 (H RES 888)
+House	On Motion to Suspend the Rules and Agree	final	clerk.house.gov 2025 roll 159 (H RES 481)
+House	On Motion to Suspend the Rules and Agree to the Conference Report	final	clerk.house.gov 2023 roll 723 (H R 2670)
+House	On Motion to Suspend the Rules and Agree to the Resolution, as Amended	final	clerk.house.gov 2023 roll 36 (H CON RES 7)
+House	On Motion to Suspend the Rules and Agree, As Amended	final	clerk.house.gov 2024 roll 393 (H RES 1367)
+House	On Motion to Suspend the Rules and Agree, as Amended	final	clerk.house.gov 2025 roll 179 (H RES 519)
+House	On Motion to Suspend the Rules and Concur in Senate Adt to House Adt to Senate Adt	final	clerk.house.gov 2026 roll 224 (H R 6644)
+House	On Motion to Suspend the Rules and Concur in the Senate Amendment	final	clerk.house.gov 2024 roll 15 (H R 2872)
+House	On Motion to Suspend the Rules and Concur in the Senate Amendments	final	clerk.house.gov 2024 roll 514 (H R 8663)
+House	On Motion to Suspend the Rules and Pass	final	clerk.house.gov 2025 roll 99 (H R 1228)
+House	On Motion to Suspend the Rules and Pass, as Amended	final	clerk.house.gov 2025 roll 90 (H R 1039)
+House	On Motion to Table	excluded	clerk.house.gov 2025 roll 60 (H RES 189)
+House	On Motion to Table the Motion to Discharge Committee	excluded	clerk.house.gov 2025 roll 265 (H J RES 117)
+House	On Motion to go to Conference	excluded	clerk.house.gov 2023 roll 395 (H R 2670)
+House	On Ordering the Previous Question	excluded	clerk.house.gov 2025 roll 93 (H RES 313)
+House	On Passage	final	clerk.house.gov 2025 roll 98 (H R 1526)
+House	On Retaining Division A	excluded	clerk.house.gov 2026 roll 5 (H R 6938)
+House	On Retaining Divisions B and C	excluded	clerk.house.gov 2026 roll 6 (H R 6938)
+House	Passage, Objections of the President To The Contrary Notwithstanding	final	clerk.house.gov 2023 roll 187 (H J RES 27)
+House	Table Motion to Reconsider	excluded	clerk.house.gov 2024 roll 120 (H R 7888)
+House	On Agreeing to the Conference Report	final	design allowlist; no 2023-2026 roll
+House	On Motion that the House Agree to the Senate Amendment	final	design allowlist; no 2023-2026 roll
+House	On Motion to Agree to the Senate Amendment	final	design allowlist; no 2023-2026 roll
+Senate	On Cloture on the Motion to Proceed S. 5	excluded	senate.gov 119-1 vote 1
+Senate	On Cloture on the Motion to Proceed S. 6	excluded	senate.gov 119-1 vote 11
+Senate	On Passage of the Bill H.R. 5371	final	senate.gov 119-1 vote 528
+Senate	On Passage of the Bill S. 5	final	senate.gov 119-1 vote 7
+Senate	On Passage of the Bill S. 331	final	senate.gov 119-1 vote 127
+Senate	On the Amendment S.Amdt. 14 to S.Amdt. 8 to S. 5 (No short title on file)	excluded	senate.gov 119-1 vote 3
+Senate	On the Amendment S.Amdt. 23 to S. 5 (No short title on file)	excluded	senate.gov 119-1 vote 4
+Senate	On the Cloture Motion S. 5	excluded	senate.gov 119-1 vote 5
+Senate	On the Cloture Motion PN11-19	excluded	senate.gov 119-1 vote 12
+Senate	On the Concurrent Resolution S.Con.Res. 7	final	senate.gov 119-1 vote 87
+Senate	On the Concurrent Resolution H.Con.Res. 14	final	senate.gov 119-1 vote 191
+Senate	On the Decision of the Chair S.Amdt. 2360 to H.R. 1 (No short title on file)	excluded	senate.gov 119-1 vote 330
+Senate	On the Decision of the Chair H.R. 1	excluded	senate.gov 119-1 vote 331
+Senate	On the Joint Resolution S.J.Res. 11	final	senate.gov 119-1 vote 92
+Senate	On the Joint Resolution S.J.Res. 10	final	senate.gov 119-1 vote 95
+Senate	On the Motion (Motion to Waive All Applicable Budgetary Discipline Re: Schumer Amdt. No. 454)	excluded	senate.gov 119-1 vote 62
+Senate	On the Motion (Motion to Waive Section 305(b)(2) of the CBA re: Cortez Masto Amdt. No. 1690)	excluded	senate.gov 119-1 vote 185
+Senate	On the Motion (Motion to Recess for Ninety Minutes)	excluded	senate.gov 119-1 vote 267
+Senate	On the Motion (Schumer Motion to Commit H.R. 1 to the Committee on Finance with Instructions)	excluded	senate.gov 119-1 vote 332
+Senate	On the Motion (Blunt Rochester Motion to Commit H.R. 1 to the Committee on Finance with Instructions)	excluded	senate.gov 119-1 vote 340
+Senate	On the Motion (Motion to Concur in the House Amendment to S. 1071)	final	senate.gov 119-1 vote 648
+Senate	On the Motion (Schumer motion to commit S.2 to the Committee on the Judiciary with instructions)	excluded	senate.gov 119-2 vote 137
+Senate	On the Motion (Motion to Concur in the House Amendment to the Senate Amendment to H.R. 6644 with an Amendment (SA 5823))	final	senate.gov 119-2 vote 182
+Senate	On the Motion to Adjourn S.J.Res. 55	excluded	senate.gov 119-1 vote 272
+Senate	On the Motion to Discharge S.J.Res. 33	excluded	senate.gov 119-1 vote 165
+Senate	On the Motion to Discharge S.J.Res. 26	excluded	senate.gov 119-1 vote 166
+Senate	On the Motion to Proceed S. 5	excluded	senate.gov 119-1 vote 2
+Senate	On the Motion to Proceed PN11-19	excluded	senate.gov 119-1 vote 9
+Senate	On the Motion to Recommit H.R. 4	excluded	senate.gov 119-1 vote 394
+Senate	On the Motion to Reconsider S.Res. 377	excluded	senate.gov 119-1 vote 514
+Senate	On the Motion to Table PN11-22	excluded	senate.gov 119-1 vote 38
+Senate	On the Motion to Table S.J.Res. 49	excluded	senate.gov 119-1 vote 226
+Senate	On the Nomination PN11-13	excluded	senate.gov 119-1 vote 8
+Senate	On the Nomination PN11-19	excluded	senate.gov 119-1 vote 13
+Senate	On the Point of Order S.J.Res. 55	excluded	senate.gov 119-1 vote 273
+Senate	On the Resolution S.Res. 377	final	senate.gov 119-1 vote 517
+Senate	On the Resolution S.Res. 412	final	senate.gov 119-1 vote 541
+Senate	On Overriding the Veto S.J.Res. 54	final	senate.gov 116-1 vote 325
+Senate	On the Conference Report H.R. 2	final	senate.gov 115-2 vote 259
+Senate	On the Resolution of Ratification Treaty Doc. 114-12	excluded	senate.gov 115-1 vote 98
+Senate	On the Motion (Motion to Concur in the House Amendment to the Senate Amendment to H.R. 1370)	final	senate.gov 115-1 vote 325
+Senate	Guilty or Not Guilty H.Res. 755	excluded	senate.gov 116-2 vote 34
+Senate	On the Motion (Motion to Close the Doors)	excluded	senate.gov 118-2 vote 133
+Senate	On the Motion for Attendance	excluded	senate.gov 115-1 vote 56 (menu question)

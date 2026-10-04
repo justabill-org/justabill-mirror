@@ -1,0 +1,31 @@
+name: Conventional
+
+# The pull request's title is a Conventional Commit (CONTRIBUTING.md): it becomes the imported
+# commit's title. A workflow of its own so that fixing the title (the edited event) re-runs this
+# check alone, without cancelling or repeating CI's build. Read-only token, no secrets.
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: conventional-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  conventional:
+    name: Conventional
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check the title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: .github/scripts/conventional.sh title "$TITLE"

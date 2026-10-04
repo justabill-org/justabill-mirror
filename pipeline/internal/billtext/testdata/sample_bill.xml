@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bill>
+  <form>
+    <distribution-code>1</distribution-code>
+    <congress>119th CONGRESS</congress>
+    <session>1st Session</session>
+  </form>
+  <legis-body>
+    <section id="sec1">
+      <enum>1.</enum>
+      <header>Short title</header>
+      <text>This Act may be cited as the "Sample Act of 2025".</text>
+    </section>
+    <section id="sec2">
+      <enum>2.</enum>
+      <header>Findings and purpose</header>
+      <text>Congress finds the following:</text>
+      <subsection id="sec2a">
+        <enum>(a)</enum>
+        <header>Findings</header>
+        <text>The economy requires modernization of infrastructure.</text>
+      </subsection>
+    </section>
+  </legis-body>
+</bill>

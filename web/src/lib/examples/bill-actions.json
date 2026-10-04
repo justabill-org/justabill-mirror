@@ -1,0 +1,198 @@
+[
+    {
+        "id": "31729ee6-8fa0-4997-b67b-72e1cb15265d",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-12-26T00:00:00Z",
+        "action_text": "Became Public Law No: 119-62.",
+        "action_type": "President",
+        "action_code": "E40000",
+        "source_system": "Library of Congress",
+        "sort_order": 1
+    },
+    {
+        "id": "8836256d-b611-4c92-8473-887a965a3db9",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-12-26T00:00:00Z",
+        "action_text": "Became Public Law No: 119-62.",
+        "action_type": "BecameLaw",
+        "action_code": "36000",
+        "source_system": "Library of Congress",
+        "sort_order": 2
+    },
+    {
+        "id": "f9e88026-adc7-4c80-b99e-4aa492b7467f",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-12-26T00:00:00Z",
+        "action_text": "Signed by President.",
+        "action_type": "President",
+        "action_code": "E30000",
+        "source_system": "Library of Congress",
+        "sort_order": 3
+    },
+    {
+        "id": "60653212-8a80-4788-a5fc-091f132d8d99",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-12-26T00:00:00Z",
+        "action_text": "Signed by President.",
+        "action_type": "BecameLaw",
+        "action_code": "36000",
+        "source_system": "Library of Congress",
+        "sort_order": 4
+    },
+    {
+        "id": "67fb3c06-2aae-4958-ae16-ab2cb6d97f1d",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-12-18T00:00:00Z",
+        "action_text": "Presented to President.",
+        "action_type": "Floor",
+        "action_code": "E20000",
+        "source_system": "House floor actions",
+        "sort_order": 5
+    },
+    {
+        "id": "5d382cc8-590c-4077-9fa6-73f5ded603a6",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-12-18T00:00:00Z",
+        "action_text": "Presented to President.",
+        "action_type": "President",
+        "action_code": "28000",
+        "source_system": "Library of Congress",
+        "sort_order": 6
+    },
+    {
+        "id": "7eb08375-5d81-424c-a847-bd05b03b33ac",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-12-17T00:00:00Z",
+        "action_text": "Message on Senate action sent to the House.",
+        "action_type": "Floor",
+        "source_system": "Senate",
+        "sort_order": 7
+    },
+    {
+        "id": "1e944c06-0e95-4934-aa27-3af49aafdce7",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-12-16T00:00:00Z",
+        "action_text": "Passed Senate without amendment by Voice Vote. (consideration: CR S8766-8768)",
+        "action_type": "Floor",
+        "source_system": "Senate",
+        "sort_order": 8
+    },
+    {
+        "id": "bba2338b-8302-46e9-af77-5724105c2364",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-12-16T00:00:00Z",
+        "action_text": "Passed/agreed to in Senate: Passed Senate without amendment by Voice Vote.",
+        "action_type": "Floor",
+        "action_code": "17000",
+        "source_system": "Library of Congress",
+        "sort_order": 9
+    },
+    {
+        "id": "5abf2401-00df-4f9d-863f-bbad20289951",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-12-16T00:00:00Z",
+        "action_text": "Senate Committee on Energy and Natural Resources discharged by Unanimous Consent.",
+        "action_type": "Discharge",
+        "source_system": "Senate",
+        "sort_order": 10
+    },
+    {
+        "id": "5267352f-3c22-4438-a663-fdbaf9e8ab15",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-12-16T00:00:00Z",
+        "action_text": "Senate Committee on Energy and Natural Resources discharged by Unanimous Consent.",
+        "action_type": "Committee",
+        "action_code": "14500",
+        "source_system": "Library of Congress",
+        "sort_order": 11
+    },
+    {
+        "id": "26874965-fb57-4ad7-94ac-5ad26d0c7959",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-01-22T00:00:00Z",
+        "action_text": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources.",
+        "action_type": "IntroReferral",
+        "source_system": "Senate",
+        "sort_order": 12
+    },
+    {
+        "id": "96e03c20-d323-4968-b22f-28d80b03a9b3",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-01-21T00:00:00Z",
+        "action_text": "Motion to reconsider laid on the table Agreed to without objection.",
+        "action_type": "Floor",
+        "action_code": "H38310",
+        "source_system": "House floor actions",
+        "sort_order": 13
+    },
+    {
+        "id": "dccb49fc-cfdd-4500-8d7d-74c2d129821a",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-01-21T00:00:00Z",
+        "action_text": "On motion to suspend the rules and pass the bill, as amended Agreed to by the Yeas and Nays: (2/3 required): 413 - 0 (Roll no. 19). (text: CR H238-239)",
+        "action_type": "Floor",
+        "action_code": "H37300",
+        "source_system": "House floor actions",
+        "sort_order": 14
+    },
+    {
+        "id": "d7ee7ba1-9bfe-467f-a55a-41db43d19697",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-01-21T00:00:00Z",
+        "action_text": "Passed/agreed to in House: On motion to suspend the rules and pass the bill, as amended Agreed to by the Yeas and Nays: (2/3 required): 413 - 0 (Roll no. 19). (text: CR H238-239)",
+        "action_type": "Floor",
+        "action_code": "8000",
+        "source_system": "Library of Congress",
+        "sort_order": 15
+    },
+    {
+        "id": "901a5c64-8365-4639-880b-cd671f5519ac",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-01-21T00:00:00Z",
+        "action_text": "Considered as unfinished business. (consideration: CR H250-251)",
+        "action_type": "Floor",
+        "action_code": "H30000",
+        "source_system": "House floor actions",
+        "sort_order": 16
+    },
+    {
+        "id": "04e97020-48af-4a0a-aaa1-b3bb553ec057",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-01-21T00:00:00Z",
+        "action_text": "At the conclusion of debate, the Yeas and Nays were demanded and ordered. Pursuant to the provisions of clause 8, rule XX, the Chair announced that further proceedings on the motion would be postponed.",
+        "action_type": "Floor",
+        "action_code": "H37220",
+        "source_system": "House floor actions",
+        "sort_order": 17
+    },
+    {
+        "id": "2d3b9ced-a848-44f0-b55c-830ff101cede",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-01-21T00:00:00Z",
+        "action_text": "DEBATE - The House proceeded with forty minutes of debate on H.R. 187.",
+        "action_type": "Floor",
+        "action_code": "H8D000",
+        "source_system": "House floor actions",
+        "sort_order": 18
+    },
+    {
+        "id": "11d3a48f-7956-4ce0-a7ab-048f5d69b862",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-01-21T00:00:00Z",
+        "action_text": "Considered under suspension of the rules. (consideration: CR H238-240)",
+        "action_type": "Floor",
+        "action_code": "H30000",
+        "source_system": "House floor actions",
+        "sort_order": 19
+    },
+    {
+        "id": "4390354f-fe8a-498c-a92e-ca672303f72f",
+        "bill_id": "hr-119-187",
+        "action_date": "2025-01-21T00:00:00Z",
+        "action_text": "Mr. Westerman moved to suspend the rules and pass the bill, as amended.",
+        "action_type": "Floor",
+        "action_code": "H30300",
+        "source_system": "House floor actions",
+        "sort_order": 20
+    }
+]

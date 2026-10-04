@@ -1,0 +1,115 @@
+2026-10-03T05:22:53.2721976Z   ✓   1 [chromium] › e2e/a11y.spec.ts:15:9 › light scheme › home page is accessible (light) (4.4s)
+2026-10-03T05:23:07.2531267Z   ✓   2 [chromium] › e2e/a11y.spec.ts:21:9 › light scheme › bill list, its views and its filter panel are accessible (light) (14.0s)
+2026-10-03T05:23:10.7707821Z   ✓   3 [chromium] › e2e/a11y.spec.ts:45:9 › light scheme › bill list on a phone is accessible (light) (3.5s)
+2026-10-03T05:23:28.5728377Z   ✓   4 [chromium] › e2e/a11y.spec.ts:54:9 › light scheme › bill page, each of its tabs and the share sheet are accessible (light) (17.7s)
+2026-10-03T05:23:58.7303057Z   ✘   5 [chromium] › e2e/a11y.spec.ts:79:9 › light scheme › a bill's Text tab with its companion bills open is accessible (light) (30.1s)
+2026-10-03T05:24:30.1540223Z   ✘   6 [chromium] › e2e/a11y.spec.ts:79:9 › light scheme › a bill's Text tab with its companion bills open is accessible (light) (retry #1) (30.2s)
+2026-10-03T05:26:56.9088217Z 
+2026-10-03T05:26:56.9107127Z 
+2026-10-03T05:26:56.9133905Z   1) [chromium] › e2e/a11y.spec.ts:79:9 › light scheme › a bill's Text tab with its companion bills open is accessible (light) 
+2026-10-03T05:26:56.9143883Z 
+2026-10-03T05:26:56.9145163Z     Test timeout of 30000ms exceeded.
+2026-10-03T05:26:56.9145900Z 
+2026-10-03T05:26:56.9146659Z     Error: locator.click: Test timeout of 30000ms exceeded.
+2026-10-03T05:26:56.9147630Z     Call log:
+2026-10-03T05:26:56.9148674Z       - waiting for getByRole('tab', { name: /^Text/ })
+2026-10-03T05:26:56.9149377Z 
+2026-10-03T05:26:56.9149586Z 
+2026-10-03T05:26:56.9150320Z       80 |       await page.goto(`/bills/${HOUSE_BILL.id}`);
+2026-10-03T05:26:56.9151975Z       81 |       await expect(page.getByText("Kept on this device only.")).toBeVisible();
+2026-10-03T05:26:56.9153561Z     > 82 |       await page.getByRole("tab", { name: /^Text/ }).click();
+2026-10-03T05:26:56.9155086Z          |                                                      ^
+2026-10-03T05:26:56.9156500Z       83 |       // Congress.gov lists S. 1 as HR 1's identical bill: the Senate companion.
+2026-10-03T05:26:56.9158151Z       84 |       const companions = page.getByRole("button", { name: /^Companion bills/ });
+2026-10-03T05:26:56.9159844Z       85 |       await expect(companions).toHaveAttribute("aria-expanded", "false");
+2026-10-03T05:26:56.9161160Z         at /work/web/e2e/a11y.spec.ts:82:54
+2026-10-03T05:26:56.9161768Z 
+2026-10-03T05:26:56.9163085Z     Error Context: test-results/a11y-light-scheme-a-bill-s-174ce-s-open-is-accessible-light--chromium/error-context.md
+2026-10-03T05:26:56.9164306Z 
+2026-10-03T05:26:56.9165859Z     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+2026-10-03T05:26:56.9166767Z 
+2026-10-03T05:26:56.9167382Z     Test timeout of 30000ms exceeded.
+2026-10-03T05:26:56.9167955Z 
+2026-10-03T05:26:56.9168729Z     Error: locator.click: Test timeout of 30000ms exceeded.
+2026-10-03T05:26:56.9170003Z     Call log:
+2026-10-03T05:26:56.9170996Z       - waiting for getByRole('tab', { name: /^Text/ })
+2026-10-03T05:26:56.9171695Z 
+2026-10-03T05:26:56.9171906Z 
+2026-10-03T05:26:56.9172663Z       80 |       await page.goto(`/bills/${HOUSE_BILL.id}`);
+2026-10-03T05:26:56.9174566Z       81 |       await expect(page.getByText("Kept on this device only.")).toBeVisible();
+2026-10-03T05:26:56.9177058Z     > 82 |       await page.getByRole("tab", { name: /^Text/ }).click();
+2026-10-03T05:26:56.9178444Z          |                                                      ^
+2026-10-03T05:26:56.9180115Z       83 |       // Congress.gov lists S. 1 as HR 1's identical bill: the Senate companion.
+2026-10-03T05:26:56.9182060Z       84 |       const companions = page.getByRole("button", { name: /^Companion bills/ });
+2026-10-03T05:26:56.9185706Z       85 |       await expect(companions).toHaveAttribute("aria-expanded", "false");
+2026-10-03T05:26:56.9187348Z         at /work/web/e2e/a11y.spec.ts:82:54
+2026-10-03T05:26:56.9187952Z 
+2026-10-03T05:26:56.9189471Z     Error Context: test-results/a11y-light-scheme-a-bill-s-174ce-s-open-is-accessible-light--chromium-retry1/error-context.md
+2026-10-03T05:26:56.9190782Z 
+2026-10-03T05:26:56.9192207Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-10-03T05:26:56.9194274Z     test-results/a11y-light-scheme-a-bill-s-174ce-s-open-is-accessible-light--chromium-retry1/trace.zip
+2026-10-03T05:26:56.9195978Z     Usage:
+2026-10-03T05:26:56.9196413Z 
+2026-10-03T05:26:56.9198048Z         npx playwright show-trace test-results/a11y-light-scheme-a-bill-s-174ce-s-open-is-accessible-light--chromium-retry1/trace.zip
+2026-10-03T05:26:56.9199385Z 
+2026-10-03T05:26:56.9200603Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-10-03T05:26:56.9201858Z 
+2026-10-03T05:26:56.9203320Z   2) [chromium] › e2e/a11y.spec.ts:79:9 › dark scheme › a bill's Text tab with its companion bills open is accessible (dark) 
+2026-10-03T05:26:56.9204287Z 
+2026-10-03T05:26:56.9205054Z     Test timeout of 30000ms exceeded.
+2026-10-03T05:26:56.9205626Z 
+2026-10-03T05:26:56.9206135Z     Error: locator.click: Test timeout of 30000ms exceeded.
+2026-10-03T05:26:56.9206748Z     Call log:
+2026-10-03T05:26:56.9207373Z       - waiting for getByRole('tab', { name: /^Text/ })
+2026-10-03T05:26:56.9207771Z 
+2026-10-03T05:26:56.9207781Z 
+2026-10-03T05:26:56.9208283Z       80 |       await page.goto(`/bills/${HOUSE_BILL.id}`);
+2026-10-03T05:26:56.9209012Z       81 |       await expect(page.getByText("Kept on this device only.")).toBeVisible();
+2026-10-03T05:26:56.9209649Z     > 82 |       await page.getByRole("tab", { name: /^Text/ }).click();
+2026-10-03T05:26:56.9210233Z          |                                                      ^
+2026-10-03T05:26:56.9210890Z       83 |       // Congress.gov lists S. 1 as HR 1's identical bill: the Senate companion.
+2026-10-03T05:26:56.9211627Z       84 |       const companions = page.getByRole("button", { name: /^Companion bills/ });
+2026-10-03T05:26:56.9212349Z       85 |       await expect(companions).toHaveAttribute("aria-expanded", "false");
+2026-10-03T05:26:56.9212881Z         at /work/web/e2e/a11y.spec.ts:82:54
+2026-10-03T05:26:56.9213089Z 
+2026-10-03T05:26:56.9213753Z     Error Context: test-results/a11y-dark-scheme-a-bill-s--feb68-ls-open-is-accessible-dark--chromium/error-context.md
+2026-10-03T05:26:56.9214360Z 
+2026-10-03T05:26:56.9215365Z     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+2026-10-03T05:26:56.9215771Z 
+2026-10-03T05:26:56.9215953Z     Test timeout of 30000ms exceeded.
+2026-10-03T05:26:56.9216157Z 
+2026-10-03T05:26:56.9216436Z     Error: locator.click: Test timeout of 30000ms exceeded.
+2026-10-03T05:26:56.9216841Z     Call log:
+2026-10-03T05:26:56.9217243Z       - waiting for getByRole('tab', { name: /^Text/ })
+2026-10-03T05:26:56.9217485Z 
+2026-10-03T05:26:56.9217492Z 
+2026-10-03T05:26:56.9217766Z       80 |       await page.goto(`/bills/${HOUSE_BILL.id}`);
+2026-10-03T05:26:56.9218402Z       81 |       await expect(page.getByText("Kept on this device only.")).toBeVisible();
+2026-10-03T05:26:56.9219057Z     > 82 |       await page.getByRole("tab", { name: /^Text/ }).click();
+2026-10-03T05:26:56.9219607Z          |                                                      ^
+2026-10-03T05:26:56.9220845Z       83 |       // Congress.gov lists S. 1 as HR 1's identical bill: the Senate companion.
+2026-10-03T05:26:56.9222080Z       84 |       const companions = page.getByRole("button", { name: /^Companion bills/ });
+2026-10-03T05:26:56.9223214Z       85 |       await expect(companions).toHaveAttribute("aria-expanded", "false");
+2026-10-03T05:26:56.9224112Z         at /work/web/e2e/a11y.spec.ts:82:54
+2026-10-03T05:26:56.9224484Z 
+2026-10-03T05:26:56.9225763Z     Error Context: test-results/a11y-dark-scheme-a-bill-s--feb68-ls-open-is-accessible-dark--chromium-retry1/error-context.md
+2026-10-03T05:26:56.9226666Z 
+2026-10-03T05:26:56.9227657Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-10-03T05:26:56.9229187Z     test-results/a11y-dark-scheme-a-bill-s--feb68-ls-open-is-accessible-dark--chromium-retry1/trace.zip
+2026-10-03T05:26:56.9229776Z     Usage:
+2026-10-03T05:26:56.9229901Z 
+2026-10-03T05:26:56.9230683Z         npx playwright show-trace test-results/a11y-dark-scheme-a-bill-s--feb68-ls-open-is-accessible-dark--chromium-retry1/trace.zip
+2026-10-03T05:26:56.9231258Z 
+2026-10-03T05:26:56.9231778Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-10-03T05:26:56.9232085Z 
+2026-10-03T05:26:56.9232183Z   2 failed
+2026-10-03T05:26:56.9233643Z     [chromium] › e2e/a11y.spec.ts:79:9 › light scheme › a bill's Text tab with its companion bills open is accessible (light) 
+2026-10-03T05:26:56.9236333Z     [chromium] › e2e/a11y.spec.ts:79:9 › dark scheme › a bill's Text tab with its companion bills open is accessible (dark) 
+2026-10-03T05:26:56.9237292Z   8 skipped
+2026-10-03T05:26:56.9237704Z   33 passed (4.3m)
+2026-10-03T05:26:56.9246809Z ##[notice]  2 failed
+    [chromium] › e2e/a11y.spec.ts:79:9 › light scheme › a bill's Text tab with its companion bills open is accessible (light) 
+    [chromium] › e2e/a11y.spec.ts:79:9 › dark scheme › a bill's Text tab with its companion bills open is accessible (dark) 
+  8 skipped
+  33 passed (4.3m)
+2026-10-03T05:26:57.5237491Z ##[error]Process completed with exit code 1.

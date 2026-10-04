@@ -1,0 +1,47 @@
+{
+  "result": {
+    "geographies": {
+      "120th Congressional Districts": [
+        {
+          "STGEOMETRY_Area": 31652204758.17124,
+          "CD120": "10",
+          "GEOID": "4810",
+          "CENTLAT": "+30.8368739",
+          "CDSESSN": "120",
+          "AREAWATER": 599864221,
+          "STATE": "48",
+          "BASENAME": "10",
+          "OID": "2119042393348413",
+          "LSADC": "C2",
+          "FUNCSTAT": "N",
+          "INTPTLAT": "+30.8460626",
+          "NAME": "Congressional District 10",
+          "OBJECTID": 348,
+          "CENTLON": "-095.8456381",
+          "STGEOMETRY_Length": 1655201.6152337315,
+          "AREALAND": 22660297989,
+          "INTPTLON": "-095.8392688",
+          "MTFCC": "G5200"
+        }
+      ]
+    },
+    "input": {
+      "vintage": {
+        "isDefault": false,
+        "id": "426",
+        "vintageName": "ACS2026_Current",
+        "vintageDescription": "ACS2026 Vintage - Current Benchmark"
+      },
+      "location": {
+        "x": -97.7431,
+        "y": 30.2672
+      },
+      "benchmark": {
+        "isDefault": true,
+        "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+        "id": "4",
+        "benchmarkName": "Public_AR_Current"
+      }
+    }
+  }
+}

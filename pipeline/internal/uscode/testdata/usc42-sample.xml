@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="usctitle.css"?>
+<uscDoc xsi:schemaLocation="http://xml.house.gov/schemas/uslm/1.0 USLM-1.0.15.xsd" xml:lang="en" identifier="/us/usc/t42" xmlns="http://xml.house.gov/schemas/uslm/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/">
+<meta>
+  <dc:title>Title 42</dc:title>
+  <dc:type>USCTitle</dc:type>
+  <docNumber>42</docNumber>
+  <docPublicationName>Online@119-111</docPublicationName>
+  <property role="is-positive-law">no</property>
+  <dc:publisher>OLRC</dc:publisher>
+  <dcterms:created>2026-09-24T08:56:42</dcterms:created>
+  <dc:creator>USCConverter 1.7.2</dc:creator>
+</meta>
+<main>
+<title id="id885ada77-b817-11f1-8f24-e2a1175df5f8" identifier="/us/usc/t42"><num value="42">Title 42—</num><heading>THE PUBLIC HEALTH AND WELFARE</heading>
+
+<notes type="uscNote">
+<note topic="miscellaneous"><p>Current through 119-111</p></note>
+<note topic="shortTitle"><heading>Sample note quoting an act (added to the fixture)</heading><p>provided that:<quotedContent origin="/us/pl/100/1/s2">
+<section style="-uslm-lc:I580467"><num value="2">“SEC. 2.</num><heading> QUOTED SECTION.</heading><content>A section quoted in a note has no identifier and is not a row.</content></section>
+<section identifier="/us/usc/t42/s9999"><num value="9999">§ 9999.</num><content>A quoted section with an identifier is not a row either.</content></section>
+</quotedContent></p></note>
+</notes>
+<chapter identifier="/us/usc/t42/ch1"><num value="1">CHAPTER 1—</num><heading>SAMPLE</heading>
+<section status="repealed" style="-uslm-lc:I80" id="id885d246d-b817-11f1-8f24-e2a1175df5f8" identifier="/us/usc/t42/s1...1j"><num value="1 to 1j">§§ 1 to 1j.</num><heading> Repealed. <ref href="/us/act/1944-07-01/ch373">July 1, 1944, ch. 373</ref>, title XIII, § 1313, <ref href="/us/stat/58/714">58 Stat. 714</ref></heading><notes type="uscNote" id="id885d246e-b817-11f1-8f24-e2a1175df5f8">
+<note topic="removalDescription" id="id885d246f-b817-11f1-8f24-e2a1175df5f8">
+<p style="-uslm-lc:I21" class="indent0">Section 1, acts <ref href="/us/act/1902-07-01/ch1370/s1">July 1, 1902, ch. 1370, § 1</ref>, <ref href="/us/stat/32/712">32 Stat. 712</ref>; <ref href="/us/act/1912-08-14/ch288/s1">Aug. 14, 1912, ch. 288, § 1</ref>, <ref href="/us/stat/37/309">37 Stat. 309</ref>, provided that Public Health and Marine Hospital Service should be known as the Public Health Service. See <ref href="/us/usc/t42/s202">section 202 of this title</ref>.</p>
+</note>
+<note topic="removalDescription" id="id885d2470-b817-11f1-8f24-e2a1175df5f8">
+<p style="-uslm-lc:I21" class="indent0">Section 1a, <ref href="/us/act/1943-11-11/ch298/s1">act Nov. 11, 1943, ch. 298, § 1</ref>, <ref href="/us/stat/57/587">57 Stat. 587</ref>, provided for organization and function of Public Health Service. See <ref href="/us/usc/t42/s203">section 203 of this title</ref>.</p>
+</note>
+<note topic="removalDescription" id="id885d2471-b817-11f1-8f24-e2a1175df5f8">
+<p style="-uslm-lc:I21" class="indent0">Section 1b, <ref href="/us/act/1943-11-11/ch298/s2">act Nov. 11, 1943, ch. 298, § 2</ref>, <ref href="/us/stat/57/587">57 Stat. 587</ref>, provided for appointment of Assistant Surgeons General, their grade, pay, and allowances. See sections 206, 207, and 210 of this title.</p>
+</note>
+<note topic="removalDescription" id="id885d2472-b817-11f1-8f24-e2a1175df5f8">
+<p style="-uslm-lc:I21" class="indent0">Section 1c, <ref href="/us/act/1943-11-11/ch298/s3">act Nov. 11, 1943, ch. 298, § 3</ref>, <ref href="/us/stat/57/587">57 Stat. 587</ref>, provided for chiefs of divisions, their grade, pay and allowances, and creation of a Dental Division and a Sanitary Engineering Division. See sections 206, 207, and 210 of this title.</p>
+</note>
+<note topic="removalDescription" id="id885d2473-b817-11f1-8f24-e2a1175df5f8">
+<p style="-uslm-lc:I21" class="indent0">Section 1d, <ref href="/us/act/1943-11-11/ch298/s4">act Nov. 11, 1943, ch. 298, § 4</ref>, <ref href="/us/stat/57/587">57 Stat. 587</ref>, provided for temporary promotions in regular corps in time of war. See <ref href="/us/usc/t42/s211">section 211 of this title</ref>.</p>
+</note>
+<note topic="removalDescription" id="id885d2474-b817-11f1-8f24-e2a1175df5f8">
+<p style="-uslm-lc:I21" class="indent0">Section 1e, <ref href="/us/act/1943-11-11/ch298/s5">act Nov. 11, 1943, ch. 298, § 5</ref>, <ref href="/us/stat/58/588">58 Stat. 588</ref>, provided for review of record of officers above grade of assistant surgeon and their separation from service. See <ref href="/us/usc/t42/s211">section 211 of this title</ref>.</p>
+</note>
+<note topic="removalDescription" id="id885d2475-b817-11f1-8f24-e2a1175df5f8">
+<p style="-uslm-lc:I21" class="indent0">Section 1f, <ref href="/us/act/1943-11-11/ch298/s6">act Nov. 11, 1943, ch. 298, § 6</ref>, <ref href="/us/stat/58/588">58 Stat. 588</ref>, provided for an acting Surgeon General during absence of Surgeon General and Assistant to Surgeon General. See <ref href="/us/usc/t42/s206">section 206 of this title</ref>.</p>
+</note>
+<note topic="removalDescription" id="id885d2476-b817-11f1-8f24-e2a1175df5f8">
+<p style="-uslm-lc:I21" class="indent0">Section 1g, <ref href="/us/act/1943-11-11/ch298/s7">act Nov. 11, 1943, ch. 298, § 7</ref>, <ref href="/us/stat/57/588">57 Stat. 588</ref>, provided for death and disability benefits of commissioned officers during war and for transfer of Service to military forces. See sections 213 and 217 of this title.</p>
+</note>
+<note topic="removalDescription" id="id885d2477-b817-11f1-8f24-e2a1175df5f8">
+<p style="-uslm-lc:I21" class="indent0">Section 1h, <ref href="/us/act/1943-11-11/ch298/s8">act Nov. 11, 1943, ch. 298, § 8</ref>, <ref href="/us/stat/57/589">57 Stat. 589</ref>, provided for commissioned officers’ benefits as civil officers and employees of United States and election of benefits. See Title 5, Government Organization and Employees.</p>
+</note>
+<note topic="removalDescription" id="id885d2478-b817-11f1-8f24-e2a1175df5f8">
+<p style="-uslm-lc:I21" class="indent0">Section 1i, <ref href="/us/act/1943-11-11/ch298/s9">act Nov. 11, 1943, ch. 298, § 9</ref>, <ref href="/us/stat/57/589">57 Stat. 589</ref>, provided for beneficiaries’ benefits where commissioned officer lost his life on active duty between <date date="1941-12-07">Dec. 7, 1941</date>, and <date date="1943-11-11">Nov. 11, 1943</date>.</p>
+</note>
+<note topic="removalDescription" id="id885d2479-b817-11f1-8f24-e2a1175df5f8">
+<p style="-uslm-lc:I21" class="indent0">Section 1j, <ref href="/us/act/1943-11-11/ch298/s11">act Nov. 11, 1943, ch. 298, § 11</ref>, <ref href="/us/stat/57/589">57 Stat. 589</ref>, provided for transfer of appropriations to continue transferred functions. See note set out under <ref href="/us/usc/t42/s201">section 201 of this title</ref>.</p>
+</note>
+<note style="-uslm-lc:I74" role="crossHeading" topic="statutoryNotes" id="id885d247a-b817-11f1-8f24-e2a1175df5f8"><heading class="centered"><b>Statutory Notes and Related Subsidiaries</b></heading></note>
+<note style="-uslm-lc:I74" topic="miscellaneous" id="id885d247b-b817-11f1-8f24-e2a1175df5f8"><heading class="centered smallCaps">Renumbering and Repeal of Repealing Act</heading><p style="-uslm-lc:I21" class="indent0">Title XIII, § 1313, formerly title VI, § 611, of act <date date="1944-07-01">July 1, 1944</date>, which repealed these sections, was renumbered title VII, § 711, by <ref href="/us/act/1946-08-13/ch958/s5">act Aug. 13, 1946, ch. 958, § 5</ref>, <ref href="/us/stat/60/1049">60 Stat. 1049</ref>; § 713, by <ref href="/us/act/1948-02-28/ch83/s9/b">act Feb. 28, 1948, ch. 83, § 9(b)</ref>, <ref href="/us/stat/62/47">62 Stat. 47</ref>; title VIII, § 813, by <ref href="/us/act/1956-07-30/ch779/s3/b">act July 30, 1956, ch. 779, § 3(b)</ref>, <ref href="/us/stat/70/721">70 Stat. 721</ref>; title IX, § 913, by <ref href="/us/pl/88/581/s4/b">Pub. L. 88–581, § 4(b)</ref>, <date date="1964-09-04">Sept. 4, 1964</date>, <ref href="/us/stat/78/919">78 Stat. 919</ref>; title X, § 1013, by <ref href="/us/pl/89/239/s3/b">Pub. L. 89–239, § 3(b)</ref>, <date date="1965-10-06">Oct. 6, 1965</date>, <ref href="/us/stat/79/931">79 Stat. 931</ref>; title XI, § 1113, by <ref href="/us/pl/91/572/s6/b">Pub. L. 91–572, § 6(b)</ref>, <date date="1970-12-24">Dec. 24, 1970</date>, <ref href="/us/stat/84/1506">84 Stat. 1506</ref>; title XII, § 1213, by <ref href="/us/pl/92/294/s3/b">Pub. L. 92–294, § 3(b)</ref>, <date date="1972-05-16">May 16, 1972</date>, <ref href="/us/stat/86/137">86 Stat. 137</ref>; title XIII, § 1313, by <ref href="/us/pl/93/154/s2/b/2">Pub. L. 93–154, § 2(b)(2)</ref>, <date date="1973-11-16">Nov. 16, 1973</date>, <ref href="/us/stat/87/604">87 Stat. 604</ref>, and was repealed by <ref href="/us/pl/93/222/s7/b">Pub. L. 93–222, § 7(b)</ref>, <date date="1973-12-29">Dec. 29, 1973</date>, <ref href="/us/stat/87/936">87 Stat. 936</ref>.</p>
+</note>
+</notes>
+</section>
+<section status="transferred" style="-uslm-lc:I80" id="id8861df05-b817-11f1-8f24-e2a1175df5f8" identifier="/us/usc/t42/s71...71l"><num value="71 to 71l">§§ 71 to 71l.</num><heading> Transferred</heading><notes type="uscNote" id="id8861df06-b817-11f1-8f24-e2a1175df5f8">
+<note style="-uslm-lc:I74" role="crossHeading" topic="editorialNotes" id="id8861df07-b817-11f1-8f24-e2a1175df5f8"><heading class="centered"><b>Editorial Notes</b></heading></note>
+<note style="-uslm-lc:I76" topic="codification" id="id8861df08-b817-11f1-8f24-e2a1175df5f8"><heading class="centered smallCaps">Codification</heading>
+<p style="-uslm-lc:I21" class="indent0">Section 71, <ref href="/us/act/1930-04-09/ch125/s1">act Apr. 9, 1930, ch. 125, § 1</ref>, <ref href="/us/stat/46/150">46 Stat. 150</ref>, which provided for a detail for duty with executive and independent departments carrying on public health activities, was transferred to <ref href="/us/usc/t42/s17a">section 17a of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71a, <ref href="/us/act/1930-04-09/ch125/s2/a">act Apr. 9, 1930, ch. 125, § 2(a)</ref>, <ref href="/us/stat/46/150">46 Stat. 150</ref>, which provided for a detail for duty with educational and research institutions, was transferred to <ref href="/us/usc/t42/s17b">section 17b of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71b, <ref href="/us/act/1930-04-09/ch125/s2/a">act Apr. 9, 1930, ch. 125, § 2(a)</ref>, <ref href="/us/stat/46/150">46 Stat. 150</ref>, which provided for extension of facilities of Service to health officials and scientist, was transferred to <ref href="/us/usc/t42/s8a">section 8a of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71c, acts <ref href="/us/act/1930-04-09/ch125/s2/b">Apr. 9, 1930, ch. 125, § 2(b)</ref>, <ref href="/us/stat/46/150">46 Stat. 150</ref>; <ref href="/us/act/1930-05-26/ch320/s1">May 26, 1930, ch. 320, § 1</ref>, <ref href="/us/stat/46/379">46 Stat. 379</ref>, which provided for additional divisions in Institute as authorized by Federal Security Administrator, was transferred to <ref href="/us/usc/t42/s23g">section 23g of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71d, <ref href="/us/act/1930-04-09/ch125/s3">act Apr. 9, 1930, ch. 125, § 3</ref>, <ref href="/us/stat/46/150">46 Stat. 150</ref>, which provided that administrative office and bureau divisions in District of Columbia be a part of departmental organization and scientific offices and research laboratories be a part of the field service, was transferred to <ref href="/us/usc/t42/s9a">section 9a of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71e, <ref href="/us/act/1930-04-09/ch125/s4">act Apr. 9, 1930, ch. 125, § 4</ref>, <ref href="/us/stat/46/150">46 Stat. 150</ref>, which provided for appointment and grades of medical, dental, sanitary, engineer, and pharmacist officers, was transferred to <ref href="/us/usc/t42/s38">section 38 of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71f, <ref href="/us/act/1930-04-09/ch125/s5">act Apr. 9, 1930, ch. 125, § 5</ref>, <ref href="/us/stat/46/150">46 Stat. 150</ref>, which provided for number, pay and allowances, and service credits for pay purposes of medical, dental, sanitary, engineer, and pharmacist officers, was transferred to <ref href="/us/usc/t42/s39">section 39 of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71g, <ref href="/us/act/1930-04-09/ch125/s6">act Apr. 9, 1930, ch. 125, § 6</ref>, <ref href="/us/stat/46/151">46 Stat. 151</ref>, which provided for assignment of Reserve officers to active duty and for such service counting for promotion credits, was transferred to <ref href="/us/usc/t42/s18a">section 18a of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71h, <ref href="/us/act/1930-04-09/ch125/s7">act Apr. 9, 1930, ch. 125, § 7</ref>, <ref href="/us/stat/46/151">46 Stat. 151</ref>, which provided for appointment of persons other than commissioned officers for scientific research, was transferred to <ref href="/us/usc/t42/s41">section 41 of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71i, <ref href="/us/act/1930-04-09/ch125/s8">act Apr. 9, 1930, ch. 125, § 8</ref>, <ref href="/us/stat/46/151">46 Stat. 151</ref>, which provided for disability pay for commissioned officers, was transferred to <ref href="/us/usc/t42/s66">section 66 of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71j, <ref href="/us/act/1930-04-09/ch125/s9">act Apr. 9, 1930, ch. 125, § 9</ref>, <ref href="/us/stat/46/151">46 Stat. 151</ref>, which provided for promotions and pay and allowances of commissioned officers, was transferred to <ref href="/us/usc/t42/s37">section 37 of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71k, <ref href="/us/act/1930-04-09/ch125/s10/a">act Apr. 9, 1930, ch. 125, § 10(a)</ref>, <ref href="/us/stat/46/152">46 Stat. 152</ref>, which provided titles for officers other than medical officers of Service, was transferred to <ref href="/us/usc/t42/s35">section 35 of this title</ref>.</p>
+<p style="-uslm-lc:I21" class="indent0">Section 71<i>l</i>, <ref href="/us/act/1930-04-09/ch125/s10/a">act Apr. 9, 1930, ch. 125, § 10(a)</ref>, <ref href="/us/stat/46/152">46 Stat. 152</ref>, which provided titles for officers in grade of Assistant Surgeon General, was transferred to <ref href="/us/usc/t42/s36">section 36 of this title</ref>.</p>
+</note>
+</notes>
+</section>
+<section style="-uslm-lc:I80" id="id88834a31-b817-11f1-8f24-e2a1175df5f8" identifier="/us/usc/t42/s217a–1"><num value="217a–1">§ 217a–1.</num><heading> Advisory committees; prohibition of consideration of political affiliations</heading><content>
+<p style="-uslm-lc:I11" class="indent0">All appointments to advisory committees established to assist in implementing the Public Health Service Act [<ref href="/us/usc/t42/s201">42 U.S.C. 201</ref> et seq.],<ref class="footnoteRef" idref="fn002008">1</ref><note type="footnote" id="fn002008"><num>1</num> So in original. The comma probably should not appear.</note> and the Comprehensive Alcohol Abuse and Alcoholism Prevention, Treatment, and Rehabilitation Act of 1970 [<ref href="/us/usc/t42/s4541">42 U.S.C. 4541</ref> et seq.], shall be made without regard to political affiliation.</p>
+</content><sourceCredit id="id88834a32-b817-11f1-8f24-e2a1175df5f8">(<ref href="/us/pl/94/278/tX/s1001">Pub. L. 94–278, title X, § 1001</ref>, <date date="1976-04-22">Apr. 22, 1976</date>, <ref href="/us/stat/90/415">90 Stat. 415</ref>; <ref href="/us/pl/111/256/s2/e">Pub. L. 111–256, § 2(e)</ref>, <date date="2010-10-05">Oct. 5, 2010</date>, <ref href="/us/stat/124/2643">124 Stat. 2643</ref>.)</sourceCredit>
+<notes type="uscNote" id="id88834a33-b817-11f1-8f24-e2a1175df5f8">
+<note style="-uslm-lc:I74" role="crossHeading" topic="editorialNotes" id="id88834a34-b817-11f1-8f24-e2a1175df5f8"><heading class="centered"><b>Editorial Notes</b></heading></note>
+<note style="-uslm-lc:I75" topic="referencesInText" id="id88834a35-b817-11f1-8f24-e2a1175df5f8">
+<heading class="centered smallCaps">References in Text</heading><p style="-uslm-lc:I21" class="indent0">The Public Health Service Act, referred to in text, is <ref href="/us/act/1944-07-01/ch373">act July 1, 1944, ch. 373</ref>, <ref href="/us/stat/58/682">58 Stat. 682</ref>, which is classified generally to this chapter (§ 201 et seq.). For complete classification of this Act to the Code, see Short Title note set out under <ref href="/us/usc/t42/s201">section 201 of this title</ref> and Tables.</p>
+<p style="-uslm-lc:I21" class="indent0">The Comprehensive Alcohol Abuse and Alcoholism Prevention, Treatment, and Rehabilitation Act of 1970, referred to in text, is <ref href="/us/pl/91/616">Pub. L. 91–616</ref>, <date date="1970-12-31">Dec. 31, 1970</date>, <ref href="/us/stat/84/1848">84 Stat. 1848</ref>, which is classified principally to chapter 60 (§ 4541 et seq.) of this title. For complete classification of this Act to the Code, see Short Title note set out under <ref href="/us/usc/t42/s4541">section 4541 of this title</ref> and Tables.</p>
+</note>
+<note style="-uslm-lc:I76" topic="codification" id="id88834a36-b817-11f1-8f24-e2a1175df5f8"><heading class="centered smallCaps">Codification</heading>
+<p style="-uslm-lc:I21" class="indent0">Section was not enacted as a part of the Public Health Service Act which comprises this chapter.</p>
+</note>
+<note style="-uslm-lc:I74" topic="amendments" id="id88834a37-b817-11f1-8f24-e2a1175df5f8"><heading class="centered smallCaps">Amendments</heading><p style="-uslm-lc:I21" class="indent0">2010—<ref href="/us/pl/111/256">Pub. L. 111–256</ref> struck out “the Mental Retardation Facilities and Community Mental Health Centers Construction Act of 1963,” after “Public Health Service Act,”.</p>
+</note>
+</notes>
+</section>
+<section style="-uslm-lc:I80" id="id8a4ac38c-b817-11f1-8f24-e2a1175df5f8" identifier="/us/usc/t42/s300gg–11"><num value="300gg–11">§ 300gg–11.</num><heading> No lifetime or annual limits</heading><subsection style="-uslm-lc:I19" class="indent2 firstIndent-2" id="id8a4ac38d-b817-11f1-8f24-e2a1175df5f8" identifier="/us/usc/t42/s300gg–11/a"><num value="a" class="bold">(a)</num><heading class="bold"> Prohibition</heading><paragraph style="-uslm-lc:I79" class="indent3 firstIndent-2" id="id8a4ac38e-b817-11f1-8f24-e2a1175df5f8" identifier="/us/usc/t42/s300gg–11/a/1"><num value="1" class="bold">(1)</num><heading class="bold"> In general</heading><chapeau style="-uslm-lc:I12" class="indent1">A group health plan and a health insurance issuer offering group or individual health insurance coverage may not establish—</chapeau><subparagraph style="-uslm-lc:I13" class="indent2" id="id8a4ac38f-b817-11f1-8f24-e2a1175df5f8" identifier="/us/usc/t42/s300gg–11/a/1/A"><num value="A">(A)</num><content> lifetime limits on the dollar value of benefits for any participant or beneficiary; or</content>
+</subparagraph>
+<subparagraph style="-uslm-lc:I13" class="indent2" id="id8a4ac390-b817-11f1-8f24-e2a1175df5f8" identifier="/us/usc/t42/s300gg–11/a/1/B"><num value="B">(B)</num><content> except as provided in paragraph (2), annual limits on the dollar value of benefits for any participant or beneficiary.</content>
+</subparagraph>
+</paragraph>
+<paragraph style="-uslm-lc:I79" class="indent3 firstIndent-2" id="id8a4ac391-b817-11f1-8f24-e2a1175df5f8" identifier="/us/usc/t42/s300gg–11/a/2"><num value="2" class="bold">(2)</num><heading class="bold"> Annual limits prior to 2014</heading><content><p style="-uslm-lc:I12" class="indent1">With respect to plan years beginning prior to <date date="2014-01-01">January 1, 2014</date>, a group health plan and a health insurance issuer offering group or individual health insurance coverage may only establish a restricted annual limit on the dollar value of benefits for any participant or beneficiary with respect to the scope of benefits that are essential health benefits under <ref href="/us/usc/t42/s18022/b">section 18022(b) of this title</ref>, as determined by the Secretary. In defining the term “restricted annual limit” for purposes of the preceding sentence, the Secretary shall ensure that access to needed services is made available with a minimal impact on premiums.</p>
+</content>
+</paragraph>
+</subsection>
+<subsection style="-uslm-lc:I19" class="indent2 firstIndent-2" id="id8a4ac392-b817-11f1-8f24-e2a1175df5f8" identifier="/us/usc/t42/s300gg–11/b"><num value="b" class="bold">(b)</num><heading class="bold"> Per beneficiary limits</heading><content><p style="-uslm-lc:I11" class="indent0">Subsection (a) shall not be construed to prevent a group health plan or health insurance coverage from placing annual or lifetime per beneficiary limits on specific covered benefits that are not essential health benefits under <ref href="/us/usc/t42/s18022/b">section 18022(b) of this title</ref>, to the extent that such limits are otherwise permitted under Federal or State law.</p>
+</content>
+</subsection>
+<sourceCredit id="id8a4ac393-b817-11f1-8f24-e2a1175df5f8">(<ref href="/us/act/1944-07-01/ch373">July 1, 1944, ch. 373</ref>, title XXVII, § 2711, as added and amended <ref href="/us/pl/111/148/tI/s1001/5">Pub. L. 111–148, title I, § 1001(5)</ref>, title X, § 10101(a), <date date="2010-03-23">Mar. 23, 2010</date>, <ref href="/us/stat/124/131">124 Stat. 131</ref>, 883.)</sourceCredit>
+<notes type="uscNote" id="id8a4ac394-b817-11f1-8f24-e2a1175df5f8">
+<note style="-uslm-lc:I74" role="crossHeading" topic="editorialNotes" id="id8a4ac395-b817-11f1-8f24-e2a1175df5f8"><heading class="centered"><b>Editorial Notes</b></heading></note>
+<note style="-uslm-lc:I74" topic="priorProvisions" id="id8a4ac396-b817-11f1-8f24-e2a1175df5f8"><heading class="centered smallCaps">Prior Provisions</heading><p style="-uslm-lc:I21" class="indent0">A prior section 300gg–11, <ref href="/us/act/1944-07-01/ch373/tXXVII/s2711">act July 1, 1944, ch. 373, title XXVII, § 2711</ref>, as added <ref href="/us/pl/104/191/tI/s102/a">Pub. L. 104–191, title I, § 102(a)</ref>, <date date="1996-08-21">Aug. 21, 1996</date>, <ref href="/us/stat/110/1962">110 Stat. 1962</ref>, which related to guaranteed availability of coverage for employers in a group market, was renumbered section 2731 of act <date date="1944-07-01">July 1, 1944</date>, amended, and transferred to subsecs. (c) and (d) of <ref href="/us/usc/t42/s300gg–1">section 300gg–1 of this title</ref>, by <ref href="/us/pl/111/148/tI">Pub. L. 111–148, title I</ref>, §§ 1001(3), 1563(c)(8), formerly § 1562(c)(8), title X, § 10107(b)(1), <date date="2010-03-23">Mar. 23, 2010</date>, <ref href="/us/stat/124/130">124 Stat. 130</ref>, 266, 911.</p>
+<p style="-uslm-lc:I21" class="indent0">Another prior section 2711 of act <date date="1944-07-01">July 1, 1944</date>, was successively renumbered by subsequent acts and transferred, see <ref href="/us/usc/t42/s238j">section 238j of this title</ref>.</p>
+</note>
+<note style="-uslm-lc:I74" topic="amendments" id="id8a4ac397-b817-11f1-8f24-e2a1175df5f8"><heading class="centered smallCaps">Amendments</heading><p style="-uslm-lc:I21" class="indent0">2010—<ref href="/us/pl/111/148/s10101/a">Pub. L. 111–148, § 10101(a)</ref>, amended section generally. Prior to amendment, text read as follows:</p>
+<p style="-uslm-lc:I21" class="indent0">“(a) <inline class="small-caps">In General</inline>.—A group health plan and a health insurance issuer offering group or individual health insurance coverage may not establish—</p>
+<p style="-uslm-lc:I22" class="indent1">“(1) lifetime limits on the dollar value of benefits for any participant or beneficiary; or</p>
+<p style="-uslm-lc:I22" class="indent1">“(2) unreasonable annual limits (within the meaning of <ref href="/us/usc/t26/s223">section 223 of title 26</ref>) on the dollar value of benefits for any participant or beneficiary.</p>
+<p style="-uslm-lc:I21" class="indent0">“(b) <inline class="small-caps">Per Beneficiary Limits</inline>.—Subsection (a) shall not be construed to prevent a group health plan or health insurance coverage that is not required to provide essential health benefits under <ref href="/us/usc/t42/s18022/b">section 18022(b) of this title</ref> from placing annual or lifetime per beneficiary limits on specific covered benefits to the extent that such limits are otherwise permitted under Federal or State law.”</p>
+</note>
+<note style="-uslm-lc:I74" role="crossHeading" topic="statutoryNotes" id="id8a4ac398-b817-11f1-8f24-e2a1175df5f8"><heading class="centered"><b>Statutory Notes and Related Subsidiaries</b></heading></note>
+<note style="-uslm-lc:I74" topic="effectiveDate" id="id8a4ac399-b817-11f1-8f24-e2a1175df5f8"><heading class="centered smallCaps">Effective Date</heading><p><ref href="/us/pl/111/148/tI/s1004">Pub. L. 111–148, title I, § 1004</ref>, <date date="2010-03-23">Mar. 23, 2010</date>, <ref href="/us/stat/124/140">124 Stat. 140</ref>, provided that:<quotedContent origin="/us/pl/111/148/tI/s1004">
+<subsection style="-uslm-lc:I21" class="indent0"><num value="a">“(a)</num><heading> <inline class="small-caps">In General</inline>.—</heading><content>Except as provided for in subsection (b), this subtitle [subtitle A (§§ 1001–1004) of title I of <ref href="/us/pl/111/148">Pub. L. 111–148</ref>, enacting this section and sections 300gg–12 to 300gg–15, 300gg–16 to 300gg–19, 300gg–93, and 300gg–94 of this title, amending former sections 300gg–11 and 300gg–12 of this title and sections 300gg–21 to 300gg–23 of this title, and transferring <ref href="/us/usc/t42/s300gg–13">section 300gg–13 of this title</ref> to <ref href="/us/usc/t42/s300gg–9">section 300gg–9 of this title</ref> and sections 300gg–4 to 300gg–7 of this title to sections 300gg–25 to 300gg–28 of this title, respectively] (and the amendments made by this subtitle) shall become effective for plan years beginning on or after the date that is 6 months after the date of enactment of this Act [<date date="2010-03-23">Mar. 23, 2010</date>], except that the amendments made by sections 1002 and 1003 [enacting sections 300gg–93 and 300gg–94 of this title] shall become effective for fiscal years beginning with fiscal year 2010.</content>
+</subsection>
+<subsection style="-uslm-lc:I21" class="indent0"><num value="b">“(b)</num><heading> <inline class="small-caps">Special Rule</inline>.—</heading><content>The amendments made by sections 1002 and 1003 [enacting sections 300gg–93 and 300gg–94 of this title] shall take effect on the date of enactment of this Act [<date date="2010-03-23">Mar. 23, 2010</date>].”</content>
+</subsection>
+</quotedContent>
+</p>
+</note>
+</notes>
+</section>
+</chapter>
+</title>
+</main>
+</uscDoc>

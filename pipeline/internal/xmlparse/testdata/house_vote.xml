@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rollcall-vote>
+  <vote-metadata>
+    <majority>Republican</majority>
+    <congress>119</congress>
+    <session>1st</session>
+    <rollcall-num>23</rollcall-num>
+    <vote-question>On Passage</vote-question>
+    <vote-type>YEA-AND-NAY</vote-type>
+    <vote-result>Passed</vote-result>
+    <action-date>15-Jan-2025</action-date>
+    <action-time time-etz="14:30">2:30 PM</action-time>
+    <vote-totals>
+      <totals-by-vote>
+        <yea-total>220</yea-total>
+        <nay-total>210</nay-total>
+        <present-total>1</present-total>
+        <not-voting-total>4</not-voting-total>
+      </totals-by-vote>
+    </vote-totals>
+  </vote-metadata>
+  <vote-data>
+    <recorded-vote>
+      <legislator name-id="A000001" party="D" state="CA" role="legislator">Doe, John</legislator>
+      <vote>Yea</vote>
+    </recorded-vote>
+    <recorded-vote>
+      <legislator name-id="B000002" party="R" state="TX" role="legislator">Smith, Jane</legislator>
+      <vote>Nay</vote>
+    </recorded-vote>
+    <recorded-vote>
+      <legislator name-id="C000003" party="D" state="NY" role="legislator">Jones, Bob</legislator>
+      <vote>Not Voting</vote>
+    </recorded-vote>
+  </vote-data>
+</rollcall-vote>

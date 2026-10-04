@@ -1,0 +1,7 @@
+{"bill_id":"hr-119-144","version_id":"v144ih","version_code":"ih","content_hash":"3f1a","line":1,"model":"gemini-3.8-flash","prompt_version":"bill-v4","input_truncated":false}
+{"bill_id":"s-119-12","version_id":"v12is","version_code":"is","content_hash":"9b20","line":2,"model":"gemini-3.8-flash","prompt_version":"bill-v4","input_truncated":true}
+{"bill_id":"hr-119-1","version_id":"v1rh","version_code":"rh","content_hash":"c7d4","line":3,"model":"gemini-3.8-flash","prompt_version":"bill-v4","input_truncated":false}
+{"bill_id":"hres-119-88","version_id":"v88ih","version_code":"ih","content_hash":"11ae","line":4,"model":"gemini-3.8-flash","prompt_version":"bill-v4","input_truncated":false}
+{"bill_id":"s-119-500","version_id":"v500es","version_code":"es","content_hash":"0d9e","line":5,"model":"gemini-3.8-flash","prompt_version":"bill-v4","input_truncated":false}
+{"bill_id":"hr-119-2670","version_id":"v2670enr","version_code":"enr","content_hash":"5a5c","line":6,"model":"gemini-3.8-flash","prompt_version":"bill-v4","input_truncated":false}
+{"bill_id":"sjres-119-3","version_id":"v3is","version_code":"is","content_hash":"e2b7","line":7,"model":"gemini-3.8-flash","prompt_version":"bill-v4","input_truncated":false}

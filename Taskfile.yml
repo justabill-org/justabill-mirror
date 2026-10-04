@@ -1,0 +1,743 @@
+version: "3"
+
+dotenv: [".env"]
+
+# Each repo's own tasks (this repo's: the guide and runbook checks, the public export). The public
+# repo gets its own .github/Taskfile.yml from public/ (docs/design/805-public-mirror.md).
+includes:
+  repo:
+    taskfile: .github/Taskfile.yml
+    dir: .
+    flatten: true
+
+vars:
+  SPANNER_PROJECT: justabill-local
+  SPANNER_INSTANCE: test-instance
+  SPANNER_DATABASE: justabill
+  # The service hosts default to localhost; the dev container (docker-compose.yml's dev service) sets
+  # its service names in the environment, which wins (docs/design/710-containerized-dev.md).
+  SPANNER_EMULATOR_HOST: '{{.SPANNER_EMULATOR_HOST | default "localhost:9010"}}'
+  REDIS_URL: '{{.REDIS_URL | default "redis://localhost:6379"}}'
+  CORS_ORIGIN: http://localhost:3000
+  NEXT_PUBLIC_API_URL: http://localhost:8080
+  FIREBASE_AUTH_EMULATOR_HOST: '{{.FIREBASE_AUTH_EMULATOR_HOST | default "localhost:9099"}}'
+  AUTH_PROJECT_ID: demo-justabill
+  # Schema migrations (#87). Pinned; the Go checksum database verifies it.
+  WRENCH: go run github.com/cloudspannerecosystem/wrench@v1.13.5
+  WRENCH_DB: --project ${SPANNER_PROJECT} --instance ${SPANNER_INSTANCE} --database ${SPANNER_DATABASE} --directory db
+
+env:
+  SPANNER_EMULATOR_HOST: "{{.SPANNER_EMULATOR_HOST}}"
+  SPANNER_PROJECT: "{{.SPANNER_PROJECT}}"
+  SPANNER_INSTANCE: "{{.SPANNER_INSTANCE}}"
+  SPANNER_DATABASE: "{{.SPANNER_DATABASE}}"
+  REDIS_URL: "{{.REDIS_URL}}"
+  CORS_ORIGIN: "{{.CORS_ORIGIN}}"
+  NEXT_PUBLIC_API_URL: "{{.NEXT_PUBLIC_API_URL}}"
+  FIREBASE_AUTH_EMULATOR_HOST: "{{.FIREBASE_AUTH_EMULATOR_HOST}}"
+  AUTH_PROJECT_ID: "{{.AUTH_PROJECT_ID}}"
+
+tasks:
+  # ---------------------------------------------------------------------------
+  # Setup
+  # ---------------------------------------------------------------------------
+  setup:
+    desc: Install the git hooks (.githooks/ pre-commit checks, conventional commit-msg and branch names)
+    cmds:
+      - git config core.hooksPath .githooks
+      - echo "Git hooks installed."
+
+  # ---------------------------------------------------------------------------
+  # Infrastructure
+  # ---------------------------------------------------------------------------
+  up:
+    desc: Start the whole Docker Compose stack (emulator, schema, Redis, API, pipeline, web)
+    cmds:
+      - docker compose up -d
+
+  infra:up:
+    desc: Start the Spanner emulator, the Auth emulator and Redis
+    cmds:
+      # A no-op in the dev container, where compose started them already.
+      - scripts/infra.sh up
+    status:
+      - docker compose ps --status running spanner-emulator | grep -q spanner
+      - docker compose ps --status running auth-emulator | grep -q auth-emulator
+      - docker compose ps --status running redis | grep -q redis
+
+  infra:down:
+    desc: Stop all Docker containers
+    cmds:
+      - docker compose down
+
+  migrate:
+    desc: Create the emulator instance and database if needed, then apply pending migrations
+    deps: [infra:up]
+    cmds:
+      # Exits with spanner-init's status. A new database is created from db/schema.sql and
+      # stamped with the latest migration version; an existing one is left as is. In the dev
+      # container compose ran spanner-init already, so this is a no-op there.
+      - scripts/infra.sh init
+      - task: db:migrate
+
+  # ---------------------------------------------------------------------------
+  # Schema migrations (wrench; db/migrations is the source of truth)
+  # ---------------------------------------------------------------------------
+  db:migrate:
+    desc: Apply pending db/migrations to $SPANNER_DATABASE (refuses a database that needs db:adopt)
+    cmds:
+      - WRENCH="{{.WRENCH}}" scripts/db-migrate.sh
+
+  db:new:
+    desc: Create the next migration file, e.g. task db:new NAME=add_member_votes_index
+    requires:
+      vars: [NAME]
+    cmds:
+      - "{{.WRENCH}} migrate create {{.NAME}} --directory db"
+
+  db:schema:
+    desc: Regenerate db/schema.sql from db/migrations (throwaway emulator database)
+    deps: [infra:up]
+    cmds:
+      - WRENCH="{{.WRENCH}}" scripts/db-schema.sh
+
+  db:schema:check:
+    desc: Fail if db/schema.sql doesn't match db/migrations
+    deps: [infra:up]
+    cmds:
+      - WRENCH="{{.WRENCH}}" scripts/db-schema.sh --check
+
+  db:rebase:
+    desc: Merge BASE (default origin/main), renumber this branch's migrations after its latest, and regenerate db/schema.sql
+    deps: [infra:up]
+    cmds:
+      - WRENCH="{{.WRENCH}}" scripts/db-rebase.sh {{.BASE | default "origin/main"}}
+
+  semconv:
+    desc: Check the telemetry conventions registry (obs/semconv/registry) and regenerate names.go and names.ts (Weaver in Docker)
+    cmds:
+      - scripts/semconv.sh
+
+  semconv:check:
+    desc: Fail if the conventions registry breaks Weaver's rules or the generated names are stale
+    cmds:
+      - scripts/semconv.sh --check
+
+  db:append-only:
+    desc: Fail if this branch modifies, renames or deletes a migration merged on BASE (default origin/main)
+    cmds:
+      - scripts/db-append-only.sh {{.BASE | default "origin/main"}}
+
+  db:upgrade-test:
+    desc: Apply this branch's new migrations to a seeded database at BASE's version (default origin/main)
+    deps: [infra:up]
+    cmds:
+      - WRENCH="{{.WRENCH}}" scripts/db-upgrade-test.sh {{.BASE | default "origin/main"}}
+
+  db:migrations-between:
+    desc: List the migrations between two releases for a deploy PR, flagging DROP (FROM=v0.2.0 TO=v0.3.0)
+    requires:
+      vars: [FROM, TO]
+    cmds:
+      - scripts/db-migrations-between.sh {{.FROM}} {{.TO}}
+
+  db:image:
+    desc: Build the migrate image (db/Dockerfile) that production runs as a Job before each rollout
+    cmds:
+      - docker build --network host -f db/Dockerfile -t justabill-migrate:local .
+
+  db:image:test:
+    desc: Build the migrate image and run it against a throwaway emulator database (fresh, no-op, rollback, failure)
+    deps: [infra:up]
+    cmds:
+      - WRENCH="{{.WRENCH}}" IMAGE=justabill-migrate:local scripts/db-migrate-image-test.sh
+
+  db:version:
+    desc: Print $SPANNER_DATABASE's migration version
+    cmds:
+      - "{{.WRENCH}} migrate version {{.WRENCH_DB}}"
+
+  db:adopt:
+    desc: Mark a database built from the pre-migrations schema.sql as version 1 (V=<n> overrides)
+    vars:
+      V: '{{.V | default "1"}}'
+    cmds:
+      - "{{.WRENCH}} migrate set {{.V}} {{.WRENCH_DB}}"
+
+  seed:
+    desc: Seed the row of the congress in progress, marked current (required before backfill)
+    deps: [migrate]
+    cmds:
+      - cd db && go run ./cmd/seed-congress
+
+  seed:past:
+    desc: Seed a past congress row, not current (task seed:past CONGRESS=118)
+    deps: [migrate]
+    requires:
+      vars: [CONGRESS]
+    cmds:
+      - cd db && go run ./cmd/seed-congress --congress {{.CONGRESS}}
+
+  # ---------------------------------------------------------------------------
+  # Local sign-in (Firebase Auth emulator)
+  # ---------------------------------------------------------------------------
+  auth:token:
+    desc: Print an emulator ID token for a fake Google user (SUB=local-dev by default)
+    vars:
+      SUB: '{{.SUB | default "local-dev"}}'
+    cmds:
+      - dev/auth-emulator/mint-token.sh {{.SUB}}
+
+  auth:reset:
+    desc: Delete every account in the Auth emulator
+    cmds:
+      - >-
+        curl -sS --fail-with-body -o /dev/null -X DELETE
+        "http://${FIREBASE_AUTH_EMULATOR_HOST}/emulator/v1/projects/${AUTH_PROJECT_ID}/accounts"
+
+  # ---------------------------------------------------------------------------
+  # Backfill
+  # ---------------------------------------------------------------------------
+  backfill:
+    desc: Backfill bills, members, votes, and texts from Congress API
+    deps: [seed]
+    vars:
+      LIMIT: '{{.LIMIT | default "100"}}'
+    cmds:
+      - >-
+        cd pipeline && go run ./cmd/backfill
+        --spanner-project {{.SPANNER_PROJECT}}
+        --spanner-instance {{.SPANNER_INSTANCE}}
+        --spanner-database {{.SPANNER_DATABASE}}
+        --limit {{.LIMIT}}
+        --steps members,bills,votes,texts,summaries,govinfo,gao
+
+  backfill:quick:
+    desc: Backfill without AI summaries or GovInfo
+    deps: [seed]
+    vars:
+      LIMIT: '{{.LIMIT | default "100"}}'
+    cmds:
+      - >-
+        cd pipeline && go run ./cmd/backfill
+        --spanner-project {{.SPANNER_PROJECT}}
+        --spanner-instance {{.SPANNER_INSTANCE}}
+        --spanner-database {{.SPANNER_DATABASE}}
+        --limit {{.LIMIT}}
+        --steps members,bills,votes,texts
+
+  backfill:members:
+    desc: Backfill only members
+    deps: [seed]
+    cmds:
+      - >-
+        cd pipeline && go run ./cmd/backfill
+        --spanner-project {{.SPANNER_PROJECT}}
+        --spanner-instance {{.SPANNER_INSTANCE}}
+        --spanner-database {{.SPANNER_DATABASE}}
+        --steps members
+
+  backfill:votes:
+    desc: Backfill members and votes (no bill walk)
+    deps: [seed]
+    cmds:
+      - >-
+        cd pipeline && go run ./cmd/backfill
+        --spanner-project {{.SPANNER_PROJECT}}
+        --spanner-instance {{.SPANNER_INSTANCE}}
+        --spanner-database {{.SPANNER_DATABASE}}
+        --steps members,votes
+
+  backfill:voted:
+    desc: Backfill members, votes, the bills the votes are about, and their texts (the launch load's first pass)
+    deps: [seed]
+    vars:
+      LIMIT: '{{.LIMIT | default "100"}}'
+    cmds:
+      - >-
+        cd pipeline && go run ./cmd/backfill
+        --spanner-project {{.SPANNER_PROJECT}}
+        --spanner-instance {{.SPANNER_INSTANCE}}
+        --spanner-database {{.SPANNER_DATABASE}}
+        --limit {{.LIMIT}}
+        --steps members,votes,voted-bills,texts
+
+  backfill:past:
+    desc: "Load a past congress: roster, terms, both sessions' votes and the bills they name (task backfill:past CONGRESS=118)"
+    requires:
+      vars: [CONGRESS]
+    cmds:
+      - task: seed:past
+        vars: {CONGRESS: '{{.CONGRESS}}'}
+      - >-
+        cd pipeline && go run ./cmd/backfill
+        --spanner-project {{.SPANNER_PROJECT}}
+        --spanner-instance {{.SPANNER_INSTANCE}}
+        --spanner-database {{.SPANNER_DATABASE}}
+        --congress {{.CONGRESS}}
+        --past-congress
+        {{.ARGS}}
+
+  spotcheck:
+    desc: "Compare the loaded data with the official record, read-only (ROLLS=20; CONGRESS=118; ARGS='--coverage --cut-line')"
+    vars:
+      ROLLS: '{{.ROLLS | default "20"}}'
+    cmds:
+      - >-
+        cd pipeline && go run ./cmd/spotcheck
+        --spanner-project {{.SPANNER_PROJECT}}
+        --spanner-instance {{.SPANNER_INSTANCE}}
+        --spanner-database {{.SPANNER_DATABASE}}
+        {{if .CONGRESS}}--congress {{.CONGRESS}}{{end}}
+        --rolls {{.ROLLS}}
+        {{.ARGS}}
+
+  backfill:links:
+    desc: "Rebuild the ontology link tables from stored bill JSON, no Congress API calls (CONGRESS=118; default: in progress)"
+    cmds:
+      - >-
+        cd pipeline && go run ./cmd/backfill links
+        --spanner-project {{.SPANNER_PROJECT}}
+        --spanner-instance {{.SPANNER_INSTANCE}}
+        --spanner-database {{.SPANNER_DATABASE}}
+        {{if .CONGRESS}}--congress {{.CONGRESS}}{{end}}
+
+  uscode:load:
+    desc: "Load the current US Code release point from uscode.house.gov (~109 MB download; FORCE=true reloads)"
+    vars:
+      FORCE: '{{.FORCE | default "false"}}'
+    cmds:
+      - >-
+        cd pipeline && go run ./cmd/load-uscode
+        --spanner-project {{.SPANNER_PROJECT}}
+        --spanner-instance {{.SPANNER_INSTANCE}}
+        --spanner-database {{.SPANNER_DATABASE}}
+        --force={{.FORCE}}
+
+  backfill:summaries:
+    desc: Generate AI summaries for bills that have text
+    deps: [seed]
+    vars:
+      LIMIT: '{{.LIMIT | default "50"}}'
+    cmds:
+      - >-
+        cd pipeline && go run ./cmd/backfill
+        --spanner-project {{.SPANNER_PROJECT}}
+        --spanner-instance {{.SPANNER_INSTANCE}}
+        --spanner-database {{.SPANNER_DATABASE}}
+        --limit {{.LIMIT}}
+        --steps summaries
+
+  # ---------------------------------------------------------------------------
+  # Services
+  # ---------------------------------------------------------------------------
+  api:
+    desc: Run the API server
+    deps: [migrate]
+    cmd: cd api && go run ./cmd/server
+
+  web:
+    desc: Run the Next.js frontend
+    dir: web
+    cmd: npm run dev
+
+  web:install:
+    desc: Install web dependencies
+    dir: web
+    cmds:
+      - npm install
+    sources:
+      - package.json
+      - package-lock.json
+    generates:
+      - node_modules/.package-lock.json
+
+  # ---------------------------------------------------------------------------
+  # Dev (all-in-one)
+  # ---------------------------------------------------------------------------
+  dev:
+    desc: Start infra, seed, API, and frontend
+    deps: [seed, web:install]
+    cmds:
+      - task: dev:services
+
+  dev:services:
+    desc: Run API and web concurrently (internal)
+    internal: true
+    deps:
+      - task: api
+      - task: web
+
+  # ---------------------------------------------------------------------------
+  # Test
+  # ---------------------------------------------------------------------------
+  test:
+    desc: Run all test suites
+    cmds:
+      - task: test:db
+      - task: test:api
+      - task: test:obs
+      - task: test:pipeline
+      - task: test:web
+
+  test:db:
+    desc: Run shared db module tests (emulator tests need the instance from migrate)
+    deps: [migrate]
+    cmds:
+      - scripts/db-migrations-between-test.sh
+      - cd db && go test ./...
+
+  test:api:
+    desc: Run API tests
+    cmd: cd api && go test ./...
+
+  test:obs:
+    desc: Run the obs (OpenTelemetry) module tests
+    cmd: cd obs && go test ./...
+
+  test:pipeline:
+    desc: Run pipeline tests
+    cmd: cd pipeline && go test ./...
+
+  test:web:
+    desc: Run web lint, type check and unit tests
+    deps: [web:install]
+    dir: web
+    cmds:
+      - npm run lint
+      - npm run typecheck
+      - npm test
+
+  # Playwright smoke tests (docs/design/84-e2e-smoke-tests.md). Starts the emulators (infra:up, the
+  # Auth emulator for e2e:sign-in); seeds its own database, so the dev database $SPANNER_DATABASE is
+  # untouched. The ports stay clear of a dev API (8080) and `next dev` (3000). ARGS go to playwright test.
+  # To run it next to another run on the same machine, give it its own database and all four ports,
+  # including the Census and OTLP stubs':
+  # `task e2e E2E_DATABASE=e2e_<n> E2E_API_PORT=… E2E_WEB_PORT=… E2E_CENSUS_PORT=… E2E_OTLP_PORT=…`.
+  e2e:
+    desc: Build the API and web app, seed justabill_e2e and run the Playwright smoke tests
+    vars:
+      E2E_DATABASE: '{{.E2E_DATABASE | default "justabill_e2e"}}'
+      E2E_API_PORT: '{{.E2E_API_PORT | default "18080"}}'
+      E2E_WEB_PORT: '{{.E2E_WEB_PORT | default "13000"}}'
+      E2E_CENSUS_PORT: '{{.E2E_CENSUS_PORT | default "18089"}}'
+      E2E_OTLP_PORT: '{{.E2E_OTLP_PORT | default "18090"}}'
+    env:
+      E2E_SPANNER_DATABASE: "{{.E2E_DATABASE}}"
+      E2E_API_PORT: "{{.E2E_API_PORT}}"
+      E2E_WEB_PORT: "{{.E2E_WEB_PORT}}"
+      E2E_CENSUS_PORT: "{{.E2E_CENSUS_PORT}}"
+      E2E_OTLP_PORT: "{{.E2E_OTLP_PORT}}"
+      NEXT_TELEMETRY_DISABLED: "1"
+    cmds:
+      - task: e2e:build
+        vars: {E2E_DATABASE: "{{.E2E_DATABASE}}", E2E_API_PORT: "{{.E2E_API_PORT}}"}
+      # Downloads Chromium once; CI and task docker:e2e use the browsers in the Playwright image instead.
+      - cd web && npx playwright install chromium
+      - cd web && npm run test:e2e -- {{.ARGS}}
+
+  # The first half of e2e: the static API binary playwright.config.ts starts (api/bin/e2e-api), the
+  # seeded database and the production web build, which inlines the API's URL. task docker:e2e runs it
+  # in the dev container, where infra:up is a no-op, and the tests in the Playwright image.
+  e2e:build:
+    desc: Build the API and web app for the smoke tests and seed justabill_e2e (task e2e runs the tests too)
+    deps: [web:install, infra:up]
+    vars:
+      E2E_DATABASE: '{{.E2E_DATABASE | default "justabill_e2e"}}'
+      E2E_API_PORT: '{{.E2E_API_PORT | default "18080"}}'
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    cmds:
+      - cd api && CGO_ENABLED=0 go build -o bin/e2e-api ./cmd/server
+      - cd db && SPANNER_DATABASE={{.E2E_DATABASE}} go run ./cmd/e2e-seed
+      - cd web && NEXT_PUBLIC_API_URL=http://localhost:{{.E2E_API_PORT}} npm run build
+
+  # The smoke tests with accounts on, including e2e/sign-in.spec.ts and e2e/signed-in.spec.ts: sign-in
+  # through the Firebase Auth emulator. The web build gets accounts and the emulator config. CI's
+  # Web E2E job runs both: e2e, then the same as this.
+  e2e:sign-in:
+    desc: Run the Playwright smoke tests with accounts on, including sign-in through the Auth emulator
+    cmds:
+      # A nested run, so `task e2e` and its web build see this environment. It passes on the database
+      # and ports given to this task; unset, they're empty and `task e2e` uses its defaults.
+      - >-
+        E2E_AUTH_EMULATOR_HOST={{.FIREBASE_AUTH_EMULATOR_HOST}}
+        NEXT_PUBLIC_ACCOUNTS_ENABLED=true
+        NEXT_PUBLIC_FIREBASE_API_KEY=fake-api-key
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=localhost
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID={{.AUTH_PROJECT_ID}}
+        NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST={{.FIREBASE_AUTH_EMULATOR_HOST}}
+        task e2e ARGS='{{.ARGS}}'
+        E2E_DATABASE='{{.E2E_DATABASE}}' E2E_API_PORT='{{.E2E_API_PORT}}' E2E_WEB_PORT='{{.E2E_WEB_PORT}}'
+        E2E_CENSUS_PORT='{{.E2E_CENSUS_PORT}}' E2E_OTLP_PORT='{{.E2E_OTLP_PORT}}'
+
+  # Coverage floors: {db,api,obs,pipeline}/.testcoverage.yml and web/vitest.config.ts. CI runs the same
+  # checks. Feature PRs don't edit the floors; CI also fails a PR below main's coverage (CLAUDE.md).
+  cover:
+    desc: Run every module's tests with coverage and check them against the floors (needs infra:up)
+    cmds:
+      - task: cover:db
+      - task: cover:api
+      - task: cover:obs
+      - task: cover:pipeline
+      - task: cover:web
+
+  cover:db:
+    desc: db coverage against db/.testcoverage.yml
+    deps: [migrate]
+    dir: db
+    cmds:
+      - go test -race -shuffle=on -coverprofile=coverage.out ./...
+      - ../.github/scripts/go-coverage.sh
+
+  cover:api:
+    desc: API coverage against api/.testcoverage.yml (Redis and the Auth emulator must be up, as in CI)
+    dir: api
+    cmds:
+      - go test -race -shuffle=on -coverprofile=coverage.out ./...
+      - ../.github/scripts/go-coverage.sh
+
+  cover:obs:
+    desc: obs coverage against obs/.testcoverage.yml
+    dir: obs
+    cmds:
+      - go test -race -shuffle=on -coverprofile=coverage.out ./...
+      - ../.github/scripts/go-coverage.sh
+
+  cover:pipeline:
+    desc: Pipeline coverage against pipeline/.testcoverage.yml
+    dir: pipeline
+    cmds:
+      - go test -race -shuffle=on -coverprofile=coverage.out ./...
+      - ../.github/scripts/go-coverage.sh
+
+  cover:web:
+    desc: Web unit-test coverage against the thresholds in web/vitest.config.ts
+    deps: [web:install]
+    dir: web
+    cmd: npm run test:coverage
+
+  cover:html:
+    desc: Print the HTML coverage reports written by `task cover`
+    cmds:
+      - for: [db/coverage.html, api/coverage.html, obs/coverage.html, pipeline/coverage.html, web/coverage/index.html]
+        cmd: '[ -f {{.ITEM}} ] && echo "file://{{.ROOT_DIR}}/{{.ITEM}}" || echo "{{.ITEM}}: run task cover first"'
+
+  # ---------------------------------------------------------------------------
+  # Speed (#873): reported, never enforced. Compare runs on the same machine; the route timings of
+  # a deployment come from scripts/speed-smoke.sh <base-url>.
+  # ---------------------------------------------------------------------------
+  bench:
+    desc: Go benchmarks of the API's and pipeline's hot paths (BENCH=<regexp>, COUNT=<runs>; cache hits need Redis)
+    vars:
+      BENCH: '{{.BENCH | default "."}}'
+      COUNT: '{{.COUNT | default "1"}}'
+    cmds:
+      - for: [api, pipeline]
+        # Only the benchmark lines and any failure: drops each package's PASS and ok lines.
+        cmd: |
+          set -o pipefail
+          cd {{.ITEM}} && go test -run '^$' -bench '{{.BENCH}}' -benchmem -count {{.COUNT}} ./... |
+            { grep -Ev '^(PASS$|ok  |\?  )' || true; }
+
+  # ---------------------------------------------------------------------------
+  # Lint
+  # ---------------------------------------------------------------------------
+  lint:
+    desc: Lint all modules
+    cmds:
+      - task: lint:db
+      - task: lint:api
+      - task: lint:obs
+      - task: lint:pipeline
+      - task: lint:web
+      - task: license:check
+      - task: lint:repo
+
+  lint:api:
+    desc: Lint Go API code
+    cmd: cd api && golangci-lint run
+
+  lint:obs:
+    desc: Lint the obs (OpenTelemetry) module
+    cmd: cd obs && golangci-lint run
+
+  lint:pipeline:
+    desc: Lint Go pipeline code
+    cmd: cd pipeline && golangci-lint run
+
+  lint:db:
+    desc: Lint the shared db module
+    cmd: cd db && golangci-lint run
+
+  license:check:
+    desc: Check every Go and npm dependency's license against .github/license-policy.json
+    cmd: .github/scripts/license-check.sh
+
+  lint:web:
+    desc: Lint web frontend
+    deps: [web:install]
+    dir: web
+    cmd: npm run lint
+
+  # ---------------------------------------------------------------------------
+  # The dev container (docs/design/710-containerized-dev.md): the targets above, run with the pinned
+  # toolchain in docker-compose.yml's dev service, for a host with only Docker and Task (macOS or
+  # Linux). `docker compose run` starts the emulators and Redis first. semconv and db:image:test run
+  # docker themselves, so they stay on the host; docker:e2e splits e2e between two containers.
+  # ---------------------------------------------------------------------------
+  docker:build:
+    desc: Build the dev image (dev/Dockerfile) the docker:* targets run in; again after it changes
+    cmds:
+      - docker compose --profile dev build dev
+
+  docker:test:
+    desc: "Run task test in the dev container (task docker:test -- test:api runs other targets)"
+    cmds:
+      - task: docker:task
+        vars: {TASKS: '{{.CLI_ARGS | default "test"}}'}
+
+  docker:lint:
+    desc: "Run task lint in the dev container (task docker:lint -- lint:web runs other targets)"
+    cmds:
+      - task: docker:task
+        vars: {TASKS: '{{.CLI_ARGS | default "lint"}}'}
+
+  docker:cover:
+    desc: "Run task cover in the dev container (task docker:cover -- cover:api runs other targets)"
+    cmds:
+      - task: docker:task
+        vars: {TASKS: '{{.CLI_ARGS | default "cover"}}'}
+
+  docker:shell:
+    desc: Open a Bash shell in the dev container, with the emulators and Redis up
+    cmds:
+      - task: docker:compose-run
+        vars: {CMD: bash}
+
+  docker:run:
+    desc: "Run a command in the dev container from the current directory (cd api && task docker:run -- go test ./internal/cache/)"
+    preconditions:
+      - sh: '{{if .CLI_ARGS}}true{{else}}false{{end}}'
+        msg: "Name the command after --, e.g. task docker:run -- go test ./..."
+    cmds:
+      - task: docker:compose-run
+        vars:
+          DIR: '{{relPath .ROOT_DIR .USER_WORKING_DIR}}'
+          CMD: '{{.CLI_ARGS}}'
+
+  # task e2e for a host with only Docker and Task (#829): the dev container builds the API and the web
+  # app and seeds justabill_e2e (e2e:build), then the specs run in compose's playwright service, the
+  # official image CI's Web E2E job runs them in, on the compose network and as the host user. The API
+  # and web ports are that container's own, so a dev API or `task e2e` on the host doesn't collide.
+  docker:e2e:
+    desc: "Run the Playwright smoke tests in containers (task docker:e2e -- --grep <spec> runs some)"
+    cmds:
+      - task: docker:e2e-run
+
+  docker:e2e:sign-in:
+    desc: Run the Playwright smoke tests in containers with accounts on, as e2e:sign-in does
+    cmds:
+      - task: docker:e2e-run
+        vars:
+          # The browser runs in the Playwright container, so the web build names the emulator by its
+          # compose service name, as CI does.
+          BUILD_ENV: >-
+            NEXT_PUBLIC_ACCOUNTS_ENABLED=true
+            NEXT_PUBLIC_FIREBASE_API_KEY=fake-api-key
+            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=localhost
+            NEXT_PUBLIC_FIREBASE_PROJECT_ID={{.AUTH_PROJECT_ID}}
+            NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=auth-emulator:9099
+          RUN_ENV: -e E2E_AUTH_EMULATOR_HOST=auth-emulator:9099 -e E2E_AUTH_PROJECT_ID={{.AUTH_PROJECT_ID}}
+
+  # The Playwright image must match @playwright/test; CI's Web E2E job checks it's also the one CI runs.
+  docker:e2e-run:
+    internal: true
+    preconditions:
+      - sh: >-
+          grep -qE "^ *image: *mcr\.microsoft\.com/playwright:v$(jq -r '.devDependencies["@playwright/test"]'
+          web/package.json)-" docker-compose.yml
+        msg: docker-compose.yml's playwright image doesn't match @playwright/test in web/package.json
+    cmds:
+      - task: docker:compose-run
+        vars: {CMD: 'env {{.BUILD_ENV}} task e2e:build'}
+      - >-
+        JAB_UID=$(id -u) JAB_GID=$(id -g)
+        docker compose run --rm {{.RUN_ENV}} playwright npm run test:e2e -- {{.CLI_ARGS}}
+
+  docker:clean:
+    desc: Remove the dev container's Go, npm and node_modules volumes (the next run starts cold)
+    cmds:
+      - docker compose --profile dev down --volumes dev
+
+  docker:task:
+    internal: true
+    cmds:
+      - task: docker:compose-run
+        vars: {CMD: 'task {{.TASKS}}'}
+
+  # Runs as the host user, so coverage.out and friends stay the user's on Linux. Docker would create
+  # the node_modules volume's missing mount point in the checkout as root, so it's made first.
+  docker:compose-run:
+    internal: true
+    preconditions:
+      - sh: '[ "${JAB_IN_CONTAINER:-}" != 1 ]'
+        msg: Already in the dev container; run the target without docker:, e.g. task test
+    cmds:
+      - mkdir -p web/node_modules
+      - >-
+        JAB_UID=$(id -u) JAB_GID=$(id -g)
+        docker compose run --rm -w /work/{{.DIR | default "."}} dev {{.CMD}}
+
+  # ---------------------------------------------------------------------------
+  # Docs
+  # ---------------------------------------------------------------------------
+  docs:
+    desc: Serve the Go modules' godoc at http://localhost:6060 (pkgsite; Ctrl-C stops it)
+    cmds:
+      - echo "Serving http://localhost:6060/github.com/justabill-org/justabill/db (also /api, /obs and /pipeline)"
+      - go run golang.org/x/pkgsite/cmd/pkgsite@v0.5.0 -list=false -http localhost:6060 ./db ./api ./obs ./pipeline
+
+  # ---------------------------------------------------------------------------
+  # Build
+  # ---------------------------------------------------------------------------
+  build:
+    desc: Build all binaries
+    cmds:
+      - task: build:api
+      - task: build:pipeline
+      - task: build:web
+
+  build:api:
+    desc: Build the API and vercel-drain binaries
+    cmds:
+      - cd api && go build -o bin/server ./cmd/server
+      - cd api && go build -o bin/vercel-drain ./cmd/vercel-drain
+
+  build:pipeline:
+    desc: Build pipeline binaries
+    cmds:
+      - cd pipeline && go build -o bin/pipeline-serve ./cmd/serve
+      - cd pipeline && go build -o bin/pipeline-backfill ./cmd/backfill
+      - cd pipeline && go build -o bin/pipeline-load-uscode ./cmd/load-uscode
+      - cd pipeline && go build -o bin/pipeline-aggregates ./cmd/aggregates
+
+  build:web:
+    desc: Build web frontend
+    dir: web
+    cmd: npm run build
+
+  # ---------------------------------------------------------------------------
+  # Cleanup
+  # ---------------------------------------------------------------------------
+  clean:
+    desc: Remove build artifacts
+    cmds:
+      - rm -rf api/bin pipeline/bin web/.next web/node_modules/.cache
+
+  down:
+    desc: Stop everything (containers + background processes)
+    cmds:
+      - docker compose down
+      - pkill -f "go run ./cmd/server" || true
+      - pkill -f "next dev" || true

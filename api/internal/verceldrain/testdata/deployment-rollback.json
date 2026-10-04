@@ -1,0 +1,1 @@
+{"id":"evt_dep_2","type":"deployment.rollback","createdAt":"2026-09-21T19:40:00Z","region":null,"payload":{"team":{"id":"team_1"},"user":{"id":"user_1"},"project":{"id":"prj_1"},"fromDeploymentId":"dpl_new","toDeploymentId":"dpl_old"}}

@@ -1,0 +1,127 @@
+name: CI
+
+# This repository's CI. It runs on GitHub-hosted runners with a read-only token and no secrets, so
+# a pull request from a fork runs here safely (first-time contributors wait for the maintainer's
+# approval to run it). Every action is pinned to a full commit SHA, with its version in a comment.
+#
+#   Build and test  builds, tests and lints each module through Task, as CONTRIBUTING.md describes
+#   DCO             every commit's Signed-off-by line
+# The Conventional check (the title) is conventional.yml, so editing a title re-runs only it.
+#   Secret Scan     gitleaks over the whole history
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: api/go.mod
+          cache-dependency-path: "*/go.sum"
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      # The same Task as the dev image (dev/Dockerfile); the Go checksum database verifies it.
+      - name: Install Task
+        run: go install github.com/go-task/task/v3/cmd/task@v3.54.0
+
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          version: v2.14.0
+          install-only: true
+
+      # The Spanner emulator, the Auth emulator and Redis, in Docker, for the tests that need them.
+      - name: Start the local services
+        run: task infra:up
+
+      - name: Install web dependencies
+        run: task web:install
+
+      - name: Build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: task build
+
+      - name: Test
+        run: task test
+
+      - name: Lint
+        run: task lint
+
+  dco:
+    name: DCO
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check every commit's sign-off
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          .github/scripts/dco-test.sh
+          .github/scripts/dco.sh "$BASE" "$HEAD"
+
+  # The gitleaks binary is pinned by version and SHA-256 (gitleaks-action needs a license key on
+  # organization repositories).
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITLEAKS_VERSION: 8.30.1
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb # linux_x64
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install gitleaks
+        run: |
+          dir="$RUNNER_TEMP/gitleaks"
+          mkdir -p "$dir"
+          tarball="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL --retry 3 -o "$dir/$tarball" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${tarball}"
+          echo "${GITLEAKS_SHA256}  $dir/$tarball" | sha256sum --check --strict
+          tar -xzf "$dir/$tarball" -C "$dir" gitleaks
+          echo "$dir" >>"$GITHUB_PATH"
+
+      # Findings print redacted. gitleaks exits 0 when `git log` fails partway, so fail on any error
+      # it logs.
+      - name: Scan git history
+        shell: bash
+        run: |
+          gitleaks git --redact --no-banner --verbose . 2>&1 | tee "$RUNNER_TEMP/gitleaks.log"
+          if sed 's/\x1b\[[0-9;]*m//g' "$RUNNER_TEMP/gitleaks.log" | grep -qE '^[0-9:]+[AP]M (ERR|FTL) '; then
+            echo "::error::gitleaks reported an error; the scan is incomplete"
+            exit 1
+          fi

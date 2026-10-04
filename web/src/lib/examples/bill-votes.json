@@ -1,0 +1,17 @@
+[
+    {
+        "id": "house-119-roll019",
+        "bill_id": "hr-119-187",
+        "congress": 119,
+        "chamber": "House",
+        "session": 1,
+        "roll_number": 19,
+        "vote_date": "2025-01-21T00:00:00Z",
+        "question": "On Motion to Suspend the Rules and Pass, as Amended",
+        "result": "Passed",
+        "yeas": 413,
+        "nays": 0,
+        "present": 0,
+        "not_voting": 19
+    }
+]

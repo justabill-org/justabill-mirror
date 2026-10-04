@@ -1,0 +1,36 @@
+name: Bug report
+description: Something on the site or in the code is broken
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues here are public. Don't include your address, email or anything else personal, and
+        report security problems privately (see SECURITY.md). Wrong bill, member or vote data has
+        its own form.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The page or endpoint, what you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to …
+        2. Select …
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Browser and device, or the release
+      description: For example "Firefox 140 on Android", or a release tag if you ran the code yourself.
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: Screenshots or error messages (with personal details removed).

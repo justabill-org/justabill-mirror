@@ -1,0 +1,400 @@
+groups:
+  - id: registry.justabill.job
+    type: attribute_group
+    display_name: Pipeline job attributes
+    brief: Attributes of a pipeline job run (the scheduler and backfill).
+    attributes:
+      - id: justabill.job.name
+        type: string
+        stability: development
+        brief: The name of the pipeline job.
+        note: One of the scheduler's job names. Never carries a bill, member or user ID.
+        examples: ["bills", "votes", "texts", "summaries"]
+      - id: justabill.job.outcome
+        stability: development
+        brief: How a pipeline job run ended.
+        type:
+          members:
+            - id: ok
+              value: "ok"
+              stability: development
+              brief: The run returned no error before its deadline.
+            - id: failed
+              value: "failed"
+              stability: development
+              brief: The run returned an error.
+            - id: timeout
+              value: "timeout"
+              stability: development
+              brief: The run passed the job's timeout.
+            - id: canceled
+              value: "canceled"
+              stability: development
+              brief: The scheduler's context was canceled, as on shutdown.
+            - id: unavailable
+              value: "unavailable"
+              stability: development
+              brief: The job's upstream source was down, as for maintenance, and the job will try again soon.
+      - id: justabill.job.duration
+        type: double
+        stability: development
+        brief: How long a pipeline job run took, in seconds.
+        examples: [12.5, 840.0]
+      - id: justabill.job.items.ok
+        type: int
+        stability: development
+        brief: The number of items a pipeline job run processed successfully.
+        examples: [250]
+      - id: justabill.job.items.failed
+        type: int
+        stability: development
+        brief: The number of items a pipeline job run failed to process.
+        examples: [0, 3]
+
+  - id: registry.justabill.item
+    type: attribute_group
+    display_name: Pipeline item attributes
+    brief: Attributes of one item (a bill, vote or text) handled by a pipeline job.
+    attributes:
+      - id: justabill.item.outcome
+        stability: development
+        brief: What happened to one item in a pipeline job.
+        type:
+          members:
+            - id: ok
+              value: "ok"
+              stability: development
+              brief: The item was written.
+            - id: failed
+              value: "failed"
+              stability: development
+              brief: The item failed and will be retried on a later run.
+            - id: skipped
+              value: "skipped"
+              stability: development
+              brief: The item was unchanged or out of scope, so nothing was written.
+
+  - id: registry.justabill.summary
+    type: attribute_group
+    display_name: AI summary attributes
+    brief: Attributes of a plain-language bill summary or law-change explanation request to Gemini.
+    attributes:
+      - id: justabill.summary.outcome
+        stability: development
+        brief: How a summary or law-change explanation request to Gemini ended.
+        type:
+          members:
+            - id: ok
+              value: "ok"
+              stability: development
+              brief: The model returned a usable summary.
+            - id: safety_blocked
+              value: "safety_blocked"
+              stability: development
+              brief: The model's safety filters blocked the prompt or the response.
+            - id: empty
+              value: "empty"
+              stability: development
+              brief: The model returned no usable text.
+            - id: error
+              value: "error"
+              stability: development
+              brief: The request failed, for example with a network error or a 5xx.
+
+  - id: registry.justabill.app_check
+    type: attribute_group
+    display_name: App Check attributes
+    brief: Attributes of a Firebase App Check verification on the API's write routes.
+    attributes:
+      - id: justabill.app_check.result
+        stability: development
+        brief: How an App Check token check ended.
+        type:
+          members:
+            - id: ok
+              value: "ok"
+              stability: development
+              brief: The token was valid.
+            - id: missing
+              value: "missing"
+              stability: development
+              brief: The request had no App Check token.
+            - id: invalid
+              value: "invalid"
+              stability: development
+              brief: The token was malformed, expired, or signed for another project.
+            - id: error
+              value: "error"
+              stability: development
+              brief: The token couldn't be checked, for example because Google's signing keys were unavailable.
+      - id: justabill.app_check.mode
+        stability: development
+        brief: The API's APP_CHECK_MODE when the token was checked.
+        note: Nothing is checked, or counted, when the mode is off.
+        type:
+          members:
+            - id: audit
+              value: "audit"
+              stability: development
+              brief: A failed check is recorded on the vote, and the request continues.
+            - id: enforce
+              value: "enforce"
+              stability: development
+              brief: A failed check rejects the request.
+
+  - id: registry.justabill.aggregates
+    type: attribute_group
+    display_name: Vote aggregates attributes
+    brief: Attributes of the aggregate-votes job's cells and votes (docs/design/89-aggregate-analytics.md).
+    attributes:
+      - id: justabill.aggregates.status
+        stability: development
+        brief: A vote_aggregates cell's status after a run.
+        type:
+          members:
+            - id: published
+              value: "published"
+              stability: development
+              brief: The cell shows its rounded numbers.
+            - id: suppressed
+              value: "suppressed"
+              stability: development
+              brief: The cell has too few eligible votes, or was held before it was ever shown, and isn't served.
+            - id: held
+              value: "held"
+              stability: development
+              brief: The cell keeps its last published numbers under review.
+      - id: justabill.aggregates.hold_reason
+        stability: development
+        brief: The anomaly rule that put a cell on hold.
+        type:
+          members:
+            - id: burst
+              value: "burst"
+              stability: development
+              brief: Votes in the last hour exceeded the burst factor times the trailing hourly mean.
+            - id: young_accounts
+              value: "young_accounts"
+              stability: development
+              brief: Too many of the new votes since the last publish came from young accounts.
+            - id: swing
+              value: "swing"
+              stability: development
+              brief: The Yea share moved too far in one publish.
+      - id: justabill.aggregates.eligibility
+        stability: development
+        brief: Whether a user vote counts in the aggregates, or why not.
+        type:
+          members:
+            - id: eligible
+              value: "eligible"
+              stability: development
+              brief: The vote counts.
+            - id: young_account
+              value: "young_account"
+              stability: development
+              brief: The account is younger than the minimum age.
+            - id: app_check
+              value: "app_check"
+              stability: development
+              brief: The vote didn't pass App Check when it was cast.
+            - id: excluded
+              value: "excluded"
+              stability: development
+              brief: The account was excluded from the aggregates with the aggregates CLI.
+
+  - id: registry.justabill.experiment
+    type: attribute_group
+    display_name: Experiment attributes
+    brief: Attributes of an A/B experiment's exposure and conversion counts (docs/design/580-ab-experiments.md).
+    attributes:
+      - id: justabill.experiment.id
+        type: string
+        stability: development
+        brief: The experiment's id in the web app's experiment registry.
+        note: >
+          One of the ids in web/src/lib/experiments/registry.ts, so its values are bounded. Never
+          carries a user, bill or member ID.
+        examples: ["vote-deck-layout"]
+      - id: justabill.experiment.variant
+        stability: development
+        brief: The arm of the experiment the visitor was shown.
+        type:
+          members:
+            - id: control
+              value: "control"
+              stability: development
+              brief: The page as it is without the experiment.
+            - id: treatment
+              value: "treatment"
+              stability: development
+              brief: The version of the page under test.
+
+  - id: registry.justabill.vercel
+    type: attribute_group
+    display_name: Vercel attributes
+    brief: Attributes of events that vercel-drain forwards from Vercel.
+    attributes:
+      - id: justabill.vercel.alert.type
+        type: string
+        stability: development
+        brief: The type of a Vercel alert, as Vercel names it.
+        examples: ["usage_anomaly", "error_anomaly"]
+      - id: justabill.vercel.deployment.state
+        type: string
+        stability: development
+        brief: The state of a Vercel deployment, as Vercel names it.
+        examples: ["READY", "ERROR", "CANCELED"]
+      - id: justabill.vercel.source
+        type: string
+        stability: development
+        brief: Where a Vercel log drain line came from, as Vercel names it.
+        examples: ["lambda", "build", "edge"]
+      - id: justabill.vercel.request.id
+        type: string
+        stability: development
+        brief: Vercel's ID for the request a drain line belongs to, for finding it in Vercel's dashboard.
+        examples: ["643af4e3-975a-4cc7-9e7a-1eda11539d90"]
+      - id: justabill.vercel.failure.kind
+        stability: development
+        brief: How a web function request failed, from Vercel's drain lines.
+        note: >-
+          Set by vercel-drain's counting rule (docs/design/473-vercel-function-failures.md). The
+          alert reads crash and timeout; error overlaps http.server.request.duration on purpose.
+        type:
+          members:
+            - id: crash
+              value: "crash"
+              stability: development
+              brief: The function returned no response (statusCode -1) and the client didn't get a timeout.
+            - id: timeout
+              value: "timeout"
+              stability: development
+              brief: The client got 504, as on a function timeout.
+            - id: error
+              value: "error"
+              stability: development
+              brief: The client got another 5xx.
+            - id: background
+              value: "background"
+              stability: development
+              brief: A background revalidation failed; the client got a cached page.
+      - id: justabill.vercel.log.type
+        stability: development
+        brief: The output type of a Vercel log drain line (Vercel's type field).
+        note: Vercel's documented values; anything else is _OTHER.
+        type:
+          members:
+            - id: command
+              value: "command"
+              stability: development
+              brief: Vercel's command output type.
+            - id: stdout
+              value: "stdout"
+              stability: development
+              brief: Vercel's stdout output type.
+            - id: stderr
+              value: "stderr"
+              stability: development
+              brief: Vercel's stderr output type.
+            - id: exit
+              value: "exit"
+              stability: development
+              brief: Vercel's exit output type.
+            - id: deployment_state
+              value: "deployment-state"
+              stability: development
+              brief: Vercel's deployment-state output type.
+            - id: delimiter
+              value: "delimiter"
+              stability: development
+              brief: Vercel's delimiter output type.
+            - id: middleware
+              value: "middleware"
+              stability: development
+              brief: Vercel's middleware output type.
+            - id: middleware_invocation
+              value: "middleware-invocation"
+              stability: development
+              brief: Vercel's middleware-invocation output type.
+            - id: edge_function_invocation
+              value: "edge-function-invocation"
+              stability: development
+              brief: Vercel's edge-function-invocation output type.
+            - id: metric
+              value: "metric"
+              stability: development
+              brief: Vercel's metric output type.
+            - id: report
+              value: "report"
+              stability: development
+              brief: Vercel's report output type.
+            - id: fatal
+              value: "fatal"
+              stability: development
+              brief: Vercel's fatal output type.
+            - id: other
+              value: "_OTHER"
+              stability: development
+              brief: A type Vercel doesn't document, or none.
+      - id: justabill.vercel.status_class
+        stability: development
+        brief: The class of a drain line's own statusCode.
+        type:
+          members:
+            - id: no_response
+              value: "-1"
+              stability: development
+              brief: statusCode -1, meaning no response returned and the function crashed.
+            - id: status_1xx
+              value: "1xx"
+              stability: development
+              brief: A 1xx status.
+            - id: status_2xx
+              value: "2xx"
+              stability: development
+              brief: A 2xx status.
+            - id: status_3xx
+              value: "3xx"
+              stability: development
+              brief: A 3xx status.
+            - id: status_4xx
+              value: "4xx"
+              stability: development
+              brief: A 4xx status.
+            - id: status_5xx
+              value: "5xx"
+              stability: development
+              brief: A 5xx status.
+            - id: none
+              value: "none"
+              stability: development
+              brief: No statusCode, or one outside -1 and 100-599.
+      - id: justabill.vercel.line.outcome
+        stability: development
+        brief: What vercel-drain did with a log drain line.
+        note: >-
+          The first that applies: failure, repeat, ours, no_request_id, forwarded. Lines with
+          no_request_id are forwarded but can't be counted as failures.
+        type:
+          members:
+            - id: failure
+              value: "failure"
+              stability: development
+              brief: The line marked a failed request, counted in justabill.vercel.function.failures.
+            - id: repeat
+              value: "repeat"
+              stability: development
+              brief: The line marked a failed request this replica already counted in the last 15 minutes.
+            - id: ours
+              value: "ours"
+              stability: development
+              brief: A JSON line our own code already exported, dropped as a duplicate.
+            - id: no_request_id
+              value: "no_request_id"
+              stability: development
+              brief: A lambda line without a request ID, forwarded but never counted as a failure.
+            - id: forwarded
+              value: "forwarded"
+              stability: development
+              brief: The line was forwarded as a log record.

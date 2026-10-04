@@ -1,0 +1,8 @@
+# Coverage floors for go-test-coverage (docs/design/172-testing-linting.md), checked in CI by
+# .github/scripts/go-coverage.sh and locally by `task cover:obs`. Floors are the hard minimum, raised by
+# hand now and then, never in a feature PR; CI also fails a PR whose total drops below main's.
+profile: coverage.out
+
+threshold:
+  package: 85
+  total: 96

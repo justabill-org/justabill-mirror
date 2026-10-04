@@ -1,0 +1,215 @@
+{
+  "result": {
+    "input": {
+      "address": {
+        "address": "1 Calle Fortaleza, San Juan, PR 00901"
+      },
+      "vintage": {
+        "isDefault": false,
+        "id": "425",
+        "vintageName": "ACS2025_Current",
+        "vintageDescription": "ACS2025 Vintage - Current Benchmark"
+      },
+      "benchmark": {
+        "isDefault": true,
+        "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+        "id": "4",
+        "benchmarkName": "Public_AR_Current"
+      }
+    },
+    "addressMatches": [
+      {
+        "tigerLine": {
+          "side": "R",
+          "tigerLineId": "654532849"
+        },
+        "geographies": {
+          "119th Congressional Districts": [
+            {
+              "GEOID": "7298",
+              "CENTLAT": "+18.2164715",
+              "CDSESSN": "119",
+              "AREAWATER": "4921575413",
+              "STATE": "72",
+              "BASENAME": "Resident Commissioner District (at Large)",
+              "OID": "2119035951824110",
+              "LSADC": "C3",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+18.2176480",
+              "NAME": "Resident Commissioner District (at Large)",
+              "OBJECTID": 105,
+              "CENTLON": "-066.4147614",
+              "AREALAND": "8869703179",
+              "INTPTLON": "-066.4107992",
+              "MTFCC": "G5200"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -66.038993930464,
+          "y": 18.433354345429
+        },
+        "addressComponents": {
+          "zip": "00915",
+          "preType": "",
+          "urb": "",
+          "city": "SAN JUAN",
+          "preDirection": "",
+          "suffixType": "",
+          "toAddress": "1",
+          "suffixQualifier": "",
+          "streetName": "CALLE",
+          "suffixDirection": "E",
+          "fromAddress": "99",
+          "state": "PR",
+          "preQualifier": ""
+        },
+        "matchedAddress": "1 CALLE E, SAN JUAN, PR, 00915"
+      },
+      {
+        "tigerLine": {
+          "side": "R",
+          "tigerLineId": "206610856"
+        },
+        "geographies": {
+          "119th Congressional Districts": [
+            {
+              "GEOID": "7298",
+              "CENTLAT": "+18.2164715",
+              "CDSESSN": "119",
+              "AREAWATER": "4921575413",
+              "STATE": "72",
+              "BASENAME": "Resident Commissioner District (at Large)",
+              "OID": "2119035951824110",
+              "LSADC": "C3",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+18.2176480",
+              "NAME": "Resident Commissioner District (at Large)",
+              "OBJECTID": 105,
+              "CENTLON": "-066.4147614",
+              "AREALAND": "8869703179",
+              "INTPTLON": "-066.4107992",
+              "MTFCC": "G5200"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -66.024744254422,
+          "y": 18.408632234389
+        },
+        "addressComponents": {
+          "zip": "00924",
+          "preType": "",
+          "urb": "",
+          "city": "SAN JUAN",
+          "preDirection": "",
+          "suffixType": "",
+          "toAddress": "1",
+          "suffixQualifier": "",
+          "streetName": "CALLE",
+          "suffixDirection": "E",
+          "fromAddress": "99",
+          "state": "PR",
+          "preQualifier": ""
+        },
+        "matchedAddress": "1 CALLE E, SAN JUAN, PR, 00924"
+      },
+      {
+        "tigerLine": {
+          "side": "L",
+          "tigerLineId": "206649757"
+        },
+        "geographies": {
+          "119th Congressional Districts": [
+            {
+              "GEOID": "7298",
+              "CENTLAT": "+18.2164715",
+              "CDSESSN": "119",
+              "AREAWATER": "4921575413",
+              "STATE": "72",
+              "BASENAME": "Resident Commissioner District (at Large)",
+              "OID": "2119035951824110",
+              "LSADC": "C3",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+18.2176480",
+              "NAME": "Resident Commissioner District (at Large)",
+              "OBJECTID": 105,
+              "CENTLON": "-066.4147614",
+              "AREALAND": "8869703179",
+              "INTPTLON": "-066.4107992",
+              "MTFCC": "G5200"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -66.085325770085,
+          "y": 18.303067683435
+        },
+        "addressComponents": {
+          "zip": "00925",
+          "preType": "",
+          "urb": "",
+          "city": "SAN JUAN",
+          "preDirection": "",
+          "suffixType": "",
+          "toAddress": "99",
+          "suffixQualifier": "",
+          "streetName": "CALLE",
+          "suffixDirection": "E",
+          "fromAddress": "1",
+          "state": "PR",
+          "preQualifier": ""
+        },
+        "matchedAddress": "1 CALLE E, SAN JUAN, PR, 00925"
+      },
+      {
+        "tigerLine": {
+          "side": "L",
+          "tigerLineId": "634936348"
+        },
+        "geographies": {
+          "119th Congressional Districts": [
+            {
+              "GEOID": "7298",
+              "CENTLAT": "+18.2164715",
+              "CDSESSN": "119",
+              "AREAWATER": "4921575413",
+              "STATE": "72",
+              "BASENAME": "Resident Commissioner District (at Large)",
+              "OID": "2119035951824110",
+              "LSADC": "C3",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+18.2176480",
+              "NAME": "Resident Commissioner District (at Large)",
+              "OBJECTID": 105,
+              "CENTLON": "-066.4147614",
+              "AREALAND": "8869703179",
+              "INTPTLON": "-066.4107992",
+              "MTFCC": "G5200"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -66.053389809794,
+          "y": 18.392396684551
+        },
+        "addressComponents": {
+          "zip": "00926",
+          "preType": "",
+          "urb": "",
+          "city": "SAN JUAN",
+          "preDirection": "",
+          "suffixType": "",
+          "toAddress": "99",
+          "suffixQualifier": "",
+          "streetName": "CALLE",
+          "suffixDirection": "E",
+          "fromAddress": "1",
+          "state": "PR",
+          "preQualifier": ""
+        },
+        "matchedAddress": "1 CALLE E, SAN JUAN, PR, 00926"
+      }
+    ]
+  }
+}

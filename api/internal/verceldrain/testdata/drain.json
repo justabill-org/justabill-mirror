@@ -1,0 +1,4 @@
+[
+  {"id":"1","deploymentId":"dpl_1","source":"edge","host":"justabill.vercel.app","timestamp":1790000002000,"projectId":"p","level":"fatal","message":"FATAL: out of memory","environment":"production","proxy":{"timestamp":1790000001999,"method":"POST","host":"justabill.vercel.app","path":"/api/otel/v1/traces","userAgent":["curl/8"],"region":"iad1","statusCode":500,"clientIp":"198.51.100.4"}},
+  {"id":"2","deploymentId":"dpl_1","source":"lambda","host":"justabill.vercel.app","timestamp":1790000002001,"projectId":"p","level":"info","message":"cold start"}
+]

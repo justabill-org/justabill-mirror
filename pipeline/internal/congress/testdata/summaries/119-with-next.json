@@ -1,0 +1,73 @@
+{
+    "pagination": {
+        "count": 114,
+        "next": "https://api.congress.gov/v3/summaries/119?fromDateTime=2026-09-20T00:00:00Z&sort=updateDate asc&toDateTime=2026-09-29T00:00:00Z&offset=3&limit=3&format=json"
+    },
+    "request": {
+        "congress": "119",
+        "contentType": "application/json",
+        "format": "json"
+    },
+    "summaries": [
+        {
+            "actionDate": "2026-08-07",
+            "actionDesc": "Introduced in Senate",
+            "bill": {
+                "congress": 119,
+                "number": "38",
+                "originChamber": "Senate",
+                "originChamberCode": "S",
+                "title": "A concurrent resolution setting forth the congressional budget for the United States Government for fiscal year 2027 and setting forth the appropriate budgetary levels for fiscal years 2028 through 2036.",
+                "type": "SCONRES",
+                "updateDateIncludingText": "2026-09-21",
+                "url": "https://api.congress.gov/v3/bill/119/sconres/38?format=json"
+            },
+            "currentChamber": "Senate",
+            "currentChamberCode": "S",
+            "lastSummaryUpdateDate": "2026-09-21T18:10:02Z",
+            "text": "<p>This concurrent resolution establishes the congressional budget for the federal government for FY2027, sets forth budgetary levels for FY2028-FY2036, and provides reconciliation instructions for legislation that increases the deficit.&nbsp;</p><p>The resolution recommends levels and amounts for FY2027-FY2036 for</p><ul><li>federal revenues,</li><li>new budget authority,</li><li>budget outlays,</li><li>deficits,</li><li>public debt,</li><li>debt held by the public, and</li><li>the major functional categories of spending.</li></ul><p>It also recommends levels and amounts for Social Security and U.S. Postal Service (USPS) discretionary administrative expenses for the purpose of budget enforcement in the Senate.&nbsp;</p><p>The resolution includes reconciliation instructions that direct several congressional committees to&nbsp;submit recommendations for legislation that will increase the deficit over FY2027-FY2036 by not more than specified amounts. Each committee must submit the recommendations to the House or Senate Budget Committee by September 11, 2026.&nbsp;</p><p>(Under current law, reconciliation bills are considered by Congress using expedited legislative procedures that prevent a filibuster and restrict amendments in the Senate.)</p><p>In addition, the resolution establishes a reserve fund that allows certain adjustments to committee allocations and other budgetary levels to accommodate reconciliation legislation.&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p><p>Finally, the resolution sets forth budget enforcement procedures that address issues such as</p><ul><li>adjustments to committee allocations and other budgetary levels;</li><li>the budgetary treatment of discretionary administrative expenses for the Social Security Administration and the USPS;</li><li>emergency spending requirements in the House; and</li><li>additional adjustments in the House for disaster relief, wildfire suppression, health care fraud and abuse control, continuing disability reviews and&nbsp;redeterminations, and reemployment services and eligibility assessments.</li></ul>",
+            "updateDate": "2026-09-21T18:11:18Z",
+            "versionCode": "00"
+        },
+        {
+            "actionDate": "2026-08-07",
+            "actionDesc": "Introduced in Senate",
+            "bill": {
+                "congress": 119,
+                "number": "39",
+                "originChamber": "Senate",
+                "originChamberCode": "S",
+                "title": "A concurrent resolution setting forth the congressional budget for the United States Government for fiscal year 2027 and setting forth the appropriate budgetary levels for fiscal years 2028 through 2036.",
+                "type": "SCONRES",
+                "updateDateIncludingText": "2026-09-21",
+                "url": "https://api.congress.gov/v3/bill/119/sconres/39?format=json"
+            },
+            "currentChamber": "Senate",
+            "currentChamberCode": "S",
+            "lastSummaryUpdateDate": "2026-09-21T18:36:25Z",
+            "text": "<p>This concurrent resolution establishes the congressional budget for the federal government for FY2027, sets forth budgetary levels for FY2028-FY2036, and provides reconciliation instructions for legislation that increases or decreases the deficit.&nbsp;</p><p>The resolution recommends levels and amounts for FY2027-FY2036 for</p><ul><li>federal revenues,</li><li>new budget authority,</li><li>budget outlays,</li><li>deficits,</li><li>public debt,</li><li>debt held by the public, and</li><li>the major functional categories of spending.</li></ul><p>It also recommends levels and amounts for Social Security and U.S. Postal Service (USPS) discretionary administrative expenses for the purpose of budget enforcement in the Senate.&nbsp;</p><p>The resolution includes reconciliation instructions that direct several congressional committees to submit recommendations for legislation that will increase or decrease the deficit over FY2027-FY2036. Each committee must submit the recommendations to the House or Senate Budget Committee by September 11, 2026.&nbsp;</p><p>(Under current law, reconciliation bills are considered by Congress using expedited legislative procedures that prevent a filibuster and restrict amendments in the Senate.)</p><p>In addition, the resolution establishes a reserve fund that allows certain adjustments to committee allocations and other budgetary levels to accommodate reconciliation legislation.&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p><p>Finally, the resolution sets forth budget enforcement procedures that address issues such as</p><ul><li>adjustments to committee allocations and other budgetary levels;</li><li>the budgetary treatment of discretionary administrative expenses for the Social Security Administration and the USPS;</li><li>emergency spending requirements in the House; and</li><li>additional adjustments in the House for disaster relief, wildfire suppression, health care fraud and abuse control, continuing disability reviews and&nbsp;redeterminations, and reemployment services and eligibility assessments.</li></ul>",
+            "updateDate": "2026-09-21T18:37:14Z",
+            "versionCode": "00"
+        },
+        {
+            "actionDate": "2026-06-24",
+            "actionDesc": "Reported to Senate",
+            "bill": {
+                "congress": 119,
+                "number": "4668",
+                "originChamber": "Senate",
+                "originChamberCode": "S",
+                "title": "Protect College Sports Act of 2026",
+                "type": "S",
+                "updateDateIncludingText": "2026-09-27",
+                "url": "https://api.congress.gov/v3/bill/119/s/4668?format=json"
+            },
+            "currentChamber": "Senate",
+            "currentChamberCode": "S",
+            "lastSummaryUpdateDate": "2026-09-21T20:53:33Z",
+            "text": "<p><strong>Protect College Sports Act of 2026</strong></p><p>This bill establishes requirements for name, image, or likeness (NIL) agreements for college student athletes and provides a limited antitrust exemption for schools and conferences to pool and sell certain college sports media rights. The requirements address elements of the court-approved agreement to settle&nbsp;<em>In re College Athlete NIL Litigation</em> (i.e., <em>House</em> <a href=\"https://www.congress.gov/crs-product/LSB11349\">settlement</a>).</p><p>First, the bill statutorily prohibits institutions, conferences, or interstate intercollegiate athletic associations (e.g., the National Collegiate Athletic Association [NCAA]) from restricting student athletes from entering NIL agreements (subject to specified limitations). Students must report to their institution NIL compensation greater than $600.</p><p>The bill requires agents to register with a state and caps agent endorsement contract fees at 5%.<br/><br/>The bill also provides student athletes with one transfer without losing athletic eligibility and restricts&nbsp;football personnel from becoming the head football coach at a different institution during the same season.</p><p>Further, the bill prohibits institutions, conferences, or specified entities acting for the benefit of an institution from providing athletes with compensation that circumvents&nbsp;the limit on sharing revenue with student athletes established under the <em>House</em> settlement. The bill also makes the limit permanent and provides for an annual inflation adjustment.</p><p>The bill generally prohibits Division I conferences from reducing the number of varsity or Olympic sports teams that a member institution must sponsor. Specifically, large institutions ($80 million or more in annual athletics revenue) must offer and maintain at least as many grant-in-aid opportunities and roster spots for sports that do not generate&nbsp;positive net revenue as the institution provided during academic year 2024-25. The bill provides for a waiver of this requirement under certain circumstances of financial hardship and the requirements expire nine years after the enactment of the bill.</p><p>Additionally, the bill establishes (subject to specified conditions) a limited antitrust exemption for institutions or conferences that form joint agreements to transfer their sports telecasting rights to a third party. Such an agreement requires participation from at least 75% of the institutions in the Football Bowl Subdivision.</p>",
+            "updateDate": "2026-09-21T20:54:12Z",
+            "versionCode": "25"
+        }
+    ]
+}

@@ -1,0 +1,211 @@
+services:
+  spanner-emulator:
+    image: gcr.io/cloud-spanner-emulator/emulator:1.5.58@sha256:c6f3402f2599684f295a0fdefb6fbbbfb18a0e43e309ff5456ccb452a4570a79
+    ports:
+      - "9010:9010"
+      - "9020:9020"
+
+  spanner-init:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:587.0.0-slim@sha256:be4876b4311056bf3ce236a14a7dea1288e70b7cfea2454ea15e4165c819921f
+    depends_on:
+      - spanner-emulator
+    environment:
+      SPANNER_EMULATOR_HOST: spanner-emulator:9010
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -euo pipefail
+        gcloud config configurations create emulator >/dev/null 2>&1 \
+          || gcloud config configurations activate emulator
+        gcloud config set auth/disable_credentials true
+        gcloud config set project justabill-local
+        gcloud config set api_endpoint_overrides/spanner http://spanner-emulator:9020/
+
+        echo "Waiting for the Spanner emulator..."
+        for i in $$(seq 1 30); do
+          gcloud spanner instance-configs list >/dev/null 2>&1 && break
+          if [ "$$i" -eq 30 ]; then
+            echo "Spanner emulator not reachable after 30 s" >&2
+            exit 1
+          fi
+          sleep 1
+        done
+
+        if gcloud spanner instances describe test-instance >/dev/null 2>&1; then
+          echo "Instance test-instance already exists"
+        else
+          gcloud spanner instances create test-instance \
+            --config=emulator-config --description="Local" --nodes=1
+        fi
+
+        if gcloud spanner databases describe justabill --instance=test-instance >/dev/null 2>&1; then
+          echo "Database justabill already exists; schema not re-applied." \
+            "Recreate the database (or restart the emulator) to apply schema changes."
+        else
+          gcloud spanner databases create justabill \
+            --instance=test-instance --ddl-file=/schema.sql
+          # schema.sql is what all of db/migrations produces, so record the highest version;
+          # task db:migrate applies only files numbered above it.
+          version=$$(ls /migrations | sed -n 's/^0*\([0-9][0-9]*\)_.*\.sql$$/\1/p' | sort -n | tail -n 1)
+          if [ -z "$$version" ]; then
+            echo "No migration files in db/migrations" >&2
+            exit 1
+          fi
+          gcloud spanner rows insert --database=justabill --instance=test-instance \
+            --table=SchemaMigrations --data="Version=$$version,Dirty=false"
+          echo "Stamped migration version $$version"
+        fi
+        echo "Spanner initialized"
+    volumes:
+      - ./db/schema.sql:/schema.sql:ro
+      - ./db/migrations:/migrations:ro
+
+  # Firebase Auth emulator for local sign-in (#55). Tokens it mints are unsigned, so only dev
+  # and CI point at it; see the wiki page "Local sign-in".
+  auth-emulator:
+    build:
+      context: ./dev/auth-emulator
+    ports:
+      - "9099:9099"
+
+  redis:
+    image: redis:8.10.2-alpine3.23@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    depends_on:
+      spanner-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      auth-emulator:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      SPANNER_EMULATOR_HOST: spanner-emulator:9010
+      SPANNER_PROJECT: justabill-local
+      SPANNER_INSTANCE: test-instance
+      SPANNER_DATABASE: justabill
+      REDIS_URL: redis://redis:6379
+      FIREBASE_AUTH_EMULATOR_HOST: auth-emulator:9099
+      AUTH_PROJECT_ID: demo-justabill
+      TRUSTED_PROXY_HOPS: "0"
+
+  pipeline:
+    build:
+      context: .
+      dockerfile: pipeline/Dockerfile
+    depends_on:
+      spanner-init:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      SPANNER_EMULATOR_HOST: spanner-emulator:9010
+      SPANNER_PROJECT: justabill-local
+      SPANNER_INSTANCE: test-instance
+      SPANNER_DATABASE: justabill
+      # The pipeline deletes the API's cached copies of the bills it syncs (#400).
+      REDIS_URL: redis://redis:6379
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        # Inlined by `next build`: the browser on the host calls the API's published port.
+        NEXT_PUBLIC_API_URL: http://localhost:8080
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+      # Server renders run inside this container, where localhost isn't the API (#649).
+      API_INTERNAL_URL: http://api:8080
+
+  # The dev container (docs/design/710-containerized-dev.md): the pinned toolchain for `task docker:*`,
+  # which runs the repo's Task targets here so a contributor needs only Docker and Task. Profile dev
+  # keeps it out of `docker compose up`. `docker compose run dev` starts the emulators and Redis as
+  # its dependencies, and the tests reach them by service name. The docker:* targets set JAB_UID and
+  # JAB_GID to the host user, so files written into the checkout stay the user's on Linux. No Docker
+  # socket, privileges or host network.
+  dev:
+    profiles: [dev]
+    build:
+      context: ./dev
+    init: true
+    user: "${JAB_UID:-0}:${JAB_GID:-0}"
+    depends_on:
+      spanner-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      auth-emulator:
+        condition: service_healthy
+    environment:
+      SPANNER_EMULATOR_HOST: spanner-emulator:9010
+      SPANNER_PROJECT: justabill-local
+      SPANNER_INSTANCE: test-instance
+      SPANNER_DATABASE: justabill
+      REDIS_URL: redis://redis:6379
+      FIREBASE_AUTH_EMULATOR_HOST: auth-emulator:9099
+      AUTH_PROJECT_ID: demo-justabill
+      JAB_IN_CONTAINER: "1"
+    volumes:
+      - .:/work
+      # Caches live in volumes, off the (slower on macOS) bind mount. The node_modules volume hides
+      # the host's web/node_modules, so Linux and macOS installs of native packages don't collide.
+      - gomod:/go/pkg/mod
+      - gocache:/go/.cache
+      - home:/home/dev
+      - node_modules:/work/web/node_modules
+    working_dir: /work
+
+  # The Playwright smoke tests for `task docker:e2e` (#829), in the official image CI's Web E2E job
+  # uses: Chromium and its OS libraries, which the dev image doesn't have. task docker:e2e builds the
+  # API binary and the web app in the dev service first; playwright.config.ts starts them in this
+  # container, which reaches the emulators by service name. It runs as the host user (JAB_UID), with
+  # the dev service's node_modules. Keep the image equal to PLAYWRIGHT_IMAGE in CI's Web E2E job,
+  # which checks it.
+  playwright:
+    profiles: [dev]
+    image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+    init: true
+    ipc: host
+    user: "${JAB_UID:-0}:${JAB_GID:-0}"
+    depends_on:
+      spanner-init:
+        condition: service_completed_successfully
+      auth-emulator:
+        condition: service_healthy
+    environment:
+      HOME: /tmp
+      SPANNER_EMULATOR_HOST: spanner-emulator:9010
+      SPANNER_PROJECT: justabill-local
+      SPANNER_INSTANCE: test-instance
+      E2E_SPANNER_DATABASE: justabill_e2e
+      NEXT_TELEMETRY_DISABLED: "1"
+    volumes:
+      - .:/work
+      - node_modules:/work/web/node_modules
+    working_dir: /work/web
+
+# The dev service's caches; `task docker:clean` removes them.
+volumes:
+  gomod:
+  gocache:
+  home:
+  node_modules:

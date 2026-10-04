@@ -1,0 +1,53 @@
+name: Wrong data
+description: A bill, member or vote doesn't match its official source
+labels: [data]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every fact on the site comes from Congress.gov, GovInfo or the House and Senate clerks. Tell
+        us what we show, what the source says, and where. Issues here are public: don't include
+        anything personal.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What's wrong
+      options:
+        - A bill (its title, status, text, summary or actions)
+        - A member (name, party, state, district or term)
+        - A vote (a roll call, its result, or how a member voted)
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: The page on Just a Bill
+      placeholder: https://justabill.io/bills/…
+    validations:
+      required: true
+  - type: textarea
+    id: shown
+    attributes:
+      label: What we show
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: The source it disagrees with
+      options:
+        - Congress.gov
+        - GovInfo
+        - The House Clerk
+        - The Senate
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: correct
+    attributes:
+      label: What the source says, with a link
+      description: A link to the bill, member or roll call on the official source.
+    validations:
+      required: true

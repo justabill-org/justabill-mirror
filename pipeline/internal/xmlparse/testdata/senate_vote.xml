@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<roll_call_vote>
+  <congress>119</congress>
+  <session>1</session>
+  <congress_year>2025</congress_year>
+  <vote_number>42</vote_number>
+  <vote_date>January 20, 2025, 03:15 PM</vote_date>
+  <vote_question_text>On the Motion</vote_question_text>
+  <vote_result_text>Motion Agreed to</vote_result_text>
+  <vote_title>A bill to do something important</vote_title>
+  <count>
+    <yeas>55</yeas>
+    <nays>43</nays>
+    <present>1</present>
+    <absent>1</absent>
+  </count>
+  <members>
+    <member>
+      <member_full>Sen. Doe, John [D-CA]</member_full>
+      <last_name>Doe</last_name>
+      <first_name>John</first_name>
+      <party>D</party>
+      <state>CA</state>
+      <lis_member_id>S001</lis_member_id>
+      <vote_cast>Yea</vote_cast>
+    </member>
+    <member>
+      <member_full>Sen. Smith, Jane [R-TX]</member_full>
+      <last_name>Smith</last_name>
+      <first_name>Jane</first_name>
+      <party>R</party>
+      <state>TX</state>
+      <lis_member_id>S002</lis_member_id>
+      <vote_cast>Nay</vote_cast>
+    </member>
+    <member>
+      <member_full>Sen. Jones, Bob [D-NY]</member_full>
+      <last_name>Jones</last_name>
+      <first_name>Bob</first_name>
+      <party>D</party>
+      <state>NY</state>
+      <lis_member_id>S003</lis_member_id>
+      <vote_cast>Not Voting</vote_cast>
+    </member>
+  </members>
+</roll_call_vote>

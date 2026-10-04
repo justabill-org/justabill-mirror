@@ -1,0 +1,10 @@
+# The image installs its own dependencies (npm ci) and builds its own .next: the host's copies
+# would overwrite them in `COPY . .` (#649).
+node_modules
+.next
+coverage
+test-results
+playwright-report
+.env*
+*.tsbuildinfo
+next-env.d.ts

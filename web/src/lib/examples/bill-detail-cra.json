@@ -1,0 +1,973 @@
+{
+  "bill": {
+    "id": "sjres-119-18",
+    "congress": 119,
+    "bill_type": "sjres",
+    "number": 18,
+    "title": "A joint resolution disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to \"Overdraft Lending: Very Large Financial Institutions\".",
+    "introduced_date": "2025-02-13T00:00:00Z",
+    "origin_chamber": "Senate",
+    "latest_action": {
+      "actionDate": "2025-05-09",
+      "text": "Became Public Law No: 119-10."
+    },
+    "current_status": "became_law",
+    "status_date": "2025-05-09T00:00:00Z",
+    "policy_area": "Finance and Financial Sector",
+    "sponsors": [
+      {
+        "bioguideId": "S001184",
+        "fullName": "Sen. Scott, Tim [R-SC]",
+        "party": "R",
+        "state": "SC"
+      }
+    ],
+    "cosponsors": [
+      {
+        "bioguideId": "R000605",
+        "fullName": "Sen. Rounds, Mike [R-SD]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "SD"
+      },
+      {
+        "bioguideId": "H000601",
+        "fullName": "Sen. Hagerty, Bill [R-TN]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "TN"
+      },
+      {
+        "bioguideId": "C000880",
+        "fullName": "Sen. Crapo, Mike [R-ID]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "ID"
+      },
+      {
+        "bioguideId": "T000476",
+        "fullName": "Sen. Tillis, Thomas [R-NC]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "NC"
+      },
+      {
+        "bioguideId": "C001096",
+        "fullName": "Sen. Cramer, Kevin [R-ND]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "ND"
+      },
+      {
+        "bioguideId": "B001319",
+        "fullName": "Sen. Britt, Katie Boyd [R-AL]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "AL"
+      },
+      {
+        "bioguideId": "M000934",
+        "fullName": "Sen. Moran, Jerry [R-KS]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "KS"
+      },
+      {
+        "bioguideId": "R000584",
+        "fullName": "Sen. Risch, James E. [R-ID]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "ID"
+      },
+      {
+        "bioguideId": "B001236",
+        "fullName": "Sen. Boozman, John [R-AR]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "AR"
+      },
+      {
+        "bioguideId": "W000437",
+        "fullName": "Sen. Wicker, Roger F. [R-MS]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "MS"
+      },
+      {
+        "bioguideId": "L000571",
+        "fullName": "Sen. Lummis, Cynthia M. [R-WY]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "WY"
+      },
+      {
+        "bioguideId": "R000618",
+        "fullName": "Sen. Ricketts, Pete [R-NE]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "NE"
+      },
+      {
+        "bioguideId": "M001242",
+        "fullName": "Sen. Moreno, Bernie [R-OH]",
+        "isOriginalCosponsor": true,
+        "party": "R",
+        "sponsorshipDate": "2025-02-13",
+        "state": "OH"
+      },
+      {
+        "bioguideId": "L000577",
+        "fullName": "Sen. Lee, Mike [R-UT]",
+        "isOriginalCosponsor": false,
+        "party": "R",
+        "sponsorshipDate": "2025-02-19",
+        "state": "UT"
+      },
+      {
+        "bioguideId": "D000618",
+        "fullName": "Sen. Daines, Steve [R-MT]",
+        "isOriginalCosponsor": false,
+        "party": "R",
+        "sponsorshipDate": "2025-03-04",
+        "state": "MT"
+      },
+      {
+        "bioguideId": "T000250",
+        "fullName": "Sen. Thune, John [R-SD]",
+        "isOriginalCosponsor": false,
+        "party": "R",
+        "sponsorshipDate": "2025-03-12",
+        "state": "SD"
+      }
+    ],
+    "committees": [
+      {
+        "activities": [
+          {
+            "date": "2025-03-26T20:23:35Z",
+            "name": "Discharged From"
+          },
+          {
+            "date": "2025-02-13T16:08:55Z",
+            "name": "Referred To"
+          }
+        ],
+        "chamber": "Senate",
+        "name": "Banking, Housing, and Urban Affairs Committee",
+        "systemCode": "ssbk00",
+        "type": "Standing"
+      }
+    ],
+    "subjects": [
+      "Administrative law and regulatory procedures",
+      "Bank accounts, deposits, capital",
+      "Banking and financial institutions regulation",
+      "Congressional oversight",
+      "Consumer Financial Protection Bureau",
+      "User charges and fees"
+    ],
+    "related_bills": [
+      {
+        "congress": 119,
+        "number": 59,
+        "relationshipDetails": [
+          {
+            "identifiedBy": "House",
+            "type": "Related bill"
+          },
+          {
+            "identifiedBy": "CRS",
+            "type": "Identical bill"
+          },
+          {
+            "identifiedBy": "CRS",
+            "type": "Public law contains the text"
+          }
+        ],
+        "title": "Disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to \"Overdraft Lending: Very Large Financial Institutions\".",
+        "type": "HJRES"
+      },
+      {
+        "congress": 119,
+        "number": 282,
+        "relationshipDetails": [
+          {
+            "identifiedBy": "House",
+            "type": "Related bill"
+          },
+          {
+            "identifiedBy": "House",
+            "type": "Procedurally related"
+          }
+        ],
+        "title": "Providing for consideration of the joint resolution (S.J. Res. 18) disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to \"Overdraft Lending: Very Large Financial Institutions''; providing for consideration of the joint resolution (S.J. Res. 28) disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to ''Defining Larger Participants of a Market for General-Use Digital Consumer Payment Applications''; providing for consideration of the bill (H.R. 1526) to amend title 28, United States Code, to limit the authority of district courts to provide injunctive relief, and for other purposes; providing for consideration of the bill (H.R. 22) to amend the National Voter Registration Act of 1993 to require proof of United States citizenship to register an individual to vote in elections for Federal office, and for other purposes; and for other purposes.",
+        "type": "HRES"
+      },
+      {
+        "congress": 119,
+        "number": 294,
+        "relationshipDetails": [
+          {
+            "identifiedBy": "House",
+            "type": "Related bill"
+          },
+          {
+            "identifiedBy": "House",
+            "type": "Procedurally related"
+          }
+        ],
+        "title": "Providing for consideration of the joint resolution (S.J. Res. 18) disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to \"Overdraft Lending: Very Large Financial Institutions\"; providing for consideration of the joint resolution (S.J. Res. 28) disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to \"Defining Larger Participants of a Market for General-Use Digital Consumer Payment Applications\"; providing for consideration of the bill (H.R. 1526) to amend title 28, United States Code, to limit the authority of district courts to provide injunctive relief, and for other purposes; providing for consideration of the bill (H.R. 22) to amend the National Voter Registration Act of 1993 to require proof of United States citizenship to register an individual to vote in elections for Federal office, and for other purposes; and for other purposes.",
+        "type": "HRES"
+      }
+    ],
+    "updated_at": "2026-10-01T22:42:58.999540002Z",
+    "synced_at": "2026-10-01T22:42:44.595211769Z"
+  },
+  "actions": [
+    {
+      "id": "3f62efbf-70e6-4162-81e5-3fea3153caa5",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-05-09T00:00:00Z",
+      "action_text": "Became Public Law No: 119-10.",
+      "action_type": "President",
+      "action_code": "E40000",
+      "source_system": "Library of Congress",
+      "sort_order": 1
+    },
+    {
+      "id": "e83abbc8-d203-4aff-9192-a53b97220936",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-05-09T00:00:00Z",
+      "action_text": "Became Public Law No: 119-10.",
+      "action_type": "BecameLaw",
+      "action_code": "36000",
+      "source_system": "Library of Congress",
+      "sort_order": 2
+    },
+    {
+      "id": "2a3deb32-9d79-4dd0-b4c5-507cfe6406c3",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-05-09T00:00:00Z",
+      "action_text": "Signed by President.",
+      "action_type": "President",
+      "action_code": "E30000",
+      "source_system": "Library of Congress",
+      "sort_order": 3
+    },
+    {
+      "id": "dbdf3f66-a8cc-46cd-887d-dc196c39b893",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-05-09T00:00:00Z",
+      "action_text": "Signed by President.",
+      "action_type": "BecameLaw",
+      "action_code": "36000",
+      "source_system": "Library of Congress",
+      "sort_order": 4
+    },
+    {
+      "id": "0c1764b8-b68d-4cdb-9d53-fab96fbb886a",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-05-05T00:00:00Z",
+      "action_text": "Presented to President.",
+      "action_type": "Floor",
+      "action_code": "E20000",
+      "source_system": "House floor actions",
+      "sort_order": 5
+    },
+    {
+      "id": "f062f2da-aa0a-471d-8dec-62b9bccc532f",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-05-05T00:00:00Z",
+      "action_text": "Presented to President.",
+      "action_type": "President",
+      "action_code": "28000",
+      "source_system": "Library of Congress",
+      "sort_order": 6
+    },
+    {
+      "id": "682e843f-4861-4e4f-af03-9b7d919b2579",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-04-09T00:00:00Z",
+      "action_text": "Motion to reconsider laid on the table Agreed to without objection.",
+      "action_type": "Floor",
+      "action_code": "H38310",
+      "source_system": "House floor actions",
+      "sort_order": 7
+    },
+    {
+      "id": "0a483e9f-5b57-4038-a413-12bb51f45a3f",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-04-09T00:00:00Z",
+      "action_text": "On passage Passed by the Yeas and Nays: 217 - 211 (Roll no. 96). (text: CR H1519)",
+      "action_type": "Floor",
+      "action_code": "H37100",
+      "source_system": "House floor actions",
+      "sort_order": 8
+    },
+    {
+      "id": "3b2692a1-1e98-4f86-892c-9f5d59de2a5b",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-04-09T00:00:00Z",
+      "action_text": "Passed/agreed to in House: On passage Passed by the Yeas and Nays: 217 - 211 (Roll no. 96). (text: CR H1519: 1)",
+      "action_type": "Floor",
+      "action_code": "8000",
+      "source_system": "Library of Congress",
+      "sort_order": 9
+    },
+    {
+      "id": "bcb9b952-d143-4b1b-9f77-fe7da588204d",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-04-09T00:00:00Z",
+      "action_text": "Considered as unfinished business. (consideration: CR H1533)",
+      "action_type": "Floor",
+      "action_code": "H30000",
+      "source_system": "House floor actions",
+      "sort_order": 10
+    },
+    {
+      "id": "72d8e4e9-3995-4d70-98e0-6780024655fe",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-04-09T00:00:00Z",
+      "action_text": "POSTPONED PROCEEDINGS - At the conclusion of debate on S.J. Res. 18, the Chair put the question on passage of the joint resolution and by voice vote, announced that the ayes had prevailed. Mr. Hill (AR) demanded the yeas and nays and the Chair postponed further proceedings until a time to be announced.",
+      "action_type": "Floor",
+      "action_code": "H8D000",
+      "source_system": "House floor actions",
+      "sort_order": 11
+    },
+    {
+      "id": "073b7e93-5e4f-4693-a8b9-afc6a1c2722f",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-04-09T00:00:00Z",
+      "action_text": "The previous question was ordered pursuant to the rule.",
+      "action_type": "Floor",
+      "action_code": "H35000",
+      "source_system": "House floor actions",
+      "sort_order": 12
+    },
+    {
+      "id": "3021ee3f-8a3f-4637-861f-d2ba4d59d949",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-04-09T00:00:00Z",
+      "action_text": "DEBATE - The House proceeded with one hour of debate on S.J. Res. 18.",
+      "action_type": "Floor",
+      "action_code": "H8D000",
+      "source_system": "House floor actions",
+      "sort_order": 13
+    },
+    {
+      "id": "61d8d98e-78d3-4bf1-9c85-4a7de6636f37",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-04-09T00:00:00Z",
+      "action_text": "Rule provides for consideration of S.J. Res. 18, S.J. Res. 28, H.R. 1526 and H.R. 22. The resolution provides for consideration of H.R. 22, H.R. 1526, S.J. Res. 18, and S.J. Res. 28 under a closed rule. The resolution provides for one hour of debate on each measure and one motion to recommit on H.R. 22 and H.R. 1526, and one motion to commit on S.J. Res. 18 and S.J. Res. 28.",
+      "action_type": "Floor",
+      "action_code": "H8D000",
+      "source_system": "House floor actions",
+      "sort_order": 14
+    },
+    {
+      "id": "647669c9-8d47-4c7d-a2f1-70e40a3ac16f",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-04-09T00:00:00Z",
+      "action_text": "Considered under the provisions of rule H. Res. 294. (consideration: CR H1519-1525)",
+      "action_type": "Floor",
+      "action_code": "H30000",
+      "source_system": "House floor actions",
+      "sort_order": 15
+    },
+    {
+      "id": "1304878a-f342-4f4f-93d1-d586c7fbb390",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-04-07T00:00:00Z",
+      "action_text": "Rules Committee Resolution H. Res. 294 Reported to House. Rule provides for consideration of S.J. Res. 18, S.J. Res. 28, H.R. 1526 and H.R. 22. The resolution provides for consideration of H.R. 22, H.R. 1526, S.J. Res. 18, and S.J. Res. 28 under a closed rule. The resolution provides for one hour of debate on each measure and one motion to recommit on H.R. 22 and H.R. 1526, and one motion to commit on S.J. Res. 18 and S.J. Res. 28.",
+      "action_type": "Floor",
+      "action_code": "H1L210",
+      "source_system": "House floor actions",
+      "sort_order": 16
+    },
+    {
+      "id": "5e6ae4dd-3c7d-4313-905e-ed026e3ae0a2",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-04-01T00:00:00Z",
+      "action_text": "Rules Committee Resolution H. Res. 282 Reported to House. Rule provides for consideration of H.R. 22, H.R. 1526, S.J. Res. 18 and S.J. Res. 28. The resolution provides for consideration of H.R. 22, H.R. 1526, S.J. Res. 18, and S.J. Res. 28 under a closed rule. The resolution provides for one hour of debate on each measure and one motion to recommit on H.R. 22 and H.R. 1526, and one motion to commit on S.J. Res. 18 and S.J. Res. 28. The resolution also provides that H. Res. 23 and H. Res. 164 are laid on the table.",
+      "action_type": "Floor",
+      "action_code": "H1L210",
+      "source_system": "House floor actions",
+      "sort_order": 17
+    },
+    {
+      "id": "cd34170a-52c2-4530-9d12-c90f023e6694",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-03-31T00:00:00Z",
+      "action_text": "Held at the desk.",
+      "action_type": "Floor",
+      "action_code": "H15000",
+      "source_system": "House floor actions",
+      "sort_order": 18
+    },
+    {
+      "id": "18a5c608-0bf4-4119-b588-143ab34f3af7",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-03-31T00:00:00Z",
+      "action_text": "Received in the House.",
+      "action_type": "Floor",
+      "action_code": "H14000",
+      "source_system": "House floor actions",
+      "sort_order": 19
+    },
+    {
+      "id": "7358c4d1-8860-4797-baf1-00ed0a8443da",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-03-31T00:00:00Z",
+      "action_text": "Message on Senate action sent to the House.",
+      "action_type": "Floor",
+      "source_system": "Senate",
+      "sort_order": 20
+    },
+    {
+      "id": "db5cf4ed-60c3-4a9c-80b9-914046461a40",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-03-27T00:00:00Z",
+      "action_text": "Passed Senate without amendment by Yea-Nay Vote. 52 - 48. Record Vote Number: 153. (text: CR S1884)",
+      "action_type": "Floor",
+      "source_system": "Senate",
+      "sort_order": 21
+    },
+    {
+      "id": "c7bc34ed-e1e6-4d19-b621-f04115fb7360",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-03-27T00:00:00Z",
+      "action_text": "Passed/agreed to in Senate: Passed Senate without amendment by Yea-Nay Vote. 52 - 48. Record Vote Number: 153.",
+      "action_type": "Floor",
+      "action_code": "17000",
+      "source_system": "Library of Congress",
+      "sort_order": 22
+    },
+    {
+      "id": "23f2ccac-312c-4287-8287-4feaab545f27",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-03-27T00:00:00Z",
+      "action_text": "Considered by Senate. (consideration: CR S1879, S1884)",
+      "action_type": "Floor",
+      "source_system": "Senate",
+      "sort_order": 23
+    },
+    {
+      "id": "f342255f-e534-4cea-b33d-d1bb4808cfe4",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-03-26T00:00:00Z",
+      "action_text": "Measure laid before Senate by motion. (consideration: CR S1864)",
+      "action_type": "Floor",
+      "source_system": "Senate",
+      "sort_order": 24
+    },
+    {
+      "id": "a18f24cc-32b1-46d8-a796-463b2066169d",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-03-26T00:00:00Z",
+      "action_text": "Motion to proceed to consideration of measure agreed to in Senate by Yea-Nay Vote. 52 - 47. Record Vote Number: 152.",
+      "action_type": "Floor",
+      "source_system": "Senate",
+      "sort_order": 25
+    },
+    {
+      "id": "2d027cb0-aca3-4029-92b4-1d781f3ed4e5",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-03-26T00:00:00Z",
+      "action_text": "Placed on Senate Legislative Calendar under General Orders. Calendar No. 34.",
+      "action_type": "Calendars",
+      "source_system": "Senate",
+      "sort_order": 26
+    },
+    {
+      "id": "c234e5ec-bf6d-4575-b794-809b72c1bae7",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-03-26T00:00:00Z",
+      "action_text": "Senate Committee on Banking, Housing, and Urban Affairs discharged, by petition, pursuant to 5 U.S.C. 802(c).",
+      "action_type": "Discharge",
+      "source_system": "Senate",
+      "sort_order": 27
+    },
+    {
+      "id": "7a550581-bfda-4fc6-883d-df9081f1049c",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-03-26T00:00:00Z",
+      "action_text": "Senate Committee on Banking, Housing, and Urban Affairs discharged, by petition, pursuant to 5 U.S.C. 802(c).",
+      "action_type": "Committee",
+      "action_code": "14500",
+      "source_system": "Library of Congress",
+      "sort_order": 28
+    },
+    {
+      "id": "c0d4c756-792f-489e-b801-042adb47e9f9",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-02-13T00:00:00Z",
+      "action_text": "Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.",
+      "action_type": "IntroReferral",
+      "source_system": "Senate",
+      "sort_order": 29
+    },
+    {
+      "id": "9ea2c6b4-c79f-4fac-a8d4-29cbc6951e74",
+      "bill_id": "sjres-119-18",
+      "action_date": "2025-02-13T00:00:00Z",
+      "action_text": "Introduced in Senate",
+      "action_type": "IntroReferral",
+      "action_code": "10000",
+      "source_system": "Library of Congress",
+      "sort_order": 30
+    }
+  ],
+  "summary": {
+    "bill_id": "sjres-119-18",
+    "short_summary": "This joint resolution nullifies a Consumer Financial Protection Bureau rule regulating overdraft credit and fees at very large financial institutions, ensuring the rule has no force or effect.",
+    "long_summary": "This joint resolution provides that Congress disapproves the final rule submitted by the Bureau of Consumer Financial Protection (CFPB) titled \"Overdraft Lending: Very Large Financial Institutions,\" which was published in the Federal Register on December 30, 2024.\n\nUnder the resolution, the rule shall have no force or effect. The CFPB's rule had amended Regulations E and Z to modify regulatory exemptions for overdraft credit offered by very large financial institutions. According to the agency, the rule was intended to require these overdraft extensions to adhere to consumer protections applicable to other credit products unless the institution limited fees to recovering estimated costs and losses.",
+    "who_it_affects": "This resolution directly affects the Bureau of Consumer Financial Protection by voiding its rule, as well as very large financial institutions that would have been subject to the rule's requirements and restrictions regarding overdraft lending and fees.",
+    "model_used": "gemini-3.8-flash",
+    "generated_at": "2026-10-04T00:31:21.125761651Z",
+    "source_version_code": "pl",
+    "source_version_name": "Public Law",
+    "with_crs_summary": true,
+    "with_rule_context": false
+  },
+  "text_versions": [
+    {
+      "id": "7501753a-7536-403a-9875-5fe0d7838488",
+      "bill_id": "sjres-119-18",
+      "version_type": "Introduced in Senate",
+      "version_code": "is",
+      "date": "2025-02-13T00:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18is.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18is.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18is.xml"
+        }
+      ],
+      "sort_order": 1,
+      "synced_at": "2026-10-01T22:42:58.987405993Z"
+    },
+    {
+      "id": "fd485221-b2cb-4cdf-8bc1-9b47308632cf",
+      "bill_id": "sjres-119-18",
+      "version_type": "Placed on Calendar Senate",
+      "version_code": "pcs",
+      "date": "2025-03-26T00:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18pcs.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18pcs.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18pcs.xml"
+        }
+      ],
+      "sort_order": 2,
+      "synced_at": "2026-10-01T22:42:58.987405993Z"
+    },
+    {
+      "id": "90270d87-80ba-471a-8976-9c09d39f2aac",
+      "bill_id": "sjres-119-18",
+      "version_type": "Engrossed in Senate",
+      "version_code": "es",
+      "date": "2025-03-27T00:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18es.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18es.pdf"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18es.xml"
+        }
+      ],
+      "sort_order": 3,
+      "synced_at": "2026-10-01T22:42:58.987405993Z"
+    },
+    {
+      "id": "49a1f72b-fecb-4ac7-bbcc-2cb142376858",
+      "bill_id": "sjres-119-18",
+      "version_type": "Enrolled Bill",
+      "version_code": "enr",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18enr.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18enr.pdf"
+        },
+        {
+          "type": "United States Legislative Markup",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18enr_uslm.xml"
+        },
+        {
+          "type": "Formatted XML",
+          "url": "https://www.congress.gov/119/bills/sjres18/BILLS-119sjres18enr.xml"
+        }
+      ],
+      "sort_order": 4,
+      "synced_at": "2026-10-01T22:42:58.987405993Z"
+    },
+    {
+      "id": "e067f427-d1e2-4ae5-be1d-649b0987deeb",
+      "bill_id": "sjres-119-18",
+      "version_type": "Public Law",
+      "version_code": "pl",
+      "date": "2025-05-09T00:00:00Z",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/119/plaws/publ10/PLAW-119publ10.htm"
+        },
+        {
+          "type": "PDF",
+          "url": "https://www.congress.gov/119/plaws/publ10/PLAW-119publ10.pdf"
+        },
+        {
+          "type": "United States Legislative Markup",
+          "url": "https://www.congress.gov/119/plaws/publ10/PLAW-119publ10_uslm.xml"
+        }
+      ],
+      "sort_order": 5,
+      "synced_at": "2026-10-01T22:42:58.987405993Z"
+    }
+  ],
+  "diffs": [
+    {
+      "id": "c3810977-93e9-4ee4-a3a3-3110f7f81568",
+      "bill_id": "sjres-119-18",
+      "from_version_id": "49a1f72b-fecb-4ac7-bbcc-2cb142376858",
+      "to_version_id": "e067f427-d1e2-4ae5-be1d-649b0987deeb",
+      "diff_stats": {
+        "sections_added": 0,
+        "sections_modified": 0,
+        "sections_removed": 1,
+        "words_added": 0,
+        "words_removed": 38
+      },
+      "generated_at": "2026-10-01T22:50:11.490971735Z"
+    }
+  ],
+  "amendments": [],
+  "votes": [
+    {
+      "id": "house-119-s1-roll096",
+      "bill_id": "sjres-119-18",
+      "congress": 119,
+      "chamber": "House",
+      "session": 1,
+      "roll_number": 96,
+      "vote_date": "2025-04-09T00:00:00Z",
+      "question": "On Passage",
+      "result": "Passed",
+      "yeas": 217,
+      "nays": 211,
+      "present": 0,
+      "not_voting": 5
+    },
+    {
+      "id": "senate-119-s1-vote00153",
+      "bill_id": "sjres-119-18",
+      "congress": 119,
+      "chamber": "Senate",
+      "session": 1,
+      "roll_number": 153,
+      "vote_date": "2025-03-27T11:28:00Z",
+      "question": "On the Joint Resolution S.J.Res. 18",
+      "result": "Joint Resolution Passed (52-48)",
+      "yeas": 52,
+      "nays": 48,
+      "present": 0,
+      "not_voting": 0
+    },
+    {
+      "id": "senate-119-s1-vote00152",
+      "bill_id": "sjres-119-18",
+      "congress": 119,
+      "chamber": "Senate",
+      "session": 1,
+      "roll_number": 152,
+      "vote_date": "2025-03-26T20:48:00Z",
+      "question": "On the Motion to Proceed S.J.Res. 18",
+      "result": "Motion to Proceed Agreed to (52-47)",
+      "yeas": 52,
+      "nays": 47,
+      "present": 0,
+      "not_voting": 1
+    }
+  ],
+  "status_history": [
+    {
+      "status": "introduced",
+      "status_date": "2025-02-13T00:00:00Z",
+      "status_rank": 1
+    },
+    {
+      "status": "in_committee",
+      "status_date": "2025-02-13T00:00:00Z",
+      "status_rank": 2
+    },
+    {
+      "status": "passed_house",
+      "status_date": "2025-04-09T00:00:00Z",
+      "status_rank": 4
+    },
+    {
+      "status": "passed_senate",
+      "status_date": "2025-03-27T00:00:00Z",
+      "status_rank": 5
+    },
+    {
+      "status": "to_president",
+      "status_date": "2025-05-05T00:00:00Z",
+      "status_rank": 7
+    },
+    {
+      "status": "signed",
+      "status_date": "2025-05-09T00:00:00Z",
+      "status_rank": 8
+    },
+    {
+      "status": "became_law",
+      "status_date": "2025-05-09T00:00:00Z",
+      "status_rank": 10
+    }
+  ],
+  "gao_reports": [],
+  "sponsorships": [
+    {
+      "bioguide_id": "S001184",
+      "first_name": "Tim",
+      "last_name": "Scott",
+      "role": "sponsor",
+      "party": "R",
+      "state": "SC",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": false
+    },
+    {
+      "bioguide_id": "B001236",
+      "first_name": "John",
+      "last_name": "Boozman",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "AR",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "B001319",
+      "first_name": "Katie Boyd",
+      "last_name": "Britt",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "AL",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "C001096",
+      "first_name": "Kevin",
+      "last_name": "Cramer",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "ND",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "C000880",
+      "first_name": "Mike",
+      "last_name": "Crapo",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "ID",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "H000601",
+      "first_name": "Bill",
+      "last_name": "Hagerty",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "TN",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "L000571",
+      "first_name": "Cynthia M.",
+      "last_name": "Lummis",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "WY",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "M000934",
+      "first_name": "Jerry",
+      "last_name": "Moran",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "KS",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "M001242",
+      "first_name": "Bernie",
+      "last_name": "Moreno",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "OH",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "R000618",
+      "first_name": "Pete",
+      "last_name": "Ricketts",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "NE",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "R000584",
+      "first_name": "James E.",
+      "last_name": "Risch",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "ID",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "R000605",
+      "first_name": "Mike",
+      "last_name": "Rounds",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "SD",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "T000476",
+      "first_name": "Thomas",
+      "last_name": "Tillis",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "NC",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "W000437",
+      "first_name": "Roger F.",
+      "last_name": "Wicker",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "MS",
+      "sponsored_date": "2025-02-13T00:00:00Z",
+      "is_original": true
+    },
+    {
+      "bioguide_id": "L000577",
+      "first_name": "Mike",
+      "last_name": "Lee",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "UT",
+      "sponsored_date": "2025-02-19T00:00:00Z",
+      "is_original": false
+    },
+    {
+      "bioguide_id": "D000618",
+      "first_name": "Steve",
+      "last_name": "Daines",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "MT",
+      "sponsored_date": "2025-03-04T00:00:00Z",
+      "is_original": false
+    },
+    {
+      "bioguide_id": "T000250",
+      "first_name": "John",
+      "last_name": "Thune",
+      "role": "cosponsor",
+      "party": "R",
+      "state": "SD",
+      "sponsored_date": "2025-03-12T00:00:00Z",
+      "is_original": false
+    }
+  ],
+  "crs_summary": {
+    "bill_id": "sjres-119-18",
+    "version_code": "49",
+    "action_date": "2025-05-09T00:00:00Z",
+    "action_desc": "Public Law",
+    "text": "This joint resolution nullifies the final rule issued by the Consumer Financial Protection Bureau titled Overdraft Lending: Very Large Financial Institutions and published on December 30, 2024. The rule revises provisions regarding charges for insufficient funds in a customer’s bank account (i.e., overdrafts) at very large financial institutions. Under the rule, these institutions must (1) cap overdraft charges at $5; (2) with justification, cap charges at a higher amount; or (3) handle overdrafts as credit and comply with applicable Truth in Lending Act disclosure requirements.",
+    "updated_at": "2025-08-26T19:05:52Z"
+  },
+  "disapproved_rule": {
+    "status": "matched",
+    "method": "citation",
+    "rule_title": "Overdraft Lending: Very Large Financial Institutions",
+    "rule_agency": "Bureau of Consumer Financial Protection",
+    "cited": "89 Fed. Reg. 106768 (December 30, 2024)",
+    "gao_opinion": false,
+    "document": {
+      "document_number": "2024-29699",
+      "citation": "89 FR 106768",
+      "type": "Rule",
+      "action": "Final rule; official interpretation.",
+      "title": "Overdraft Lending: Very Large Financial Institutions",
+      "agencies": [
+        "Consumer Financial Protection Bureau"
+      ],
+      "publication_date": "2024-12-30",
+      "effective_on": "2025-10-01",
+      "abstract": "The Consumer Financial Protection Bureau (CFPB) amends Regulations E and Z to update regulatory exceptions for overdraft credit provided by very large financial institutions, thereby ensuring that these extensions of overdraft credit adhere to consumer protections required of similarly situated products, unless the overdraft fee is a small amount that only recovers estimated costs and losses. The rule allows consumers to better comparison shop across credit products and provides substantive protections that apply to other consumer credit.",
+      "html_url": "https://www.federalregister.gov/documents/2024/12/30/2024-29699/overdraft-lending-very-large-financial-institutions",
+      "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2024-12-30/pdf/2024-29699.pdf",
+      "docket_id": "CFPB-2024-0002"
+    },
+    "withdrawn_document": null,
+    "search_url": "https://www.federalregister.gov/documents/search?conditions%5Bterm%5D=%22Overdraft+Lending%3A+Very+Large+Financial+Institutions%22+Bureau+of+Consumer+Financial+Protection",
+    "checked_at": "2026-10-04T06:00:00Z"
+  }
+}

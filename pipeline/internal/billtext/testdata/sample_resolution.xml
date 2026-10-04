@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resolution>
+  <legis-body>
+    <section id="S1">
+      <enum>1.</enum>
+      <header>Short title</header>
+      <text>This resolution may be cited as the Test Resolution Act.</text>
+    </section>
+  </legis-body>
+  <resolving-body>
+    <section id="S2">
+      <enum>2.</enum>
+      <header>Resolved</header>
+      <text>That it is the sense of Congress that testing is important.</text>
+    </section>
+  </resolving-body>
+</resolution>

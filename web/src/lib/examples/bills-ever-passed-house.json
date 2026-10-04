@@ -1,0 +1,610 @@
+{
+    "items": [
+        {
+            "id": "hr-119-22",
+            "congress": 119,
+            "bill_type": "hr",
+            "number": 22,
+            "title": "SAVE Act",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-04-10",
+                "text": "Received in the Senate."
+            },
+            "current_status": "passed_house",
+            "status_date": "2025-04-08T00:00:00Z",
+            "policy_area": "Government Operations and Politics",
+            "sponsors": [
+                {
+                    "bioguideId": "R000614",
+                    "fullName": "Rep. Roy, Chip [R-TX-21]",
+                    "party": "R",
+                    "state": "TX"
+                }
+            ],
+            "cosponsors": [
+                {
+                    "bioguideId": "G000597",
+                    "fullName": "Rep. Garbarino, Andrew R. [R-NY-2]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "NY"
+                },
+                {
+                    "bioguideId": "M000317",
+                    "fullName": "Rep. Malliotakis, Nicole [R-NY-11]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "NY"
+                },
+                {
+                    "bioguideId": "F000475",
+                    "fullName": "Rep. Finstad, Brad [R-MN-1]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "MN"
+                },
+                {
+                    "bioguideId": "C001116",
+                    "fullName": "Rep. Clyde, Andrew S. [R-GA-9]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "GA"
+                },
+                {
+                    "bioguideId": "H001077",
+                    "fullName": "Rep. Higgins, Clay [R-LA-3]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "LA"
+                },
+                {
+                    "bioguideId": "H001086",
+                    "fullName": "Rep. Harshbarger, Diana [R-TN-1]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "TN"
+                },
+                {
+                    "bioguideId": "M000194",
+                    "fullName": "Rep. Mace, Nancy [R-SC-1]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "SC"
+                },
+                {
+                    "bioguideId": "C001039",
+                    "fullName": "Rep. Cammack, Kat [R-FL-3]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "FL"
+                },
+                {
+                    "bioguideId": "B001316",
+                    "fullName": "Rep. Burlison, Eric [R-MO-7]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "MO"
+                },
+                {
+                    "bioguideId": "O000175",
+                    "fullName": "Rep. Ogles, Andrew [R-TN-5]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "TN"
+                },
+                {
+                    "bioguideId": "H001096",
+                    "fullName": "Rep. Hageman, Harriet M. [R-WY-At Large]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "WY"
+                },
+                {
+                    "bioguideId": "F000469",
+                    "fullName": "Rep. Fulcher, Russ [R-ID-1]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "ID"
+                },
+                {
+                    "bioguideId": "N000026",
+                    "fullName": "Rep. Nehls, Troy E. [R-TX-22]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "TX"
+                },
+                {
+                    "bioguideId": "S001224",
+                    "fullName": "Rep. Self, Keith [R-TX-3]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "TX"
+                },
+                {
+                    "bioguideId": "P000609",
+                    "fullName": "Rep. Palmer, Gary J. [R-AL-6]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "AL"
+                },
+                {
+                    "bioguideId": "C001132",
+                    "fullName": "Rep. Crane, Elijah [R-AZ-2]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "AZ"
+                },
+                {
+                    "bioguideId": "H001095",
+                    "fullName": "Rep. Hunt, Wesley [R-TX-38]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "TX"
+                },
+                {
+                    "bioguideId": "B001302",
+                    "fullName": "Rep. Biggs, Andy [R-AZ-5]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "AZ"
+                },
+                {
+                    "bioguideId": "C001118",
+                    "fullName": "Rep. Cline, Ben [R-VA-6]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "VA"
+                },
+                {
+                    "bioguideId": "N000190",
+                    "fullName": "Rep. Norman, Ralph [R-SC-5]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "SC"
+                }
+            ],
+            "committees": [
+                {
+                    "activities": [
+                        {
+                            "date": "2025-04-10T15:17:00Z",
+                            "name": "Unknown"
+                        },
+                        {
+                            "date": "2025-04-10T14:30:49Z",
+                            "name": "Unknown"
+                        },
+                        {
+                            "date": "2025-01-03T16:00:35Z",
+                            "name": "Referred To"
+                        }
+                    ],
+                    "chamber": "House",
+                    "name": "Committee on House Administration",
+                    "systemCode": "hsha00",
+                    "type": "Standing"
+                }
+            ],
+            "subjects": [
+                "Citizenship and naturalization",
+                "Civil actions and liability",
+                "Criminal procedure and sentencing",
+                "Election Assistance Commission",
+                "Elections, voting, political campaign regulation",
+                "Government information and archives",
+                "Immigration status and procedures",
+                "Licensing and registrations",
+                "Postal service",
+                "State and local government operations",
+                "Voting rights"
+            ],
+            "related_bills": [
+                {
+                    "congress": 119,
+                    "number": 7296,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "CRS",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "SAVE America Act",
+                    "type": "HR"
+                },
+                {
+                    "congress": 119,
+                    "number": 3752,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "CRS",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "SAVE America Act",
+                    "type": "S"
+                },
+                {
+                    "congress": 119,
+                    "number": 282,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "House",
+                            "type": "Related bill"
+                        },
+                        {
+                            "identifiedBy": "House",
+                            "type": "Procedurally related"
+                        }
+                    ],
+                    "title": "Providing for consideration of the joint resolution (S.J. Res. 18) disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to \"Overdraft Lending: Very Large Financial Institutions''; providing for consideration of the joint resolution (S.J. Res. 28) disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to ''Defining Larger Participants of a Market for General-Use Digital Consumer Payment Applications''; providing for consideration of the bill (H.R. 1526) to amend title 28, United States Code, to limit the authority of district courts to provide injunctive relief, and for other purposes; providing for consideration of the bill (H.R. 22) to amend the National Voter Registration Act of 1993 to require proof of United States citizenship to register an individual to vote in elections for Federal office, and for other purposes; and for other purposes.",
+                    "type": "HRES"
+                },
+                {
+                    "congress": 119,
+                    "number": 294,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "House",
+                            "type": "Procedurally related"
+                        }
+                    ],
+                    "title": "Providing for consideration of the joint resolution (S.J. Res. 18) disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to \"Overdraft Lending: Very Large Financial Institutions\"; providing for consideration of the joint resolution (S.J. Res. 28) disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to \"Defining Larger Participants of a Market for General-Use Digital Consumer Payment Applications\"; providing for consideration of the bill (H.R. 1526) to amend title 28, United States Code, to limit the authority of district courts to provide injunctive relief, and for other purposes; providing for consideration of the bill (H.R. 22) to amend the National Voter Registration Act of 1993 to require proof of United States citizenship to register an individual to vote in elections for Federal office, and for other purposes; and for other purposes.",
+                    "type": "HRES"
+                },
+                {
+                    "congress": 119,
+                    "number": 128,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "CRS",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "SAVE Act",
+                    "type": "S"
+                }
+            ],
+            "updated_at": "2026-03-19T20:06:45.555969368Z",
+            "synced_at": "2026-03-19T20:06:45.558212Z"
+        },
+        {
+            "id": "hres-119-2",
+            "congress": 119,
+            "bill_type": "hres",
+            "number": 2,
+            "title": "To inform the Senate that a quorum of the House has assembled and of the election of the Speaker and the Clerk.",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-01-03",
+                "text": "Motion to reconsider laid on the table Agreed to without objection."
+            },
+            "current_status": "passed_house",
+            "status_date": "2025-01-03T00:00:00Z",
+            "policy_area": "Congress",
+            "sponsors": [
+                {
+                    "bioguideId": "S001176",
+                    "fullName": "Rep. Scalise, Steve [R-LA-1]",
+                    "party": "R",
+                    "state": "LA"
+                }
+            ],
+            "subjects": [
+                "Congressional leadership",
+                "Congressional officers and employees",
+                "House of Representatives",
+                "Senate"
+            ],
+            "updated_at": "2026-03-19T20:07:56.931121162Z",
+            "synced_at": "2026-03-19T20:07:56.934373Z"
+        },
+        {
+            "id": "hres-119-3",
+            "congress": 119,
+            "bill_type": "hres",
+            "number": 3,
+            "title": "Authorizing the Speaker to appoint a committee to notify the President of the assembly of the Congress.",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-01-03",
+                "text": "Motion to reconsider laid on the table Agreed to without objection."
+            },
+            "current_status": "passed_house",
+            "status_date": "2025-01-03T00:00:00Z",
+            "policy_area": "Congress",
+            "sponsors": [
+                {
+                    "bioguideId": "S001176",
+                    "fullName": "Rep. Scalise, Steve [R-LA-1]",
+                    "party": "R",
+                    "state": "LA"
+                }
+            ],
+            "subjects": [
+                "Congressional operations and organization",
+                "Presidents and presidential powers, Vice Presidents"
+            ],
+            "updated_at": "2026-03-19T20:07:51.423035999Z",
+            "synced_at": "2026-03-19T20:07:51.426533Z"
+        },
+        {
+            "id": "hres-119-4",
+            "congress": 119,
+            "bill_type": "hres",
+            "number": 4,
+            "title": "Authorizing the Clerk to inform the President of the election of the Speaker and the Clerk.",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-01-03",
+                "text": "Motion to reconsider laid on the table Agreed to without objection."
+            },
+            "current_status": "passed_house",
+            "status_date": "2025-01-03T00:00:00Z",
+            "policy_area": "Congress",
+            "sponsors": [
+                {
+                    "bioguideId": "R000395",
+                    "fullName": "Rep. Rogers, Harold [R-KY-5]",
+                    "party": "R",
+                    "state": "KY"
+                }
+            ],
+            "subjects": [
+                "Congressional leadership",
+                "Congressional officers and employees",
+                "Congressional-executive branch relations",
+                "House of Representatives",
+                "Presidents and presidential powers, Vice Presidents"
+            ],
+            "updated_at": "2026-03-19T20:08:49.508542928Z",
+            "synced_at": "2026-03-19T20:08:49.511762Z"
+        },
+        {
+            "id": "hres-119-5",
+            "congress": 119,
+            "bill_type": "hres",
+            "number": 5,
+            "title": "Adopting the Rules of the House of Representatives for the One Hundred Nineteenth Congress, and for other purposes.",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "House",
+            "latest_action": {
+                "actionDate": "2025-01-03",
+                "text": "Motion to reconsider laid on the table Agreed to without objection."
+            },
+            "current_status": "passed_house",
+            "status_date": "2025-01-03T00:00:00Z",
+            "policy_area": "Congress",
+            "sponsors": [
+                {
+                    "bioguideId": "F000470",
+                    "fullName": "Rep. Fischbach, Michelle [R-MN-7]",
+                    "party": "R",
+                    "state": "MN"
+                }
+            ],
+            "subjects": [
+                "Abortion",
+                "Administrative law and regulatory procedures",
+                "Advanced technology and technological innovations",
+                "Appropriations",
+                "Asia",
+                "Assault and harassment offenses",
+                "Border security and unlawful immigration",
+                "Budget deficits and national debt",
+                "Budget process",
+                "China",
+                "Computers and information technology",
+                "Congressional Budget Office (CBO)",
+                "Congressional committees",
+                "Congressional leadership",
+                "Congressional officers and employees",
+                "Congressional operations and organization",
+                "Congressional oversight",
+                "Crimes against property",
+                "Domestic violence and child abuse"
+            ],
+            "related_bills": [
+                {
+                    "congress": 119,
+                    "number": 29,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "House",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "Laken Riley Act",
+                    "type": "HR"
+                },
+                {
+                    "congress": 119,
+                    "number": 23,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "House",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "Illegitimate Court Counteraction Act",
+                    "type": "HR"
+                },
+                {
+                    "congress": 119,
+                    "number": 33,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "House",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "To amend the Internal Revenue Code of 1986 to provide special rules for the taxation of certain residents of Taiwan with income from sources within the United States.",
+                    "type": "HR"
+                },
+                {
+                    "congress": 119,
+                    "number": 30,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "House",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "Preventing Violence Against Women by Illegal Aliens Act",
+                    "type": "HR"
+                },
+                {
+                    "congress": 119,
+                    "number": 28,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "House",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "Protection of Women and Girls in Sports Act of 2025",
+                    "type": "HR"
+                },
+                {
+                    "congress": 119,
+                    "number": 21,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "House",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "Born-Alive Abortion Survivors Protection Act",
+                    "type": "HR"
+                },
+                {
+                    "congress": 119,
+                    "number": 26,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "House",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "Protecting American Energy Production Act",
+                    "type": "HR"
+                },
+                {
+                    "congress": 119,
+                    "number": 35,
+                    "relationshipDetails": [
+                        {
+                            "identifiedBy": "House",
+                            "type": "Related bill"
+                        }
+                    ],
+                    "title": "Agent Raul Gonzalez Officer Safety Act",
+                    "type": "HR"
+                }
+            ],
+            "updated_at": "2026-03-19T20:08:35.752436509Z",
+            "synced_at": "2026-03-19T20:08:35.755271Z"
+        },
+        {
+            "id": "sconres-119-1",
+            "congress": 119,
+            "bill_type": "sconres",
+            "number": 1,
+            "title": "A concurrent resolution extending the life of the Joint Congressional Committee on Inaugural Ceremonies.",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "Senate",
+            "latest_action": {
+                "actionDate": "2025-01-03",
+                "text": "Motion to reconsider laid on the table Agreed to without objection."
+            },
+            "current_status": "passed_senate",
+            "status_date": "2025-01-03T00:00:00Z",
+            "policy_area": "Congress",
+            "sponsors": [
+                {
+                    "bioguideId": "T000250",
+                    "fullName": "Sen. Thune, John [R-SD]",
+                    "party": "R",
+                    "state": "SD"
+                }
+            ],
+            "subjects": [
+                "Congressional committees",
+                "Congressional operations and organization",
+                "Presidents and presidential powers, Vice Presidents",
+                "U.S. Capitol"
+            ],
+            "updated_at": "2026-03-19T20:08:10.038893067Z",
+            "synced_at": "2026-03-19T20:08:10.04142Z"
+        },
+        {
+            "id": "sconres-119-3",
+            "congress": 119,
+            "bill_type": "sconres",
+            "number": 3,
+            "title": "A concurrent resolution authorizing the use of the rotunda of the Capitol for the lying in state of the remains of the late James Earl Carter, Jr., 39th President of the United States.",
+            "introduced_date": "2025-01-03T00:00:00Z",
+            "origin_chamber": "Senate",
+            "latest_action": {
+                "actionDate": "2025-01-03",
+                "text": "Motion to reconsider laid on the table Agreed to without objection."
+            },
+            "current_status": "passed_senate",
+            "status_date": "2025-01-03T00:00:00Z",
+            "policy_area": "Congress",
+            "sponsors": [
+                {
+                    "bioguideId": "K000367",
+                    "fullName": "Sen. Klobuchar, Amy [D-MN]",
+                    "party": "D",
+                    "state": "MN"
+                }
+            ],
+            "cosponsors": [
+                {
+                    "bioguideId": "F000463",
+                    "fullName": "Sen. Fischer, Deb [R-NE]",
+                    "isOriginalCosponsor": true,
+                    "party": "R",
+                    "sponsorshipDate": "2025-01-03",
+                    "state": "NE"
+                }
+            ],
+            "subjects": [
+                "Cemeteries and funerals",
+                "Congressional tributes",
+                "Presidents and presidential powers, Vice Presidents",
+                "U.S. Capitol"
+            ],
+            "updated_at": "2026-03-19T20:11:33.558552378Z",
+            "synced_at": "2026-03-19T20:11:33.568529Z"
+        }
+    ],
+    "total": 7,
+    "offset": 0,
+    "limit": 20
+}

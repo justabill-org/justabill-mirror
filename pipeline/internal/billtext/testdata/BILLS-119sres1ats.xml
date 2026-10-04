@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="billres.xsl"?>
+<!DOCTYPE resolution PUBLIC "-//US Congress//DTDs/res.dtd//EN" "res.dtd">
+<resolution resolution-type="senate-resolution" star-print="no-star-print" public-private="public" resolution-stage="Agreed-to-Senate" slc-id="S1-ROM25015-4PN-J2-VT7" key="G"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dublinCore>
+<dc:title>119 SRES 1 ATS: Establishing a Committee to Inform the President of the United States that a quorum of each House is assembled.</dc:title>
+<dc:publisher>U.S. Senate</dc:publisher>
+<dc:date>2025-01-03</dc:date>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+</dublinCore>
+</metadata>
+<form>
+<distribution-code display="yes">III</distribution-code><congress display="yes">119th CONGRESS</congress><session display="yes">1st Session</session><legis-num>S. RES. 1</legis-num><current-chamber>IN THE SENATE OF THE UNITED STATES</current-chamber><action display="yes"><action-date date="20250103">January 3, 2025</action-date><action-desc><sponsor name-id="S303">Mr. Thune</sponsor> submitted the following resolution; which was considered and agreed to</action-desc></action><legis-type> RESOLUTION</legis-type><official-title display="yes">Establishing a Committee to Inform the President of the United States that a quorum of each House is assembled.</official-title></form><resolution-body style="OLC" display-resolving-clause="yes-display-resolving-clause" id="H248AF52B8427495BA464997E21643985"><section id="LEXA-Repairidfeca7eb17784456f95d343ddc5ec8d7b" section-type="undesignated-section" display-inline="yes-display-inline" commented="no"><text>That a committee consisting of two Senators be appointed to join such committee as may be appointed by the House of Representatives to wait upon the President of the United States and inform him that a quorum of each House is assembled and that the Congress is ready to receive any communication he may be pleased to make.</text></section></resolution-body></resolution> 
+

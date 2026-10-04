@@ -1,0 +1,29 @@
+[
+    {
+        "id": "samdt-119-95",
+        "bill_id": "hr-119-23",
+        "congress": 119,
+        "amendment_type": "samdt",
+        "amendment_number": 95,
+        "chamber": "Senate",
+        "synced_at": "2026-03-19T20:09:22.357536Z"
+    },
+    {
+        "id": "samdt-119-96",
+        "bill_id": "hr-119-23",
+        "congress": 119,
+        "amendment_type": "samdt",
+        "amendment_number": 96,
+        "chamber": "Senate",
+        "synced_at": "2026-03-19T20:09:22.35511Z"
+    },
+    {
+        "id": "samdt-119-97",
+        "bill_id": "hr-119-23",
+        "congress": 119,
+        "amendment_type": "samdt",
+        "amendment_number": 97,
+        "chamber": "Senate",
+        "synced_at": "2026-03-19T20:09:22.352484Z"
+    }
+]

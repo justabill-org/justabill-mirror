@@ -1,0 +1,117 @@
+{
+  "result": {
+    "input": {
+      "address": {
+        "address": "100 Broadway, New York, NY 10005"
+      },
+      "vintage": {
+        "isDefault": false,
+        "id": "425",
+        "vintageName": "ACS2025_Current",
+        "vintageDescription": "ACS2025 Vintage - Current Benchmark"
+      },
+      "benchmark": {
+        "isDefault": true,
+        "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+        "id": "4",
+        "benchmarkName": "Public_AR_Current"
+      }
+    },
+    "addressMatches": [
+      {
+        "tigerLine": {
+          "side": "L",
+          "tigerLineId": "59662076"
+        },
+        "geographies": {
+          "119th Congressional Districts": [
+            {
+              "GEOID": "3610",
+              "CENTLAT": "+40.6812044",
+              "CDSESSN": "119",
+              "AREAWATER": "20326251",
+              "STATE": "36",
+              "BASENAME": "10",
+              "OID": "2119035952746630",
+              "LSADC": "C2",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+40.6811865",
+              "NAME": "Congressional District 10",
+              "OBJECTID": 197,
+              "CENTLON": "-074.0039038",
+              "AREALAND": "39707701",
+              "INTPTLON": "-074.0037868",
+              "MTFCC": "G5200"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -73.993027702769,
+          "y": 40.713881413253
+        },
+        "addressComponents": {
+          "zip": "10002",
+          "streetName": "BROADWAY",
+          "preType": "",
+          "city": "NEW YORK",
+          "preDirection": "E",
+          "suffixDirection": "",
+          "fromAddress": "88",
+          "state": "NY",
+          "suffixType": "",
+          "toAddress": "100",
+          "suffixQualifier": "",
+          "preQualifier": ""
+        },
+        "matchedAddress": "100 E BROADWAY, NEW YORK, NY, 10002"
+      },
+      {
+        "tigerLine": {
+          "side": "L",
+          "tigerLineId": "59660341"
+        },
+        "geographies": {
+          "119th Congressional Districts": [
+            {
+              "GEOID": "3610",
+              "CENTLAT": "+40.6812044",
+              "CDSESSN": "119",
+              "AREAWATER": "20326251",
+              "STATE": "36",
+              "BASENAME": "10",
+              "OID": "2119035952746630",
+              "LSADC": "C2",
+              "FUNCSTAT": "N",
+              "INTPTLAT": "+40.6811865",
+              "NAME": "Congressional District 10",
+              "OBJECTID": 197,
+              "CENTLON": "-074.0039038",
+              "AREALAND": "39707701",
+              "INTPTLON": "-074.0037868",
+              "MTFCC": "G5200"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -74.008849797943,
+          "y": 40.716092442528
+        },
+        "addressComponents": {
+          "zip": "10013",
+          "streetName": "BROADWAY",
+          "preType": "",
+          "city": "NEW YORK",
+          "preDirection": "W",
+          "suffixDirection": "",
+          "fromAddress": "100",
+          "state": "NY",
+          "suffixType": "",
+          "toAddress": "120",
+          "suffixQualifier": "",
+          "preQualifier": ""
+        },
+        "matchedAddress": "100 W BROADWAY, NEW YORK, NY, 10013"
+      }
+    ]
+  }
+}

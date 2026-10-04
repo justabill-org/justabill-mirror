@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="billres.xsl"?>
+<!DOCTYPE bill PUBLIC "-//US Congress//DTDs/bill.dtd//EN" "bill.dtd">
+<bill bill-stage="Introduced-in-House" dms-id="H68BA8259DCD34F5080BCF3DD011D5916" public-private="public" key="H" bill-type="olc"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dublinCore>
+<dc:title>118 HR 815 IH: Removing Extraneous Loopholes Insuring Every Veteran Emergency Act</dc:title>
+<dc:publisher>U.S. House of Representatives</dc:publisher>
+<dc:date>2023-02-02</dc:date>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+</dublinCore>
+</metadata>
+<form>
+<distribution-code display="yes">I</distribution-code><congress display="yes">118th CONGRESS</congress><session display="yes">1st Session</session><legis-num display="yes">H. R. 815</legis-num><current-chamber>IN THE HOUSE OF REPRESENTATIVES</current-chamber><action display="yes"><action-date date="20230202">February 2, 2023</action-date><action-desc><sponsor name-id="M001159">Mrs. Rodgers of Washington</sponsor> (for herself, <cosponsor name-id="B001301">Mr. Bergman</cosponsor>, and <cosponsor name-id="P000614">Mr. Pappas</cosponsor>) introduced the following bill; which was referred to the <committee-name committee-id="HVR00">Committee on Veterans' Affairs</committee-name></action-desc></action><legis-type>A BILL</legis-type><official-title display="yes">To amend title 38, United States Code, to make certain improvements relating to the eligibility of veterans to receive reimbursement for emergency treatment furnished through the Veterans Community Care program, and for other purposes.</official-title></form><legis-body id="H0C91C4B6084E4CED8EB42C6079C7BF04" style="OLC"><section id="HA80522EAB1694D948676DC856F57BCDC" section-type="section-one"><enum>1.</enum><header>Short title</header><text display-inline="no-display-inline">This Act may be cited as the <quote><short-title>Removing Extraneous Loopholes Insuring Every Veteran Emergency Act</short-title></quote> or the <quote><short-title>RELIEVE Act</short-title></quote>. </text></section><section id="H60AE508393CD45B48B5DE8F80484A11E"><enum>2.</enum><header>Eligibility requirements for reimbursement for emergency treatment furnished to veterans</header><subsection id="H2B59E256745C47ECB0BDA2CD70CC429D"><enum>(a)</enum><header>Eligibility requirements</header><text display-inline="yes-display-inline">Section 1725(b)(2)(B) of title 38, United States Code, is amended by inserting <quote>, unless such emergency treatment was furnished during the 60-day period following the date on which the veteran enrolled in the health care system specified in subparagraph (A), in which case no requirement for prior receipt of care shall apply</quote> before the period.</text></subsection><subsection id="H6017D7B083C84039B9484E14DD464703"><enum>(b)</enum><header>Applicability</header><text display-inline="yes-display-inline">The amendment made by subsection (a) shall apply with respect to emergency treatment furnished on or after the date that is one year after the date of the enactment of this Act.</text></subsection></section></legis-body></bill> 
+

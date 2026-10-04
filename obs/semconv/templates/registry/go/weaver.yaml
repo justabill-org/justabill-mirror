@@ -1,0 +1,20 @@
+# Generates obs/semconv/names.go from the registry (scripts/semconv.sh).
+whitespace_control:
+  trim_blocks: true
+  lstrip_blocks: true
+  keep_trailing_newline: true
+
+acronyms: ["OK", "URL", "HTTP", "ID"]
+
+templates:
+  - template: names.go.j2
+    application_mode: single
+    file_name: names.go
+    # Only this registry's own names: upstream ones come from go.opentelemetry.io/otel/semconv.
+    filter: >
+      {
+        attributes: [.groups[] | select(.type == "attribute_group") | .attributes[]
+          | select(.name | startswith("justabill."))] | sort_by(.name),
+        metrics: [.groups[] | select(.type == "metric")] | sort_by(.metric_name),
+        events: [.groups[] | select(.type == "event")] | sort_by(.name)
+      }

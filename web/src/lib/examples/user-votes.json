@@ -1,0 +1,25 @@
+{
+    "items": [
+        {
+            "user_id": "d6e6dfd6-c3fa-4506-818a-6952e571762f",
+            "bill_id": "hr-119-165",
+            "vote": "yea",
+            "voted_at": "2026-03-20T02:12:08.87158954Z"
+        },
+        {
+            "user_id": "d6e6dfd6-c3fa-4506-818a-6952e571762f",
+            "bill_id": "hr-119-131",
+            "vote": "nay",
+            "voted_at": "2026-03-20T02:12:08.849708529Z"
+        },
+        {
+            "user_id": "d6e6dfd6-c3fa-4506-818a-6952e571762f",
+            "bill_id": "hr-119-187",
+            "vote": "yea",
+            "voted_at": "2026-03-20T02:12:08.82646961Z"
+        }
+    ],
+    "total": 3,
+    "offset": 0,
+    "limit": 20
+}

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Branches pushed for PRs follow <type>/<issue>-<slug> (CI checks them too): .github/scripts/conventional.sh
+set -euo pipefail
+check="$(git rev-parse --show-toplevel)/.github/scripts/conventional.sh"
+while read -r local_ref _ remote_ref _; do
+  branch=${remote_ref#refs/heads/}
+  [[ $remote_ref == refs/heads/* && $branch != main && $local_ref != "(delete)" ]] || continue
+  "$check" branch "$branch"
+done

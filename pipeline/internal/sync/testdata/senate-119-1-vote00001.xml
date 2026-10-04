@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><roll_call_vote>
+  <congress>119</congress>
+  <session>1</session>
+  <congress_year>2025</congress_year>
+  <vote_number>1</vote_number>
+  <vote_date>January 9, 2025,  02:54 PM</vote_date>
+  <modify_date>January 10, 2025,  02:57 PM</modify_date>
+  <vote_question_text>On Cloture on the Motion to Proceed S. 5</vote_question_text>
+  <vote_document_text>A bill to require the Secretary of Homeland Security to take into custody aliens who have been charged in the United States with theft, and for other purposes.</vote_document_text>
+  <vote_result_text>Cloture on the Motion to Proceed Agreed to (84-9, 3/5 majority required)</vote_result_text>
+  <question>On Cloture on the Motion to Proceed</question>
+  <vote_title>Motion to Invoke Cloture: Motion to Proceed to S. 5</vote_title>
+  <majority_requirement>3/5</majority_requirement>
+  <vote_result>Cloture on the Motion to Proceed Agreed to</vote_result>
+  <document>
+    <document_congress>119</document_congress>
+    <document_type>S.</document_type>
+    <document_number>5</document_number>
+    <document_name>S. 5</document_name>
+    <document_title>A bill to require the Secretary of Homeland Security to take into custody aliens who have been charged in the United States with theft, and for other purposes.</document_title>
+    <document_short_title/>
+  </document>
+  <amendment>
+    <amendment_number/>
+    <amendment_to_amendment_number/>
+    <amendment_to_amendment_to_amendment_number/>
+    <amendment_to_document_number/>
+    <amendment_to_document_short_title/>
+    <amendment_purpose>No Statement of Purpose on File.</amendment_purpose>
+  </amendment>
+  <count>
+    <yeas>84</yeas>
+    <nays>9</nays>
+    <present/>
+    <absent>6</absent>
+  </count>
+  <tie_breaker>
+    <by_whom/>
+    <tie_breaker_vote/>
+  </tie_breaker>
+  <members>
+    <member>
+      <member_full>Alsobrooks (D-MD)</member_full>
+      <last_name>Alsobrooks</last_name>
+      <first_name>Angela</first_name>
+      <party>D</party>
+      <state>MD</state>
+      <vote_cast>Yea</vote_cast>
+      <lis_member_id>S428</lis_member_id>
+    </member>
+    <member>
+      <member_full>Baldwin (D-WI)</member_full>
+      <last_name>Baldwin</last_name>
+      <first_name>Tammy</first_name>
+      <party>D</party>
+      <state>WI</state>
+      <vote_cast>Yea</vote_cast>
+      <lis_member_id>S354</lis_member_id>
+    </member>
+    <member>
+      <member_full>Banks (R-IN)</member_full>
+      <last_name>Banks</last_name>
+      <first_name>Jim</first_name>
+      <party>R</party>
+      <state>IN</state>
+      <vote_cast>Yea</vote_cast>
+      <lis_member_id>S429</lis_member_id>
+    </member>
+  </members>
+</roll_call_vote>

@@ -1,0 +1,58 @@
+{
+  "bioguide_id": "P000197",
+  "first_name": "Nancy",
+  "last_name": "Pelosi",
+  "photo_url": "https://www.congress.gov/img/member/p000197_200.jpg",
+  "terms": [
+    {
+      "member_id": "P000197",
+      "congress": 119,
+      "chamber": "House",
+      "state": "CA",
+      "district": 11,
+      "party": "D"
+    }
+  ],
+  "recent_votes": [
+    {
+      "vote_id": "house-119-roll358",
+      "vote_date": "2025-12-18T00:00:00Z",
+      "question": "On Passage",
+      "result": "Passed",
+      "member_vote": "Nay",
+      "chamber": "House"
+    },
+    {
+      "vote_id": "house-119-roll353",
+      "vote_date": "2025-12-18T00:00:00Z",
+      "question": "On Agreeing to the Amendment",
+      "result": "Failed",
+      "member_vote": "No",
+      "chamber": "House"
+    },
+    {
+      "vote_id": "house-119-roll361",
+      "vote_date": "2025-12-18T00:00:00Z",
+      "question": "On Motion to Recommit",
+      "result": "Failed",
+      "member_vote": "Yea",
+      "chamber": "House"
+    },
+    {
+      "vote_id": "house-119-roll356",
+      "vote_date": "2025-12-18T00:00:00Z",
+      "question": "On Passage",
+      "result": "Passed",
+      "member_vote": "Nay",
+      "chamber": "House"
+    },
+    {
+      "vote_id": "house-119-roll359",
+      "vote_date": "2025-12-18T00:00:00Z",
+      "question": "On Motion to Recommit",
+      "result": "Failed",
+      "member_vote": "Yea",
+      "chamber": "House"
+    }
+  ]
+}

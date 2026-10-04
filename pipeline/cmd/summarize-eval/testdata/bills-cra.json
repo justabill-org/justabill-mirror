@@ -1,0 +1,567 @@
+[
+  {
+    "bill_id": "sjres-119-18",
+    "congress": 119,
+    "type": "sjres",
+    "number": 18,
+    "category": "cra",
+    "package_id": "BILLS-119sjres18enr",
+    "version": "enr",
+    "version_name": "Enrolled Bill",
+    "title": "A joint resolution disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to \"Overdraft Lending: Very Large Financial Institutions\".",
+    "rule": {
+      "match": "citation",
+      "cited": "89 Fed. Reg. 106768 (December 30, 2024)",
+      "title": "Overdraft Lending: Very Large Financial Institutions",
+      "agency": "Bureau of Consumer Financial Protection",
+      "document": {
+        "title": "Overdraft Lending: Very Large Financial Institutions",
+        "agencies": [
+          "Consumer Financial Protection Bureau"
+        ],
+        "doc_type": "Rule",
+        "action": "Final rule; official interpretation.",
+        "citation": "89 FR 106768",
+        "published": "2024-12-30",
+        "effective_on": "2025-10-01",
+        "abstract": "The Consumer Financial Protection Bureau (CFPB) amends Regulations E and Z to update regulatory exceptions for overdraft credit provided by very large financial institutions, thereby ensuring that these extensions of overdraft credit adhere to consumer protections required of similarly situated products, unless the overdraft fee is a small amount that only recovers estimated costs and losses. The rule allows consumers to better comparison shop across credit products and provides substantive protections that apply to other consumer credit."
+      }
+    }
+  },
+  {
+    "bill_id": "hjres-119-35",
+    "congress": 119,
+    "type": "hjres",
+    "number": 35,
+    "category": "cra",
+    "package_id": "BILLS-119hjres35enr",
+    "version": "enr",
+    "version_name": "Enrolled Bill",
+    "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"Waste Emissions Charge for Petroleum and Natural Gas Systems: Procedures for Facilitating Compliance, Including Netting and Exemptions\".",
+    "rule": {
+      "match": "citation",
+      "cited": "89 Fed. Reg. 91094 (November 18, 2024)",
+      "title": "Waste Emissions Charge for Petroleum and Natural Gas Systems: Procedures for Facilitating Compliance, Including Netting and Exemptions",
+      "agency": "Environmental Protection Agency",
+      "document": {
+        "title": "Waste Emissions Charge for Petroleum and Natural Gas Systems: Procedures for Facilitating Compliance, Including Netting and Exemptions",
+        "agencies": [
+          "Environmental Protection Agency"
+        ],
+        "doc_type": "Rule",
+        "action": "Final rule.",
+        "citation": "89 FR 91094",
+        "published": "2024-11-18",
+        "effective_on": "2025-01-17",
+        "abstract": "The Environmental Protection Agency (EPA) is promulgating a regulation to facilitate compliance with the requirements of the Waste Emissions Charge in the Clean Air Act's (CAA) Methane Emissions Reduction Program (MERP). Enacted as part of the Inflation Reduction Act (IRA), this program requires the EPA to impose and collect an annual charge on methane emissions that exceed waste emissions thresholds specified by Congress."
+      }
+    }
+  },
+  {
+    "bill_id": "hjres-119-25",
+    "congress": 119,
+    "type": "hjres",
+    "number": 25,
+    "category": "cra",
+    "package_id": "BILLS-119hjres25enr",
+    "version": "enr",
+    "version_name": "Enrolled Bill",
+    "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Internal Revenue Service relating to \"Gross Proceeds Reporting by Brokers That Regularly Provide Services Effectuating Digital Asset Sales\".",
+    "rule": {
+      "match": "citation",
+      "cited": "89 Fed. Reg. 106928 (December 30, 2024)",
+      "title": "Gross Proceeds Reporting by Brokers That Regularly Provide Services Effectuating Digital Asset Sales",
+      "agency": "Internal Revenue Service",
+      "document": {
+        "title": "Gross Proceeds Reporting by Brokers That Regularly Provide Services Effectuating Digital Asset Sales",
+        "agencies": [
+          "Treasury Department",
+          "Internal Revenue Service"
+        ],
+        "doc_type": "Rule",
+        "action": "Final regulations.",
+        "citation": "89 FR 106928",
+        "published": "2024-12-30",
+        "effective_on": "2025-02-28",
+        "abstract": "This document contains final regulations regarding information reporting by brokers that regularly provide services effectuating certain digital asset sales and exchanges. The final regulations require these brokers to file information returns and furnish payee statements reporting gross proceeds on dispositions of digital assets effected for customers in certain sale or exchange transactions."
+      }
+    }
+  },
+  {
+    "bill_id": "sjres-119-13",
+    "congress": 119,
+    "type": "sjres",
+    "number": 13,
+    "category": "cra",
+    "package_id": "BILLS-119sjres13enr",
+    "version": "enr",
+    "version_name": "Enrolled Bill",
+    "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Office of the Comptroller of the Currency of the Department of the Treasury relating to the review of applications under the Bank Merger Act.",
+    "rule": {
+      "match": "citation",
+      "cited": "89 Fed. Reg. 78207 (September 25, 2024)",
+      "title": "Business Combinations Under the Bank Merger Act",
+      "agency": "Office of the Comptroller of the Currency of the Department of the Treasury",
+      "document": {
+        "title": "Business Combinations Under the Bank Merger Act",
+        "agencies": [
+          "Treasury Department",
+          "Comptroller of the Currency"
+        ],
+        "doc_type": "Rule",
+        "action": "Final rule.",
+        "citation": "89 FR 78207",
+        "published": "2024-09-25",
+        "effective_on": "2025-01-01",
+        "abstract": "The OCC is adopting a final rule to amend its procedures for reviewing applications under the Bank Merger Act and adding, as an appendix, a policy statement that summarizes the principles the OCC uses when it reviews proposed bank merger transactions under the Bank Merger Act."
+      }
+    }
+  },
+  {
+    "bill_id": "hjres-119-88",
+    "congress": 119,
+    "type": "hjres",
+    "number": 88,
+    "category": "cra",
+    "package_id": "BILLS-119hjres88enr",
+    "version": "enr",
+    "version_name": "Enrolled Bill",
+    "title": "Providing congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"California State Motor Vehicle and Engine Pollution Control Standards; Advanced Clean Cars II; Waiver of Preemption; Notice of Decision\".",
+    "rule": {
+      "match": "citation",
+      "cited": "90 Fed. Reg. 642 (January 6, 2025)",
+      "title": "California State Motor Vehicle and Engine Pollution Control Standards; Advanced Clean Cars II; Waiver of Preemption; Notice of Decision",
+      "agency": "Environmental Protection Agency",
+      "document": {
+        "title": "California State Motor Vehicle and Engine Pollution Control Standards; Advanced Clean Cars II; Waiver of Preemption; Notice of Decision",
+        "agencies": [
+          "Environmental Protection Agency"
+        ],
+        "doc_type": "Notice",
+        "action": "Notice of decision.",
+        "citation": "90 FR 642",
+        "published": "2025-01-06",
+        "abstract": "The Environmental Protection Agency (\"EPA\") is providing notice of its decision granting the California Air Resources Board's (\"CARB's\") request for a waiver of Clean Air Act preemption for its Advanced Clean Cars II (\"ACC II\") regulations. EPA's decision was issued under the authority of the Clean Air Act (\"CAA\" or \"Act\") section 209."
+      }
+    }
+  },
+  {
+    "bill_id": "hjres-119-60",
+    "congress": 119,
+    "type": "hjres",
+    "number": 60,
+    "category": "cra",
+    "package_id": "BILLS-119hjres60enr",
+    "version": "enr",
+    "version_name": "Enrolled Bill",
+    "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Park Service relating to \"Glen Canyon National Recreation Area: Motor Vehicles\".",
+    "rule": {
+      "match": "citation",
+      "cited": "90 Fed. Reg. 2621",
+      "title": "Glen Canyon National Recreation Area: Motor Vehicles",
+      "agency": "National Park Service of the Department of the Interior",
+      "document": {
+        "title": "Glen Canyon National Recreation Area; Motor Vehicles",
+        "agencies": [
+          "Interior Department",
+          "National Park Service"
+        ],
+        "doc_type": "Rule",
+        "action": "Final rule.",
+        "citation": "90 FR 2621",
+        "published": "2025-01-13",
+        "effective_on": "2025-02-12",
+        "abstract": "The National Park Service revises special regulations for Glen Canyon National Recreation Area to update rules about the use of motor vehicles on roads and off roads on designated routes and areas."
+      }
+    }
+  },
+  {
+    "bill_id": "sjres-119-11",
+    "congress": 119,
+    "type": "sjres",
+    "number": 11,
+    "category": "cra",
+    "package_id": "BILLS-119sjres11enr",
+    "version": "enr",
+    "version_name": "Enrolled Bill",
+    "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Ocean Energy Management relating to \"Protection of Marine Archaeological Resources\".",
+    "rule": {
+      "match": "citation",
+      "cited": "89 Fed. Reg. 71160 (September 3, 2024)",
+      "title": "Protection of Marine Archaeological Resources",
+      "agency": "Bureau of Ocean Energy Management",
+      "document": {
+        "title": "Protection of Marine Archaeological Resources",
+        "agencies": [
+          "Interior Department",
+          "Ocean Energy Management Bureau"
+        ],
+        "doc_type": "Rule",
+        "action": "Final rule.",
+        "citation": "89 FR 71160",
+        "published": "2024-09-03",
+        "effective_on": "2024-10-03",
+        "abstract": "The Department of the Interior (the Department or DOI), acting through the Bureau of Ocean Energy Management (BOEM), is finalizing regulatory amendments to require lessees and operators to submit an archaeological report with any oil and gas exploration or development plan they submit to BOEM for approval of proposed activities on the Outer Continental Shelf (OCS). The previous regulations required an archaeological report only if the plan covered an area that a BOEM Regional Director had \"reason to believe\" may have contained an archaeological resource. This final rule will increase the protection of archaeological resources in compliance with section 106 of the National Historic Preservation Act (NHPA) by acknowledging that there is a greater likelihood that such resources exist, thereby increasing the likelihood that these resources will be located and identified before they can be inadvertently damaged by an OCS operator. This rule defines the minimum level of survey information necessary to support the conclusions in the archaeological report, the procedures for reporting possible archaeological resources and continuing operations when a possible resource is present, and what to do if an unanticipated archaeological resource is discovered during operations."
+      }
+    }
+  },
+  {
+    "bill_id": "hjres-119-140",
+    "congress": 119,
+    "type": "hjres",
+    "number": 140,
+    "category": "cra",
+    "package_id": "BILLS-119hjres140enr",
+    "version": "enr",
+    "version_name": "Enrolled Bill",
+    "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to Public Land Order No. 7917 for Withdrawal of Federal Lands; Cook, Lake, and Saint Louis Counties, MN.",
+    "rule": {
+      "match": "citation",
+      "cited": "88 Fed. Reg. 6308 (January 31, 2023)",
+      "title": "Public Land Order No. 7917 for Withdrawal of Federal Lands; Cook, Lake, and Saint Louis Counties, MN",
+      "agency": "Bureau of Land Management of the Department of the Interior",
+      "document": {
+        "title": "Public Land Order No. 7917 for Withdrawal of Federal Lands; Cook, Lake, and Saint Louis Counties, MN",
+        "agencies": [
+          "Interior Department",
+          "Land Management Bureau"
+        ],
+        "doc_type": "Notice",
+        "action": "Public Land Order.",
+        "citation": "88 FR 6308",
+        "published": "2023-01-31",
+        "effective_on": "2023-01-31",
+        "abstract": "This Order withdraws approximately 225,504 acres of National Forest System lands in Cook, Lake, and Saint Louis counties, Minnesota, from disposition under the United States mineral and geothermal leasing laws, for a period of 20 years, subject to valid existing rights, to protect and preserve the fragile and vital social and natural resources, ecological integrity, and wilderness values in the Rainy River Watershed, the Boundary Waters Canoe Area Wilderness (BWCAW), the Boundary Waters Canoe Area Wilderness Mining Protection Area (MPA), and the 1854 Ceded Territory of the Lake Superior Chippewa in northeastern Minnesota from the potential adverse effects of mineral and geothermal exploration and development."
+      }
+    }
+  },
+  {
+    "bill_id": "sjres-119-103",
+    "congress": 119,
+    "type": "sjres",
+    "number": 103,
+    "category": "cra",
+    "package_id": "BILLS-119sjres103pcs",
+    "version": "pcs",
+    "version_name": "Placed on Calendar Senate",
+    "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Department of Veterans Affairs relating to \"Reproductive Health Services\".",
+    "rule": {
+      "match": "citation",
+      "cited": "90 Fed. Reg. 61310 (December 31, 2025)",
+      "title": "Reproductive Health Services",
+      "agency": "Department of Veterans Affairs",
+      "document": {
+        "title": "Reproductive Health Services",
+        "agencies": [
+          "Veterans Affairs Department"
+        ],
+        "doc_type": "Rule",
+        "action": "Final rule.",
+        "citation": "90 FR 61310",
+        "published": "2025-12-31",
+        "effective_on": "2026-01-30",
+        "abstract": "The Department of Veterans Affairs (VA) adopts as final, without changes, a proposed rule to reinstate the exclusions on abortions and abortion counseling from the medical benefits package, which were removed in 2022. Before 2022, these exclusions had been firmly in place since the medical benefits package was first established in 1999. VA is also adopting as final, without changes, the reinstatement of exclusions on abortion and abortion counseling for the Civilian Health and Medical Program of the Department of Veterans Affairs (CHAMPVA) that were also removed in 2022. VA takes this action to ensure that VA provides only needed and medically necessary and appropriate care to our nation's heroes and CHAMPVA beneficiaries."
+      }
+    }
+  },
+  {
+    "bill_id": "hjres-119-20",
+    "congress": 119,
+    "type": "hjres",
+    "number": 20,
+    "category": "cra",
+    "package_id": "BILLS-119hjres20enr",
+    "version": "enr",
+    "version_name": "Enrolled Bill",
+    "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Department of Energy relating to \"Energy Conservation Program: Energy Conservation Standards for Consumer Gas-fired Instantaneous Water Heaters\".",
+    "rule": {
+      "match": "citation",
+      "cited": "89 Fed. Reg. 105188 (December 26, 2024)",
+      "title": "Energy Conservation Program: Energy Conservation Standards for Consumer Gas-fired Instantaneous Water Heaters",
+      "agency": "Department of Energy",
+      "document": {
+        "title": "Energy Conservation Program: Energy Conservation Standards for Consumer Gas-fired Instantaneous Water Heaters",
+        "agencies": [
+          "Energy Department"
+        ],
+        "doc_type": "Rule",
+        "action": "Final rule.",
+        "citation": "89 FR 105188",
+        "published": "2024-12-26",
+        "effective_on": "2025-03-11",
+        "abstract": "The Energy Policy and Conservation Act, as amended (\"EPCA\"), prescribes energy conservation standards for various consumer products and certain commercial and industrial equipment, including gas-fired instantaneous water heaters, which are a type of consumer water heater. EPCA also requires the U.S. Department of Energy (\"DOE\" or the \"Department\") to periodically review its existing standards to determine whether more-stringent standards would be technologically feasible and economically justified, and would result in significant energy savings. In this final rule, DOE is adopting amended energy conservation standards for gas-fired instantaneous water heaters. It has determined that the amended energy conservation standards for these products would result in significant conservation of energy, and are technologically feasible and economically justified."
+      }
+    }
+  },
+  {
+    "bill_id": "sjres-119-143",
+    "congress": 119,
+    "type": "sjres",
+    "number": 143,
+    "category": "cra",
+    "package_id": "BILLS-119sjres143is",
+    "version": "is",
+    "version_name": "Introduced in Senate",
+    "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2023-02: Reopening Deposit Accounts That Consumers Previously Closed\".",
+    "rule": {
+      "match": "citation",
+      "cited": "90 Fed. Reg. 20084 (May 12, 2025)",
+      "title": "withdrawal of the rule relating to Consumer Financial Protection Circular 2023–02: Reopening Deposit Accounts That Consumers Previously Closed",
+      "agency": "Bureau of Consumer Financial Protection",
+      "document": {
+        "title": "Interpretive Rules, Policy Statements, and Advisory Opinions; Withdrawal",
+        "agencies": [
+          "Consumer Financial Protection Bureau"
+        ],
+        "doc_type": "Rule",
+        "action": "Withdrawal of Bureau guidance, interpretive rules, policy statements, and advisory opinions.",
+        "citation": "90 FR 20084",
+        "published": "2025-05-12",
+        "abstract": "The Consumer Financial Protection Bureau (CFPB or Bureau) is withdrawing many guidance documents issued since the CFPB assumed its functions in 2011."
+      },
+      "withdrawn": {
+        "title": "Consumer Financial Protection Circular 2023-02: Reopening Deposit Accounts That Consumers Previously Closed",
+        "agencies": [
+          "Consumer Financial Protection Bureau"
+        ],
+        "doc_type": "Rule",
+        "action": "Consumer financial protection circular.",
+        "citation": "88 FR 33545",
+        "published": "2023-05-24",
+        "abstract": "The Consumer Financial Protection Bureau (CFPB) has issued Consumer Financial Protection Circular 2023-02, titled, \"Reopening Deposit Accounts That Consumers Previously Closed.\" In this circular, the CFPB responds to the question, \"After consumers have closed deposit accounts, if a financial institution unilaterally reopens those accounts to process a debit (i.e., withdrawal, ACH transaction, check) or deposit, can it constitute an unfair act or practice under the Consumer Financial Protection Act (CFPA)?\""
+      }
+    }
+  },
+  {
+    "bill_id": "sjres-119-130",
+    "congress": 119,
+    "type": "sjres",
+    "number": 130,
+    "category": "cra",
+    "package_id": "BILLS-119sjres130pcs",
+    "version": "pcs",
+    "version_name": "Placed on Calendar Senate",
+    "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-05: Improper Overdraft Opt-In Practices\".",
+    "rule": {
+      "match": "citation",
+      "cited": "90 Fed. Reg. 20084 (May 12, 2025)",
+      "title": "withdrawal of the rule relating to Consumer Financial Protection Circular 2024–05: Improper Overdraft Opt-In Practices",
+      "agency": "Bureau of Consumer Financial Protection",
+      "document": {
+        "title": "Interpretive Rules, Policy Statements, and Advisory Opinions; Withdrawal",
+        "agencies": [
+          "Consumer Financial Protection Bureau"
+        ],
+        "doc_type": "Rule",
+        "action": "Withdrawal of Bureau guidance, interpretive rules, policy statements, and advisory opinions.",
+        "citation": "90 FR 20084",
+        "published": "2025-05-12",
+        "abstract": "The Consumer Financial Protection Bureau (CFPB or Bureau) is withdrawing many guidance documents issued since the CFPB assumed its functions in 2011."
+      },
+      "withdrawn": {
+        "title": "Consumer Financial Protection Circular 2024-05: Improper Overdraft Opt-In Practices",
+        "agencies": [
+          "Consumer Financial Protection Bureau"
+        ],
+        "doc_type": "Rule",
+        "action": "Consumer financial protection circular.",
+        "citation": "89 FR 80075",
+        "published": "2024-10-02",
+        "abstract": "The Consumer Financial Protection Bureau (CFPB) has issued Consumer Financial Protection Circular 2024-05, titled \"Improper Overdraft Opt-In Practices.\" In this circular, the CFPB responds to the question, \"Can a financial institution violate the law if there is no proof that it has obtained consumers' affirmative consent before levying overdraft fees for ATM and one-time debit card transactions?\""
+      }
+    }
+  },
+  {
+    "bill_id": "sjres-119-132",
+    "congress": 119,
+    "type": "sjres",
+    "number": 132,
+    "category": "cra",
+    "package_id": "BILLS-119sjres132pcs",
+    "version": "pcs",
+    "version_name": "Placed on Calendar Senate",
+    "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Examinations for Risks to Active-Duty Servicemembers and Their Covered Dependents\".",
+    "rule": {
+      "match": "citation",
+      "cited": "90 Fed. Reg. 20084 (May 12, 2025)",
+      "title": "withdrawal of the rule relating to Examinations for Risks to Active-Duty Servicemembers and Their Covered Dependents",
+      "agency": "Bureau of Consumer Financial Protection",
+      "document": {
+        "title": "Interpretive Rules, Policy Statements, and Advisory Opinions; Withdrawal",
+        "agencies": [
+          "Consumer Financial Protection Bureau"
+        ],
+        "doc_type": "Rule",
+        "action": "Withdrawal of Bureau guidance, interpretive rules, policy statements, and advisory opinions.",
+        "citation": "90 FR 20084",
+        "published": "2025-05-12",
+        "abstract": "The Consumer Financial Protection Bureau (CFPB or Bureau) is withdrawing many guidance documents issued since the CFPB assumed its functions in 2011."
+      },
+      "withdrawn": {
+        "title": "Examinations for Risks to Active-Duty Servicemembers and Their Covered Dependents",
+        "agencies": [
+          "Consumer Financial Protection Bureau"
+        ],
+        "doc_type": "Rule",
+        "action": "Interpretive rule.",
+        "citation": "86 FR 32723",
+        "published": "2021-06-23",
+        "effective_on": "2021-06-23",
+        "abstract": "The Bureau of Consumer Financial Protection (Bureau) has statutory authority to conduct examinations, at those institutions that it supervises, regarding the risks to active-duty servicemembers and their covered dependents that are presented by conduct that violates the Military Lending Act. This interpretive rule explains the basis for that authority."
+      }
+    }
+  },
+  {
+    "bill_id": "sjres-119-82",
+    "congress": 119,
+    "type": "sjres",
+    "number": 82,
+    "category": "cra",
+    "package_id": "BILLS-119sjres82pcs",
+    "version": "pcs",
+    "version_name": "Placed on Calendar Senate",
+    "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Office of the Secretary of the Department of Health and Human Services relating to \"Policy on Adhering to the Text of the Administrative Procedure Act\".",
+    "rule": {
+      "match": "title",
+      "title": "Policy on Adhering to the Text of the Administrative Procedure Act",
+      "agency": "Office of the Secretary of the Department of Health and Human Services",
+      "document": {
+        "title": "Policy on Adhering to the Text of the Administrative Procedure Act",
+        "agencies": [
+          "Health and Human Services Department",
+          "Office of the Secretary"
+        ],
+        "doc_type": "Rule",
+        "action": "Policy statement.",
+        "citation": "90 FR 11029",
+        "published": "2025-03-03",
+        "abstract": "The Department of Health and Human Services' (the Department) Immediate Office of the Secretary is rescinding the policy on Public Participation in Rule Making (Richardson Waiver) and re-aligning the Department's rule-making procedures with the Administrative Procedure Act."
+      }
+    }
+  },
+  {
+    "bill_id": "sjres-119-69",
+    "congress": 119,
+    "type": "sjres",
+    "number": 69,
+    "category": "cra",
+    "package_id": "BILLS-119sjres69pcs",
+    "version": "pcs",
+    "version_name": "Placed on Calendar Senate",
+    "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the United States Fish and Wildlife Service relating to \"Record of Decision for the Barred Owl Management Strategy; Washington, Oregon, and California\".",
+    "rule": {
+      "match": "title",
+      "title": "Record of Decision for the Barred Owl Management Strategy; Washington, Oregon, and California",
+      "agency": "United States Fish and Wildlife Service",
+      "document": {
+        "title": "Record of Decision for the Barred Owl Management Strategy; Washington, Oregon, and California",
+        "agencies": [
+          "Interior Department",
+          "Fish and Wildlife Service"
+        ],
+        "doc_type": "Notice",
+        "action": "Notice of availability; record of decision.",
+        "citation": "89 FR 72881",
+        "published": "2024-09-06",
+        "abstract": "The U.S. Fish and Wildlife Service (Service) announces the availability of a record of decision (ROD) for the final environmental impact statement for the Barred Owl Management Strategy (strategy) in Washington, Oregon, and California. With this notice, we also make available the final strategy. The ROD documents the Service's decision to select the preferred alternative to address the threat that the nonnative and invasive barred owl (Strix varia) poses to the northern spotted owl (Strix occidentalis caurina) and the California spotted owl (Strix occidentalis occidentalis)."
+      }
+    }
+  },
+  {
+    "bill_id": "hjres-119-41",
+    "congress": 119,
+    "type": "hjres",
+    "number": 41,
+    "category": "cra",
+    "package_id": "BILLS-119hjres41ih",
+    "version": "ih",
+    "version_name": "Introduced in House",
+    "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Department of Education relating to \"Postsecondary Student Success Grant\".",
+    "rule": {
+      "match": "title",
+      "cited": "89 Fed. Reg. 48517 (June 7, 2024)",
+      "title": "Postsecondary Student Success Grant",
+      "agency": "Department of Education",
+      "document": {
+        "title": "Postsecondary Student Success Grant",
+        "agencies": [
+          "Education Department"
+        ],
+        "doc_type": "Rule",
+        "action": "Final priorities, requirements, definitions, and selection criterion.",
+        "citation": "89 FR 66225",
+        "published": "2024-08-15",
+        "effective_on": "2024-09-16",
+        "abstract": "The Department of Education (Department) issues priorities, requirements, definitions, and a selection criterion for use in the Postsecondary Student Success Grant (PSSG) program. The Department may use one or more of these priorities, requirements, definitions, and selection criterion for competitions in fiscal year (FY) 2024 and later years. We intend for these priorities, requirements, definitions, and selection criterion to support projects that equitably improve postsecondary student outcomes, including retention, upward transfer, and completions of value, by leveraging data and implementing, scaling, and rigorously evaluating evidence-based activities to support data- driven decisions and actions that lead to credentials that support economic success and further education."
+      }
+    }
+  },
+  {
+    "bill_id": "hjres-119-104",
+    "congress": 119,
+    "type": "hjres",
+    "number": 104,
+    "category": "cra",
+    "package_id": "BILLS-119hjres104enr",
+    "version": "enr",
+    "version_name": "Enrolled Bill",
+    "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to \"Miles City Field Office Record of Decision and Approved Resource Management Plan Amendment\".",
+    "rule": {
+      "match": "unmatched",
+      "reason": "no_candidates",
+      "title": "Miles City Field Office Record of Decision and Approved Resource Management Plan Amendment",
+      "agency": "Bureau of Land Management"
+    }
+  },
+  {
+    "bill_id": "sjres-119-80",
+    "congress": 119,
+    "type": "sjres",
+    "number": 80,
+    "category": "cra",
+    "package_id": "BILLS-119sjres80enr",
+    "version": "enr",
+    "version_name": "Enrolled Bill",
+    "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to \"National Petroleum Reserve in Alaska Integrated Activity Plan Record of Decision\".",
+    "rule": {
+      "match": "unmatched",
+      "reason": "no_candidates",
+      "title": "National Petroleum Reserve in Alaska Integrated Activity Plan Record of Decision",
+      "agency": "Bureau of Land Management"
+    }
+  },
+  {
+    "bill_id": "sjres-119-107",
+    "congress": 119,
+    "type": "sjres",
+    "number": 107,
+    "category": "cra",
+    "package_id": "BILLS-119sjres107pcs",
+    "version": "pcs",
+    "version_name": "Placed on Calendar Senate",
+    "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Internal Revenue Service relating to \"Beginning of Construction Requirements for Purposes of the Termination of Clean Electricity Production Credits and Clean Electricity Investment Credits for Applicable Wind and Solar Facilities\".",
+    "rule": {
+      "match": "unmatched",
+      "reason": "no_candidates",
+      "title": "Beginning of Construction Requirements for Purposes of the Termination of Clean Electricity Production Credits and Clean Electricity Investment Credits for Applicable Wind and Solar Facilities",
+      "agency": "Internal Revenue Service"
+    }
+  },
+  {
+    "bill_id": "sjres-119-142",
+    "congress": 119,
+    "type": "sjres",
+    "number": 142,
+    "category": "cra",
+    "package_id": "BILLS-119sjres142is",
+    "version": "is",
+    "version_name": "Introduced in Senate",
+    "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Credit Union Administration relating to \"Withdrawal of Fee Reporting Requirements\".",
+    "rule": {
+      "match": "unmatched",
+      "reason": "no_candidates",
+      "title": "Withdrawal of Fee Reporting Requirements",
+      "agency": "National Credit Union Administration"
+    }
+  }
+]

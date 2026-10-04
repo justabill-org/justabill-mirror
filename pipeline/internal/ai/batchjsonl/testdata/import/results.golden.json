@@ -1,0 +1,78 @@
+[
+  {
+    "line": 3,
+    "bill_id": "hr-119-1",
+    "content_hash": "c7d4",
+    "outcome": "ok",
+    "request_type": "batch",
+    "prompt_version": "bill-v4",
+    "model_version": "gemini-3.8-flash-001",
+    "input_tokens": 1600,
+    "output_tokens": 370,
+    "short_summary": "The bill would require the Tennessee Valley Authority to report staff numbers."
+  },
+  {
+    "line": 1,
+    "bill_id": "hr-119-144",
+    "content_hash": "3f1a",
+    "outcome": "blocked",
+    "reason": "SAFETY",
+    "error": "summary blocked: SAFETY",
+    "request_type": "batch",
+    "prompt_version": "bill-v4",
+    "model_version": "gemini-3.8-flash-001",
+    "input_tokens": 1600,
+    "output_tokens": 370
+  },
+  {
+    "line": 2,
+    "bill_id": "s-119-12",
+    "content_hash": "9b20",
+    "outcome": "truncated_output",
+    "reason": "MAX_TOKENS",
+    "error": "summary truncated_output: MAX_TOKENS",
+    "request_type": "batch",
+    "prompt_version": "bill-v4",
+    "model_version": "gemini-3.8-flash-001",
+    "input_truncated": true,
+    "input_tokens": 1600,
+    "output_tokens": 370
+  },
+  {
+    "line": 4,
+    "bill_id": "hres-119-88",
+    "content_hash": "11ae",
+    "outcome": "error",
+    "reason": "http 400 INVALID_ARGUMENT",
+    "error": "summary error: http 400 INVALID_ARGUMENT",
+    "request_type": "batch",
+    "prompt_version": "bill-v4",
+    "failed": true
+  },
+  {
+    "line": 6,
+    "bill_id": "hr-119-2670",
+    "content_hash": "5a5c",
+    "outcome": "blocked",
+    "reason": "prompt PROHIBITED_CONTENT",
+    "error": "summary blocked: prompt PROHIBITED_CONTENT",
+    "request_type": "batch",
+    "prompt_version": "bill-v4",
+    "model_version": "gemini-3.8-flash-001",
+    "input_tokens": 1600,
+    "output_tokens": 370
+  },
+  {
+    "line": 7,
+    "bill_id": "sjres-119-3",
+    "content_hash": "e2b7",
+    "outcome": "invalid",
+    "reason": "parse answer: invalid character 'H' looking for beginning of value",
+    "error": "summary invalid: parse answer: invalid character 'H' looking for beginning of value",
+    "request_type": "batch",
+    "prompt_version": "bill-v4",
+    "model_version": "gemini-3.8-flash-001",
+    "input_tokens": 1600,
+    "output_tokens": 370
+  }
+]

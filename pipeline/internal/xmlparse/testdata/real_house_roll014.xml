@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rollcall-vote>
+<vote-metadata>
+<majority>R</majority>
+<congress>119</congress>
+<session>1st</session>
+<chamber>U.S. House of Representatives</chamber>
+<rollcall-num>14</rollcall-num>
+<legis-num>H R 144</legis-num>
+<vote-question>On Motion to Suspend the Rules and Pass</vote-question>
+<vote-type>2/3 YEA-AND-NAY</vote-type>
+<vote-result>Passed</vote-result>
+<action-date>15-Jan-2025</action-date>
+<action-time time-etz="16:34">4:34 PM</action-time>
+<vote-desc>Tennessee Valley Authority Salary Transparency Act</vote-desc>
+<vote-totals>
+<totals-by-vote>
+<total-stub>Totals</total-stub>
+<yea-total>423</yea-total>
+<nay-total>0</nay-total>
+<present-total>0</present-total>
+<not-voting-total>10</not-voting-total>
+</totals-by-vote>
+</vote-totals>
+</vote-metadata>
+<vote-data>
+<recorded-vote><legislator name-id="A000370" party="D" state="NC" role="legislator">Adams</legislator><vote>Yea</vote></recorded-vote>
+<recorded-vote><legislator name-id="A000055" party="R" state="AL" role="legislator">Aderholt</legislator><vote>Yea</vote></recorded-vote>
+<recorded-vote><legislator name-id="A000376" party="D" state="TX" role="legislator">Allred</legislator><vote>Yea</vote></recorded-vote>
+<recorded-vote><legislator name-id="C001068" party="D" state="TN" role="legislator">Cohen</legislator><vote>Yea</vote></recorded-vote>
+<recorded-vote><legislator name-id="B001309" party="R" state="TN" role="legislator">Burchett</legislator><vote>Yea</vote></recorded-vote>
+<recorded-vote><legislator name-id="P000197" party="D" state="CA" role="legislator">Pelosi</legislator><vote>Yea</vote></recorded-vote>
+<recorded-vote><legislator name-id="J000289" party="R" state="OH" role="legislator">Jordan</legislator><vote>Yea</vote></recorded-vote>
+<recorded-vote><legislator name-id="S000185" party="D" state="VA" role="legislator">Scott, Robert C.</legislator><vote>Yea</vote></recorded-vote>
+<recorded-vote><legislator name-id="G000589" party="R" state="TX" role="legislator">Good</legislator><vote>Not Voting</vote></recorded-vote>
+<recorded-vote><legislator name-id="W000187" party="D" state="CA" role="legislator">Waters</legislator><vote>Not Voting</vote></recorded-vote>
+</vote-data>
+</rollcall-vote>

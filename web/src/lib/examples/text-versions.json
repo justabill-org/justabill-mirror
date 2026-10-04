@@ -1,0 +1,112 @@
+[
+    {
+        "id": "86f2012e-8429-4fe6-aef2-84a4a5920fcb",
+        "bill_id": "hr-119-187",
+        "version_type": "Enrolled Bill",
+        "version_code": "enr",
+        "formats": [
+            {
+                "type": "Formatted Text",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187enr.htm"
+            },
+            {
+                "type": "PDF",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187enr.pdf"
+            },
+            {
+                "type": "Formatted XML",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187enr.xml"
+            }
+        ],
+        "sort_order": 1,
+        "synced_at": "2026-03-19T20:06:40.332747Z"
+    },
+    {
+        "id": "e97b3945-e67c-4658-a8d5-67c52dd2a081",
+        "bill_id": "hr-119-187",
+        "version_type": "Referred in Senate",
+        "version_code": "rfs",
+        "formats": [
+            {
+                "type": "Formatted Text",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187rfs.htm"
+            },
+            {
+                "type": "PDF",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187rfs.pdf"
+            },
+            {
+                "type": "Formatted XML",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187rfs.xml"
+            }
+        ],
+        "sort_order": 2,
+        "synced_at": "2026-03-19T20:06:40.339596Z"
+    },
+    {
+        "id": "b9e68946-5b52-4665-8d62-cb88aa865aa2",
+        "bill_id": "hr-119-187",
+        "version_type": "Engrossed in House",
+        "version_code": "eh",
+        "formats": [
+            {
+                "type": "Formatted Text",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187eh.htm"
+            },
+            {
+                "type": "PDF",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187eh.pdf"
+            },
+            {
+                "type": "Formatted XML",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187eh.xml"
+            }
+        ],
+        "sort_order": 3,
+        "synced_at": "2026-03-19T20:06:40.346276Z"
+    },
+    {
+        "id": "aadae74f-ba7d-472d-a458-e67ea6ce39b7",
+        "bill_id": "hr-119-187",
+        "version_type": "Introduced in House",
+        "version_code": "ih",
+        "formats": [
+            {
+                "type": "Formatted Text",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187ih.htm"
+            },
+            {
+                "type": "PDF",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187ih.pdf"
+            },
+            {
+                "type": "Formatted XML",
+                "url": "https://www.congress.gov/119/bills/hr187/BILLS-119hr187ih.xml"
+            }
+        ],
+        "sort_order": 4,
+        "synced_at": "2026-03-19T20:06:40.353531Z"
+    },
+    {
+        "id": "f298c08f-94d1-4b9d-8866-9746b7cba7f8",
+        "bill_id": "hr-119-187",
+        "version_type": "Public Law",
+        "version_code": "public_law",
+        "formats": [
+            {
+                "type": "Formatted Text",
+                "url": "https://www.congress.gov/119/plaws/publ62/PLAW-119publ62.htm"
+            },
+            {
+                "type": "PDF",
+                "url": "https://www.congress.gov/119/plaws/publ62/PLAW-119publ62.pdf"
+            },
+            {
+                "type": "United States Legislative Markup",
+                "url": "https://www.congress.gov/119/plaws/publ62/PLAW-119publ62_uslm.xml"
+            }
+        ],
+        "sort_order": 5,
+        "synced_at": "2026-03-19T20:06:40.359834Z"
+    }
+]

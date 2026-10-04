@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rollcall-vote PUBLIC "-//US Congress//DTDs/vote v1.0 20031119 //EN" "../vote.dtd">
+<?xml-stylesheet type="text/xsl" href="../vote.xsl"?>
+<rollcall-vote>
+<vote-metadata>
+<majority>R</majority>
+<congress>119</congress>
+<session>1st</session>
+<chamber>U.S. House of Representatives</chamber>
+<rollcall-num>21</rollcall-num>
+<legis-num>H RES 53</legis-num>
+<vote-question>On Agreeing to the Resolution</vote-question>
+<vote-type>RECORDED VOTE</vote-type>
+<vote-result>Passed</vote-result>
+<action-date>22-Jan-2025</action-date>
+<action-time time-etz="14:04">2:04 PM</action-time>
+<vote-desc>Providing for consideration of the bill (H.R. 471) the Fix Our Forests Act; and providing for consideration of the bill (S. 5) the Laken Riley Act</vote-desc>
+<vote-totals>
+<totals-by-party-header>
+<party-header>Party</party-header>
+<yea-header>Ayes</yea-header>
+<nay-header>Noes</nay-header>
+<present-header>Answered “Present”</present-header>
+<not-voting-header>Not Voting</not-voting-header>
+</totals-by-party-header>
+<totals-by-party>
+<party>Republican</party>
+<yea-total>213</yea-total>
+<nay-total>0</nay-total>
+<present-total>0</present-total>
+<not-voting-total>5</not-voting-total>
+</totals-by-party>
+<totals-by-party>
+<party>Democratic</party>
+<yea-total>0</yea-total>
+<nay-total>204</nay-total>
+<present-total>0</present-total>
+<not-voting-total>11</not-voting-total>
+</totals-by-party>
+<totals-by-party>
+<party>Independent</party>
+<yea-total>0</yea-total>
+<nay-total>0</nay-total>
+<present-total>0</present-total>
+<not-voting-total>0</not-voting-total>
+</totals-by-party>
+<totals-by-vote>
+<total-stub>Totals</total-stub>
+<yea-total>213</yea-total>
+<nay-total>204</nay-total>
+<present-total>0</present-total>
+<not-voting-total>16</not-voting-total>
+</totals-by-vote>
+</vote-totals>
+</vote-metadata>
+<vote-data>
+<recorded-vote><legislator name-id="A000370" sort-field="Adams" unaccented-name="Adams" party="D" state="NC" role="legislator">Adams</legislator><vote>No</vote></recorded-vote>
+<recorded-vote><legislator name-id="A000055" sort-field="Aderholt" unaccented-name="Aderholt" party="R" state="AL" role="legislator">Aderholt</legislator><vote>Aye</vote></recorded-vote>
+<recorded-vote><legislator name-id="B001298" sort-field="Bacon" unaccented-name="Bacon" party="R" state="NE" role="legislator">Bacon</legislator><vote>Not Voting</vote></recorded-vote>
+</vote-data>
+</rollcall-vote>

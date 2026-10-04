@@ -1,0 +1,32 @@
+// VS Code Dev Containers (and Codespaces) over the dev container that `task docker:*` uses
+// (docs/design/710-containerized-dev.md, #830): the compose service dev, its image (dev/Dockerfile)
+// and its volumes, so the editor's Go and TypeScript tooling runs with the pinned toolchain. The
+// emulators and Redis start as the service's dependencies; JAB_IN_CONTAINER=1 makes `task infra:up`
+// a no-op inside it, so `task test`, `task lint` and the rest run as they do on the host.
+{
+  "name": "Just a Bill",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "dev",
+  // Only dev and what it depends on, not the api, web and pipeline services.
+  "runServices": ["dev"],
+  "workspaceFolder": "/work",
+  // The image's command is bash, which exits without a terminal: keep the container up instead.
+  "overrideCommand": true,
+  // Closing the window leaves the project's containers running: stopping them would stop the
+  // emulators a host `task infra:up` started too. `task down` stops them.
+  "shutdownAction": "none",
+  // The service runs as root unless JAB_UID is set, as `task docker:*` sets it. The editor and its
+  // terminals run as the image's dev user, whose uid and gid the Dev Containers extension changes
+  // to the host user's on Linux, so files created in the checkout stay the user's.
+  "remoteUser": "dev",
+  "updateRemoteUserUID": true,
+  "customizations": {
+    "vscode": {
+      "extensions": ["golang.go", "dbaeumer.vscode-eslint"],
+      "settings": {
+        // The ESLint config is web's (web/eslint.config.mjs).
+        "eslint.workingDirectories": ["web"]
+      }
+    }
+  }
+}

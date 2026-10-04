@@ -1,0 +1,44 @@
+{
+  "result": {
+    "geographies": {
+      "119th Congressional Districts": [
+        {
+          "GEOID": "4837",
+          "CENTLAT": "+30.3190046",
+          "CDSESSN": "119",
+          "AREAWATER": "9133993",
+          "STATE": "48",
+          "BASENAME": "37",
+          "OID": "2119035951825220",
+          "LSADC": "C2",
+          "FUNCSTAT": "N",
+          "INTPTLAT": "+30.3005289",
+          "NAME": "Congressional District 37",
+          "OBJECTID": 357,
+          "CENTLON": "-097.7881955",
+          "AREALAND": "578851031",
+          "INTPTLON": "-097.7743605",
+          "MTFCC": "G5200"
+        }
+      ]
+    },
+    "input": {
+      "vintage": {
+        "isDefault": false,
+        "id": "425",
+        "vintageName": "ACS2025_Current",
+        "vintageDescription": "ACS2025 Vintage - Current Benchmark"
+      },
+      "location": {
+        "x": -97.7431,
+        "y": 30.2672
+      },
+      "benchmark": {
+        "isDefault": true,
+        "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+        "id": "4",
+        "benchmarkName": "Public_AR_Current"
+      }
+    }
+  }
+}
