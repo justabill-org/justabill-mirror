@@ -34,6 +34,8 @@ export const LAW_BILL = {
   title: "Lamplight Library Hours Act",
   textVersion: "Enrolled Bill",
   firstSection: "101. Short title",
+  /** The last entry in its text's contents (#883). */
+  lastSection: "102. Evening hours grants",
 } as const;
 
 /**

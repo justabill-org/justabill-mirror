@@ -15,6 +15,21 @@ describe("Footer", () => {
     }
   });
 
+  // #822: the public repo is the last of the About links, right after Contact, named in words.
+  it("ends the About links with GitHub, linking to the public repo", () => {
+    render(<Footer />);
+    const nav = screen.getByRole("navigation", { name: "About Just a Bill" });
+    const links = [...nav.querySelectorAll("a")].map((a) => [a.textContent, a.getAttribute("href")]);
+    expect(links).toEqual([
+      ["About", "/about"],
+      ["Methodology", "/methodology"],
+      ["Privacy", "/privacy"],
+      ["Terms", "/terms"],
+      ["Contact", "/contact"],
+      ["GitHub", "https://github.com/justabill-org/justabill-mirror"],
+    ]);
+  });
+
   // #717: the sources line used to be hidden below sm; now it names every source on every width.
   it("names each data source on every width, linking to its publisher", () => {
     const { container } = render(<Footer />);

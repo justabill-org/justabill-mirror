@@ -154,8 +154,8 @@ describe("sanitize", () => {
     ["a page URL with a bill ID", "https://justabill.io/bills/hr-119-1?tab=text", "https://justabill.io/bills/[id]"],
     [
       "a page's route pattern",
-      "https://justabill.io/share/rep/[member]/[score]",
-      "https://justabill.io/share/rep/[member]/[score]",
+      "https://justabill.io/share/bill/[bill]/[vote]/[member]",
+      "https://justabill.io/share/bill/[bill]/[vote]/[member]",
     ],
     ["an unknown page", "https://justabill.io/[unknown]", "https://justabill.io/[unknown]"],
     ["another origin", "https://www.congress.gov/bill/119th-congress/house-bill/1", "https://www.congress.gov/"],

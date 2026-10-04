@@ -57,16 +57,16 @@ describe("redactAnalyticsEvent", () => {
 
 describe("redactSharePath", () => {
   it.each([
-    ["/share/rep/X000001/8-of-12", "/share/rep/[member]/[score]"],
-    ["/share/rep/X000001/8-of-12/image.png", "/share/rep/[member]/[score]/image.png"],
     ["/share/bill/hr-119-1/yea", "/share/bill/[bill]/[vote]"],
     ["/share/bill/hr-119-1/nay/image.png", "/share/bill/[bill]/[vote]/image.png"],
     ["/share/bill/hr-119-1/yea/X000002", "/share/bill/[bill]/[vote]/[member]"],
     ["/share/bill/hr-119-1/yea/X000002/image.png", "/share/bill/[bill]/[vote]/[member]/image.png"],
-    ["/share/rep/X000001/8-of-12/", "/share/rep/[member]/[score]"],
     ["/share/aggregate/hr-119-1/CA-12", "/share/aggregate/[bill]/[scope]"],
     ["/share/aggregate/hr-119-1/national/image.png", "/share/aggregate/[bill]/[scope]/image.png"],
     ["/share/something/else/entirely/and/more", "/share"],
+    // The scorecard card is gone (#894): an old link keeps none of its member or counts.
+    ["/share/rep/X000001/8-of-12", "/share"],
+    ["/share/rep/X000001/8-of-12/image.png", "/share"],
   ])("rewrites %s", (path, route) => {
     expect(redactSharePath(path)).toBe(route);
   });
@@ -88,9 +88,9 @@ describe("redactAnalyticsEvent on share pages", () => {
   });
 
   it("rewrites a relative share URL too", () => {
-    expect(redactAnalyticsEvent({ type: "pageview", url: "/share/rep/X000001/8-of-12#x" })).toEqual({
+    expect(redactAnalyticsEvent({ type: "pageview", url: "/share/bill/hr-119-1/nay#x" })).toEqual({
       type: "pageview",
-      url: "/share/rep/[member]/[score]",
+      url: "/share/bill/[bill]/[vote]",
     });
   });
 });
@@ -98,7 +98,7 @@ describe("redactAnalyticsEvent on share pages", () => {
 describe("trackShare", () => {
   it("sends only the kind and the channel", () => {
     const send = vi.fn();
-    trackShare("rep", "copy", send);
-    expect(send).toHaveBeenCalledWith("share", { kind: "rep", channel: "copy" });
+    trackShare("bill", "copy", send);
+    expect(send).toHaveBeenCalledWith("share", { kind: "bill", channel: "copy" });
   });
 });

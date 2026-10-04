@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Section, TrustPage } from "@/components/trust/trust-page";
-import { CODE_PUBLICATION, trustMetadata } from "@/lib/trust";
+import { publicRepoUrl, trustMetadata } from "@/lib/trust";
 import { CRA_EFFECT_URL, CRA_PROMPT_RULE } from "@/lib/disapproved-rule";
 
 export const metadata = trustMetadata(
@@ -110,7 +110,8 @@ export default function MethodologyPage() {
             Every bill gets the same instructions: describe only what the text would do, in neutral words; don&apos;t
             predict effects, costs, winners or losers; don&apos;t call anything good or bad; and don&apos;t mention
             parties or politicians unless the bill names them. Very long bills may be cut short, and the summary then
-            says it covers only part of the bill.
+            says it covers only part of the bill. You can read the instructions themselves in{" "}
+            <a href={publicRepoUrl("pipeline/internal/ai/prompt.go")}>our code</a>.
           </li>
           <li>
             <strong>
@@ -267,8 +268,9 @@ export default function MethodologyPage() {
           voting&rdquo; or &ldquo;Present&rdquo; doesn&apos;t count for or against anyone.
         </p>
         <p>
-          The rule is named <code>final-passage-v1</code>, and it&apos;s the same for every member.{" "}
-          {CODE_PUBLICATION} That includes the code that applies this rule.
+          The rule is named <code>final-passage-v1</code>, and it&apos;s the same for every member. Read{" "}
+          <a href={publicRepoUrl("docs/methodology/scorecard.md")}>the rule in full</a> and{" "}
+          <a href={publicRepoUrl("db/scoring/")}>the code that applies it</a>.
         </p>
       </Section>
 

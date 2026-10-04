@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.11.0 (2026-10-04)
+
+
+### Features
+
+* **web:** name the public repo in the footer and on the trust pages (#909) (f9e35b8)
+* **web:** open the bill text reader's contents from a button on phones (#907) (e76f886)
+* **web:** remove the scorecard's share card and button (#902) (3b45d23)
+
+
+### Bug Fixes
+
+* **docs:** point the public repo's security, conduct and issue links at justabill-mirror (#904) (4bf5b11)
+
 ## 0.10.0 (2026-10-04)
 
 

@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Report a security vulnerability
-    url: https://github.com/justabill-org/justabill/security/advisories/new
+    url: https://github.com/justabill-org/justabill-mirror/security/advisories/new
     about: Report security problems privately, never in a public issue. See SECURITY.md.
   - name: A privacy request (your account or your data)
     url: mailto:privacy@justabill.io

@@ -23,12 +23,11 @@ export function analyticsEnabled(env: AnalyticsEnv): boolean {
 
 // Share card paths carry the sharer's vote or counts (#88), or a place that may be
 // the sharer's own (#166), so analytics keep only their route pattern:
-// /share/rep/[member]/[score], /share/bill/[bill]/[vote],
-// /share/bill/[bill]/[vote]/[member] and /share/aggregate/[bill]/[scope], with
-// /image.png kept when present.
+// /share/bill/[bill]/[vote], /share/bill/[bill]/[vote]/[member] and
+// /share/aggregate/[bill]/[scope], with /image.png kept when present. An old
+// scorecard link (/share/rep/..., removed in #894) falls through to "/share".
 const SHARE_ROUTES: [RegExp, string][] = [
   [/^\/share\/aggregate\/[^/]+\/[^/]+(\/image\.png)?\/?$/, "/share/aggregate/[bill]/[scope]"],
-  [/^\/share\/rep\/[^/]+\/[^/]+(\/image\.png)?\/?$/, "/share/rep/[member]/[score]"],
   [/^\/share\/bill\/[^/]+\/[^/]+\/(?!image\.png)[^/]+(\/image\.png)?\/?$/, "/share/bill/[bill]/[vote]/[member]"],
   [/^\/share\/bill\/[^/]+\/[^/]+(\/image\.png)?\/?$/, "/share/bill/[bill]/[vote]"],
 ];

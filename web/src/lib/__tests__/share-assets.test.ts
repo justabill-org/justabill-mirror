@@ -58,7 +58,6 @@ describe("share card assets in the function bundles (#706)", () => {
         "/bills/[id]/twitter-image-1e2sri",
         "/share/bill/[bill]/[vote]/image.png",
         "/share/bill/[bill]/[vote]/[member]/image.png",
-        "/share/rep/[member]/[score]/image.png",
         "/share/aggregate/[bill]/[scope]/image.png",
       ])
     );

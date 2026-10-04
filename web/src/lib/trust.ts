@@ -26,10 +26,19 @@ export function trustMetadata(path: TrustPath, title: string, description: strin
 export type TrustPath = (typeof TRUST_LINKS)[number]["href"];
 
 /**
- * What the site says about the code while the repo is private: no date, and no link (#806). The code
- * goes public through a mirror of each release (#805), which decides what the pages say then.
+ * The public repository: each release's code, published by the release mirror (#805). It's the one
+ * repository of ours on GitHub a page may link to (#822); this private workspace never is.
  */
-export const CODE_PUBLICATION = "We'll publish the code under the Apache-2.0 license.";
+export const PUBLIC_REPO_URL = "https://github.com/justabill-org/justabill-mirror";
+
+/** The public repo without its scheme, as the pages show it. */
+export const PUBLIC_REPO_NAME = PUBLIC_REPO_URL.replace(/^https:\/\//, "");
+
+/** A file on the public repo's main branch, or a directory when its path ends in "/" ("db/scoring/"). */
+export function publicRepoUrl(path: string): string {
+  if (path.endsWith("/")) return `${PUBLIC_REPO_URL}/tree/main/${path.slice(0, -1)}`;
+  return `${PUBLIC_REPO_URL}/blob/main/${path}`;
+}
 
 /** General questions by email (Google Workspace on justabill.io, #368). */
 export const CONTACT_EMAIL = "contact@justabill.io";
@@ -46,6 +55,19 @@ export const POLICIES_LAST_UPDATED = "October 4, 2026";
  * significant changes get an entry (wording tweaks don't); add one dated POLICIES_LAST_UPDATED with each.
  */
 export const POLICY_CHANGES: readonly { date: string; change: string }[] = [
+  {
+    date: "October 4, 2026",
+    change:
+      "Terms of Service and Privacy Policy: the code of each release is now published under the Apache-2.0 " +
+      "license at github.com/justabill-org/justabill-mirror, and the Terms name it. The Privacy Policy adds that " +
+      "an issue you open there is public and covered by GitHub's own terms.",
+  },
+  {
+    date: "October 4, 2026",
+    change:
+      "Privacy Policy: the scorecard no longer has a card to share, so the Sharing section describes only " +
+      "cards about a bill.",
+  },
   {
     date: "October 4, 2026",
     change:

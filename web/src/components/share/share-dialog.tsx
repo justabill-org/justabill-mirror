@@ -34,7 +34,7 @@ export interface ShareDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   kind: ShareKind;
-  /** The share page path, e.g. /share/rep/X000001/8-of-12, or null while it's being worked out. */
+  /** The share page path, e.g. /share/bill/hr-119-1/yea, or null while it's being worked out. */
   path: string | null;
   /** The words that go with the link: only what the card prints. */
   text: string;

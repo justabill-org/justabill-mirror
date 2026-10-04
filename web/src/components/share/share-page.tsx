@@ -27,7 +27,7 @@ function Runs({ runs }: { runs: CardText[] }) {
 const linkBase =
   "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
-/** The "What is this?" line for the scorecard and bill cards. */
+/** The "What is this?" line for the bill cards. */
 const VOTE_CARD_ABOUT =
   "Someone shared this from Just a Bill, where anyone can read bills in Congress, vote on them, and compare " +
   "their votes with their representatives'. The sharer's votes are their own; members' votes come from the " +

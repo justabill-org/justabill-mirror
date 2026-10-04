@@ -6,18 +6,16 @@
 import {
   AGGREGATE_CARD_LABEL,
   aggregatePlace,
-  alignmentPercent,
   parseBillId,
   type PublishedCell,
-  type RepShare,
   type ShareVote,
 } from "./share";
 import { truncate } from "./bill-metadata";
 import { siteUrl } from "./site";
 import { BILL_TYPE_LABELS } from "./types";
 
-/** What was shared: a card (a rep result, a vote on a bill, an aggregate cell) or a bill's own page. */
-export type ShareKind = "rep" | "bill" | "aggregate" | "link";
+/** What was shared: a card (a vote on a bill, an aggregate cell) or a bill's own page. */
+export type ShareKind = "bill" | "aggregate" | "link";
 
 /** How a card or link was shared, for the `share` analytics event. */
 export type ShareChannel =
@@ -51,12 +49,6 @@ export interface ShareNavigator {
 /** The share page as an absolute URL on `origin`. */
 export function absoluteShareUrl(path: string, origin: string): string {
   return new URL(path, origin).toString();
-}
-
-/** "I agree with Hana Hill on 8 of 12 bills (67%)." */
-export function repShareText(name: string, share: Pick<RepShare, "matching" | "compared">): string {
-  const pct = alignmentPercent(share.matching, share.compared);
-  return `I agree with ${name} on ${share.matching} of ${share.compared} bills (${pct}%).`;
 }
 
 /** "H.R. 1" for "hr-119-1", or the ID itself if it isn't a canonical bill ID. */
@@ -142,7 +134,7 @@ export function shareSupport(nav: ShareNavigator | undefined, file: File | null)
   return "url";
 }
 
-/** "just-a-bill-rep-X000001-8-of-12.png" for "/share/rep/X000001/8-of-12". */
+/** "just-a-bill-bill-hr-119-1-yea.png" for "/share/bill/hr-119-1/yea". */
 export function shareFileName(path: string): string {
   const slug = path
     .replace(/^\/share\//, "")

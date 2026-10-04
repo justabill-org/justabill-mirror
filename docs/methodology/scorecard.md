@@ -22,7 +22,7 @@ and each vote says which chamber it was cast in.
 Vote records come from the House Clerk and the Senate's roll-call files. The rule is named
 `final-passage-v1`, and its code is open source ([`db/scoring`](../../db/scoring)). If you think
 a vote is classified wrongly, tell us through the
-[report-a-problem link](https://github.com/justabill-org/justabill/issues/new).
+[report-a-problem link](https://github.com/justabill-org/justabill-mirror/issues/new).
 
 ---
 

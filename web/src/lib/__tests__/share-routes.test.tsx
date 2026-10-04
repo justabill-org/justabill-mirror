@@ -14,16 +14,13 @@ vi.mock("../api", async (importOriginal) => ({
   getBillAggregates: vi.fn(),
   getMember: vi.fn(),
   getMemberPositions: vi.fn(),
-  listCongresses: vi.fn(),
 }));
 
 const api = await import("../api");
 const { ApiError } = api;
-const { loadAggregateCard, loadBillCard, loadRepCard } = await import("../share-data");
+const { loadAggregateCard, loadBillCard } = await import("../share-data");
 const aggregateImage = await import("@/app/(public)/share/aggregate/[bill]/[scope]/image.png/route");
 const aggregatePage = await import("@/app/(public)/share/aggregate/[bill]/[scope]/page");
-const repImage = await import("@/app/(public)/share/rep/[member]/[score]/image.png/route");
-const repPage = await import("@/app/(public)/share/rep/[member]/[score]/page");
 const billImage = await import("@/app/(public)/share/bill/[bill]/[vote]/image.png/route");
 const billMemberImage = await import("@/app/(public)/share/bill/[bill]/[vote]/[member]/image.png/route");
 const billMemberPage = await import("@/app/(public)/share/bill/[bill]/[vote]/[member]/page");
@@ -31,7 +28,7 @@ const billPage = await import("@/app/(public)/share/bill/[bill]/[vote]/page");
 const { default: MethodologyPage } = await import("@/app/(public)/(trust)/methodology/page");
 const { ShareCardImage } = await import("@/components/share/card");
 const { loadLogo } = await import("@/components/share/image");
-const { aggregateCardCopy, repCardCopy } = await import("../share");
+const { aggregateCardCopy, billCardCopy } = await import("../share");
 
 const senator: MemberDetail = {
   bioguide_id: "X000001",
@@ -92,51 +89,16 @@ beforeEach(() => {
   vi.mocked(api.getMember).mockReset().mockResolvedValue(senator);
   vi.mocked(api.getBill).mockReset().mockResolvedValue(bill);
   vi.mocked(api.getBillAggregates).mockReset().mockResolvedValue(aggregates);
-  vi.mocked(api.listCongresses).mockReset().mockResolvedValue([
-    { number: 117, start_date: "2021-01-03", is_current: false },
-    { number: 118, start_date: "2023-01-03", is_current: false },
-    { number: 119, start_date: "2025-01-03", is_current: true },
-  ]);
-  // 119th: 6 yea/nay + 2 absences; 118th: 4 yea/nay. So the bound is 10.
+  // The senator voted Yea on hr-119-1.
   vi.mocked(api.getMemberPositions).mockReset().mockImplementation(async (_id, congress) =>
-    congress === 119
-      ? positions(119, ["yea", "nay", "yea", "present", "nay", "not_voting", "Yea", "No"])
-      : positions(congress, ["yea", "nay", "yea", "yea"])
+    positions(congress, ["yea", "nay", "present", "not_voting"])
   );
 });
 
-const repParams = (member: string, score: string) => ({ params: Promise.resolve({ member, score }) });
-const req = new Request("http://localhost/share");
-
-describe("loadRepCard", () => {
-  it("allows compared up to the member's yea/nay positions in the congresses they served", async () => {
-    const card = await loadRepCard({ memberId: "X000001", matching: 7, compared: 10 });
-    expect(card?.copy.summary).toBe("I agree with Sen. Jane Doe (D-NY) on 7 of 10 bills (70%)");
-    expect(card?.actionHref).toBe("/scorecard");
-    expect(card?.memberHref).toBe("/members/X000001");
-    // Only the congresses the member served in (not the 117th).
-    expect(vi.mocked(api.getMemberPositions).mock.calls.map((c) => c[1]).sort()).toEqual([118, 119]);
-  });
-
-  it("refuses more compared bills than the member has positions on", async () => {
-    expect(await loadRepCard({ memberId: "X000001", matching: 7, compared: 11 })).toBeNull();
-  });
-
-  it("refuses an unknown member", async () => {
-    vi.mocked(api.getMember).mockRejectedValue(notFound());
-    expect(await loadRepCard({ memberId: "X000009", matching: 5, compared: 5 })).toBeNull();
-  });
-
-  it("fails closed when the positions endpoint 404s", async () => {
-    vi.mocked(api.getMemberPositions).mockRejectedValue(notFound());
-    expect(await loadRepCard({ memberId: "X000001", matching: 5, compared: 5 })).toBeNull();
-  });
-
-  it("propagates API errors other than 404/400, so they aren't cached as a 404", async () => {
-    vi.mocked(api.listCongresses).mockRejectedValue(new ApiError(503, "Unavailable", ""));
-    await expect(loadRepCard({ memberId: "X000001", matching: 5, compared: 5 })).rejects.toThrow("503");
-  });
+const billMemberParams = (bill: string, vote: string, member: string) => ({
+  params: Promise.resolve({ bill, vote, member }),
 });
+const req = new Request("http://localhost/share");
 
 describe("loadBillCard", () => {
   it("looks the member's vote up from their positions in the bill's congress", async () => {
@@ -172,7 +134,7 @@ describe("loadBillCard", () => {
 
 describe("image routes", () => {
   it("renders a 1200×630 PNG with CDN-only cache headers", async () => {
-    const res = await repImage.GET(req, repParams("X000001", "8-of-10"));
+    const res = await billMemberImage.GET(req, billMemberParams("hr-119-1", "yea", "X000001"));
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("image/png");
     expect(res.headers.get("cache-control")).toBe(
@@ -185,12 +147,15 @@ describe("image routes", () => {
   });
 
   it.each([
-    ["X000001", "8-of-11"], // above the bound
-    ["X000001", "08-of-10"], // not canonical
-    ["X000001", "3-of-4"], // below the minimum
-    ["bad", "8-of-10"],
-  ])("404s %s/%s with a short cache", async (member, score) => {
-    const res = await repImage.GET(req, repParams(member, score));
+    ["hr-119-1", "present", "X000001"], // not yea or nay
+    ["hr-119-1", "yea", "x000001"], // not a bioguide ID
+    ["hr-119-1", "yea", "X000009"], // unknown member
+  ])("404s %s/%s/%s with a short cache", async (bill, vote, member) => {
+    vi.mocked(api.getMember).mockImplementation(async (id) => {
+      if (id !== senator.bioguide_id) throw notFound();
+      return senator;
+    });
+    const res = await billMemberImage.GET(req, billMemberParams(bill, vote, member));
     expect(res.status).toBe(404);
     expect(res.headers.get("cache-control")).toBe("public, max-age=300, s-maxage=300");
   });
@@ -201,10 +166,8 @@ describe("image routes", () => {
     expect(api.getBill).not.toHaveBeenCalled();
   });
 
-  it("renders a bill card with a member", async () => {
-    const res = await billMemberImage.GET(req, {
-      params: Promise.resolve({ bill: "hr-119-1", vote: "yea", member: "X000001" }),
-    });
+  it("renders a vote-only bill card", async () => {
+    const res = await billImage.GET(req, { params: Promise.resolve({ bill: "hr-119-1", vote: "nay" }) });
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("image/png");
   });
@@ -230,23 +193,24 @@ describe("share pages", () => {
   });
 
   it("renders the card as text with one call to action", async () => {
-    const html = renderToStaticMarkup(await repPage.default(repParams("X000001", "8-of-10")));
+    const html = renderToStaticMarkup(await billMemberPage.default(billMemberParams("hr-119-1", "yea", "X000001")));
     expect(html).toContain("<strong class=\"font-bold\">Sen. Jane Doe (D-NY)</strong>");
-    expect(html).toContain("<strong class=\"font-bold\">8 of 10</strong>");
-    expect(html).toContain('href="/scorecard"');
+    expect(html).toMatch(/<a [^>]*href="\/bills\/hr-119-1"[^>]*>How would you vote\?<\/a>/);
     expect(html).toContain('href="/members/X000001"');
   });
 
   it("links to how votes are compared on the Methodology page (#165)", async () => {
-    const html = renderToStaticMarkup(await repPage.default(repParams("X000001", "8-of-10")));
+    const html = renderToStaticMarkup(await billMemberPage.default(billMemberParams("hr-119-1", "yea", "X000001")));
     expect(html).toMatch(/<a [^>]*href="\/methodology#scorecard"[^>]*>How votes are compared<\/a>/);
     expect(renderToStaticMarkup(<MethodologyPage />)).toContain('id="scorecard"');
   });
 
-  it("404s an impossible scorecard", async () => {
+  it("404s a member the API doesn't have", async () => {
+    vi.mocked(api.getMember).mockRejectedValue(notFound());
     const notFoundError = { digest: "NEXT_HTTP_ERROR_FALLBACK;404" };
-    await expect(repPage.generateMetadata(repParams("X000001", "8-of-11"))).rejects.toMatchObject(notFoundError);
-    await expect(repPage.default(repParams("X000001", "8-of-11"))).rejects.toMatchObject(notFoundError);
+    const params = () => billMemberParams("hr-119-1", "yea", "X000009");
+    await expect(billMemberPage.generateMetadata(params())).rejects.toMatchObject(notFoundError);
+    await expect(billMemberPage.default(params())).rejects.toMatchObject(notFoundError);
   });
 });
 
@@ -302,10 +266,10 @@ describe("bill share page (#872)", () => {
 
 describe("card image footer", () => {
   const copy = () =>
-    repCardCopy(
-      { firstName: "Jane", lastName: "Doe", chamber: "Senate", state: "NY", party: "D" },
-      { memberId: "X000001", matching: 8, compared: 10 }
-    );
+    billCardCopy({ billType: "hr", number: 1, congress: 119, title: "Example Act of 2025" }, "yea", {
+      member: { firstName: "Jane", lastName: "Doe", chamber: "Senate", state: "NY", party: "D" },
+      position: "nay",
+    });
 
   it("points to the Methodology page on the site's domain", () => {
     const html = renderToStaticMarkup(<ShareCardImage copy={copy()} domain="justabill.io" logo={LOGO} />);

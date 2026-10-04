@@ -14,7 +14,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MemberPhoto } from "@/components/member/member-photo";
 import { PartyIndicator } from "@/components/member/party-indicator";
 import { VoteBadge } from "@/components/member/vote-badge";
-import { RepShareButton, canShareScore } from "@/components/share/share-button";
 
 interface RepCardProps {
   rep: LocalRep;
@@ -75,11 +74,6 @@ export function RepCard({ rep, score, alignment, profile }: RepCardProps) {
             <VotedWithYou score={score} />
             {alignment && <AlignmentLine rep={rep} alignment={alignment} />}
             <ComparedBills rows={score.rows} />
-            {canShareScore(rep.id, score.compared) && (
-              <div className="mt-auto flex justify-end pt-2">
-                <RepShareButton rep={rep} matching={score.matching} compared={score.compared} />
-              </div>
-            )}
           </>
         )}
       </CardContent>

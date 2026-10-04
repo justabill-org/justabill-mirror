@@ -1,10 +1,9 @@
 // Loads what a share card prints from public API data (#88). Everything about a member, a bill or
 // an aggregate comes from here, never from the share URL. The loaders return null when the card
-// must 404: an unknown bill or member, a scorecard claiming more bills than the member has
-// positions on, or an aggregate cell that isn't published.
+// must 404: an unknown bill or member, or an aggregate cell that isn't published.
 
 import { findCell, METHODOLOGY_AGGREGATES } from "./aggregates";
-import { ApiError, getBill, getBillAggregates, getMember, getMemberPositions, listCongresses } from "./api";
+import { ApiError, getBill, getBillAggregates, getMember, getMemberPositions } from "./api";
 import { latestTerm } from "./graph";
 import {
   aggregateCardCopy,
@@ -12,14 +11,12 @@ import {
   isShareableCell,
   normalizePositionVote,
   parseBillId,
-  repCardCopy,
   type AggregateShare,
   type BillShare,
   type CardCopy,
   type CardMember,
-  type RepShare,
 } from "./share";
-import type { MemberDetail, MemberPositionsResponse } from "./types";
+import type { MemberDetail } from "./types";
 
 export interface ShareCardData {
   copy: CardCopy;
@@ -57,46 +54,6 @@ function cardMember(detail: MemberDetail, congress?: number): CardMember | null 
     state: term.state,
     district: term.district,
     party: term.party,
-  };
-}
-
-function countYeaNay(responses: MemberPositionsResponse[]): number {
-  let count = 0;
-  for (const response of responses) {
-    for (const position of response.positions ?? []) {
-      const vote = normalizePositionVote(position.vote);
-      if (vote === "yea" || vote === "nay") count++;
-    }
-  }
-  return count;
-}
-
-/**
- * The scorecard card. `compared` can't exceed the member's yea/nay positions across every
- * congress they served in that the API knows. If any positions request 404s (for example before
- * #72's positions endpoint is deployed) the bound can't be checked, so the card 404s.
- */
-export async function loadRepCard(share: RepShare): Promise<ShareCardData | null> {
-  const detail = await orNotFound(getMember(share.memberId));
-  if (!detail) return null;
-  const member = cardMember(detail);
-  if (!member) return null;
-
-  const served = new Set((detail.terms ?? []).map((t) => t.congress));
-  const congresses = (await listCongresses()).map((c) => c.number).filter((n) => served.has(n));
-  const responses = await Promise.all(
-    congresses.map((congress) => orNotFound(getMemberPositions(share.memberId, congress)))
-  );
-  if (responses.some((r) => r === null)) return null;
-  if (share.compared > countYeaNay(responses as MemberPositionsResponse[])) return null;
-
-  const copy = repCardCopy(member, share);
-  return {
-    copy,
-    actionHref: "/scorecard",
-    actionLabel: "Compare your own votes",
-    memberHref: `/members/${share.memberId}`,
-    memberLinkLabel: `See ${member.firstName} ${member.lastName}'s votes`,
   };
 }
 

@@ -25,8 +25,13 @@ const FOCUSABLE = [
   .map((selector) => `${selector}:not([tabindex="-1"])`)
   .join(",");
 
+// Only what Tab can reach: not an element that isn't rendered (display: none, e.g. the bill text
+// reader's contents below 1024 px while closed) or sits inside an inert subtree. Where the browser
+// has no checkVisibility (jsdom), everything counts as rendered.
 function focusableIn(root: HTMLElement): HTMLElement[] {
-  return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE));
+  return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+    (el) => el.checkVisibility?.() !== false && !el.closest("[inert]")
+  );
 }
 
 // Keeps Tab and Shift+Tab inside the dialog: past the last element wraps to the first.

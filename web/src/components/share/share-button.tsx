@@ -1,11 +1,11 @@
 "use client";
 
-// The buttons that open the share dialog (#88): one on each scorecard member card, one on the
-// bill page's vote card with a picker for which of the visitor's members to compare with, and one
-// on each published cell of the bill page's "How Just a Bill users voted" panel (#166).
+// The buttons that open the share dialog (#88): one on the bill page's vote card with a picker for
+// which of the visitor's members to compare with, and one on each published cell of the bill page's
+// "How Just a Bill users voted" panel (#166). The scorecard's button was removed in #894.
 
 import { useEffect, useId, useMemo, useState } from "react";
-import { Button, type ButtonSize, type ButtonVariant } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import type { LocalRep } from "@/lib/local/reps";
 import { billCongress, loadPositions, type PositionsFetcher } from "@/lib/scorecard";
 import {
@@ -14,50 +14,14 @@ import {
   billShareUrl,
   isMemberId,
   isShareableCell,
-  MIN_SHARE_COMPARED,
   normalizePositionVote,
-  repShareUrl,
   type MemberPositionVote,
   type ShareVote,
 } from "@/lib/share";
-import { aggregateShareText, billShareText, repShareText } from "@/lib/share-links";
+import { aggregateShareText, billShareText } from "@/lib/share-links";
 import type { AggregateCell } from "@/lib/types";
 import { useLocalReps } from "@/lib/votes/hooks";
 import { AGGREGATE_SHARE_PRIVACY_NOTE, ShareDialog } from "./share-dialog";
-
-interface RepShareButtonProps {
-  rep: Pick<LocalRep, "id" | "name">;
-  matching: number;
-  compared: number;
-  size?: ButtonSize;
-  variant?: ButtonVariant;
-}
-
-/** Whether a scorecard result can be shared: enough bills compared and a bioguide member ID. */
-export function canShareScore(memberId: string, compared: number): boolean {
-  return compared >= MIN_SHARE_COMPARED && isMemberId(memberId);
-}
-
-/** Shares one member's scorecard result; renders nothing below MIN_SHARE_COMPARED bills. */
-export function RepShareButton({ rep, matching, compared, size = "sm", variant = "outline" }: RepShareButtonProps) {
-  const [open, setOpen] = useState(false);
-  if (!canShareScore(rep.id, compared)) return null;
-  const share = { memberId: rep.id, matching, compared };
-  return (
-    <>
-      <Button variant={variant} size={size} onClick={() => setOpen(true)} aria-label={`Share your result with ${rep.name}`}>
-        Share
-      </Button>
-      <ShareDialog
-        open={open}
-        onOpenChange={setOpen}
-        kind="rep"
-        path={repShareUrl(share)}
-        text={repShareText(rep.name, share)}
-      />
-    </>
-  );
-}
 
 /** Each member's recorded position on one bill, or null while it loads. */
 type RecordedVotes = Readonly<Record<string, MemberPositionVote>>;

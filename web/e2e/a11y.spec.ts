@@ -285,6 +285,54 @@ for (const colorScheme of ["light", "dark"] as const) {
       await expectAccessible(page, `/bills/${LAW_BILL.id} text reader (${colorScheme})`);
     });
 
+    // #883: below 1024 px the reader's contents is behind a Contents button and opens over the text.
+    test(`the text reader's contents on a phone is accessible and jumps to a section (${colorScheme})`, async ({
+      page,
+    }) => {
+      test.slow();
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto(`/bills/${LAW_BILL.id}`);
+      await expect(page.getByText("Kept on this device only.")).toBeVisible();
+      await page.getByRole("tab", { name: "Text (1)" }).click();
+      await page.getByRole("button", { name: "Read the final text" }).click();
+      const reader = page.getByRole("dialog", { name: LAW_BILL.textVersion });
+      const contents = reader.getByRole("button", { name: "Contents" });
+      const list = reader.getByRole("navigation", { name: "Contents" });
+      const section = reader.getByRole("heading", { name: LAW_BILL.lastSection });
+      await expect(contents).toHaveAttribute("aria-expanded", "false");
+      await expect(list).toBeHidden();
+
+      await contents.click();
+      await expect(contents).toHaveAttribute("aria-expanded", "true");
+      await expect(list).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+      await expectAccessible(page, `/bills/${LAW_BILL.id} text reader at 390px, contents open (${colorScheme})`);
+
+      // Escape closes the list, not the reader.
+      await page.keyboard.press("Escape");
+      await expect(list).toBeHidden();
+      await expect(reader).toBeVisible();
+      await expect(contents).toBeFocused();
+      // Tab past the last control in reach wraps inside the reader, not through the hidden contents.
+      await page.keyboard.press("Tab");
+      await expect(reader.getByRole("button", { name: "Close" })).toBeFocused();
+
+      await contents.click();
+      await list.getByRole("button", { name: LAW_BILL.lastSection }).click();
+      await expect(list).toBeHidden();
+      await expect(section).toBeFocused();
+      await expect(section).toBeInViewport();
+
+      // Turning the phone sideways past 1024 px with the list open leaves the sidebar and live text.
+      await contents.click();
+      await expect(list).toBeVisible();
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await expect(contents).toBeHidden();
+      await expect(list).toBeVisible();
+      await expect(reader.locator("[inert]")).toHaveCount(0);
+      await expect(section).toBeVisible();
+    });
+
     // #738: My votes empty, then with a vote, on a desktop and a phone (where it mustn't scroll sideways).
     test(`my votes, empty and with a vote, on a desktop and a phone, is accessible (${colorScheme})`, async ({ page }) => {
       // Five axe runs: past the 30s default on a busy CI runner.

@@ -2,12 +2,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { track } from "@vercel/analytics";
-import { RepCard } from "../scorecard/rep-card";
+import { BillShareButton } from "../share/share-button";
 import { VoteSection } from "@/app/(app)/bills/[id]/vote-section";
-import type { LocalRep, LocalReps } from "@/lib/local/reps";
+import type { LocalReps } from "@/lib/local/reps";
 import type { LocalEnv } from "@/lib/local/storage";
 import { createVoteStore } from "@/lib/local/votes";
-import type { MemberScore } from "@/lib/scorecard";
 import { localVoteBackend } from "@/lib/votes/backend";
 import { localReps, VoteBackendContext } from "@/lib/votes/hooks";
 import { axeViolations } from "@/test/axe";
@@ -79,87 +78,66 @@ afterEach(() => {
   localReps().clearReps();
 });
 
-const rep: LocalRep = { id: "C000003", name: "Cora Chen", party: "R", chamber: "Senate", state: "CA" };
+const BILL_PATH = "/share/bill/hr-119-1/yea";
+const BILL_URL = `${window.location.origin}${BILL_PATH}`;
+const BILL_TEXT = "I'd vote Yea on H.R. 1.";
+const BILL_FILE = "just-a-bill-bill-hr-119-1-yea.png";
 
-function scoreOf(matching: number, compared: number): MemberScore {
-  return {
-    member_id: rep.id,
-    matching,
-    compared,
-    member_absent: 0,
-    alignment_pct: Math.round((100 * matching) / compared),
-    rows: [],
-  };
-}
-
-const REP_PATH = "/share/rep/C000003/4-of-5";
-const REP_URL = `${window.location.origin}${REP_PATH}`;
-const REP_TEXT = "I agree with Cora Chen on 4 of 5 bills (80%).";
-
-async function openRepDialog() {
-  render(<RepCard rep={rep} score={scoreOf(4, 5)} />);
+// With no members saved in this browser, "Share my vote" opens straight on the vote-only card.
+async function openBillDialog() {
+  render(<BillShareButton billId="hr-119-1" vote="yea" />);
   expect(requests).toEqual([]);
-  fireEvent.click(screen.getByRole("button", { name: "Share your result with Cora Chen" }));
+  fireEvent.click(screen.getByRole("button", { name: "Share my vote" }));
   const dialog = await screen.findByRole("dialog");
-  if (imageStatus === 200) await screen.findByAltText(REP_TEXT);
+  if (imageStatus === 200) await screen.findByAltText(BILL_TEXT);
   return dialog;
 }
 
-describe("the scorecard's share button", () => {
-  it("is hidden below the minimum number of compared bills", () => {
-    render(<RepCard rep={rep} score={scoreOf(4, 4)} />);
-    expect(screen.queryByRole("button", { name: /Share/ })).toBeNull();
-  });
-
-  it("is hidden for a member ID that isn't a bioguide ID", () => {
-    render(<RepCard rep={{ ...rep, id: "H1" }} score={scoreOf(4, 5)} />);
-    expect(screen.queryByRole("button", { name: /Share/ })).toBeNull();
-  });
-
+describe("the share dialog", () => {
   it("prefetches the card image when the dialog opens and shows the exact link", async () => {
-    const dialog = await openRepDialog();
-    expect(requests.map((r) => r.url)).toEqual([`${REP_PATH}/image.png`]);
-    expect(screen.getByLabelText("Link")).toHaveProperty("value", REP_URL);
+    const dialog = await openBillDialog();
+    expect(requests.map((r) => r.url)).toEqual([`${BILL_PATH}/image.png`]);
+    expect(screen.getByLabelText("Link")).toHaveProperty("value", BILL_URL);
     expect(dialog.textContent).toContain("It doesn't include your other votes or your address.");
     const download = screen.getByRole("link", { name: "Download image" });
     expect(download.getAttribute("href")).toBe("blob:card");
-    expect(download.getAttribute("download")).toBe("just-a-bill-rep-C000003-4-of-5.png");
+    expect(download.getAttribute("download")).toBe(BILL_FILE);
     expect(await axeViolations(dialog)).toEqual([]);
   });
 
   it("links to each site's share page in a new tab", async () => {
-    await openRepDialog();
+    await openBillDialog();
     const x = screen.getByRole("link", { name: "X" });
     expect(x.getAttribute("target")).toBe("_blank");
     expect(x.getAttribute("rel")).toBe("noopener noreferrer");
-    expect(new URL(x.getAttribute("href")!).searchParams.get("url")).toBe(REP_URL);
+    expect(new URL(x.getAttribute("href")!).searchParams.get("url")).toBe(BILL_URL);
     fireEvent.click(screen.getByRole("link", { name: "Bluesky" }));
-    expect(track).toHaveBeenCalledWith("share", { kind: "rep", channel: "bluesky" });
+    expect(track).toHaveBeenCalledWith("share", { kind: "bill", channel: "bluesky" });
   });
 });
 
 describe("Share…", () => {
   it("shares the image file with the link when the browser can", async () => {
-    await openRepDialog();
+    await openBillDialog();
     fireEvent.click(screen.getByRole("button", { name: "Share…" }));
     expect(shareSpy).toHaveBeenCalledTimes(1);
     const data = shareSpy!.mock.calls[0][0] as ShareData;
-    expect(data.url).toBe(REP_URL);
-    expect(data.text).toBe(REP_TEXT);
-    expect(data.files?.map((f) => [f.name, f.type])).toEqual([["just-a-bill-rep-C000003-4-of-5.png", "image/png"]]);
-    await waitFor(() => expect(track).toHaveBeenCalledWith("share", { kind: "rep", channel: "native" }));
+    expect(data.url).toBe(BILL_URL);
+    expect(data.text).toBe(BILL_TEXT);
+    expect(data.files?.map((f) => [f.name, f.type])).toEqual([[BILL_FILE, "image/png"]]);
+    await waitFor(() => expect(track).toHaveBeenCalledWith("share", { kind: "bill", channel: "native" }));
   });
 
   it("shares only the link when files can't be shared", async () => {
     canShare = () => false;
-    await openRepDialog();
+    await openBillDialog();
     fireEvent.click(screen.getByRole("button", { name: "Share…" }));
-    expect(shareSpy).toHaveBeenCalledWith({ url: REP_URL, text: REP_TEXT });
+    expect(shareSpy).toHaveBeenCalledWith({ url: BILL_URL, text: BILL_TEXT });
   });
 
   it("isn't offered when the browser has no share sheet", async () => {
     delete (navigator as unknown as Record<string, unknown>).share;
-    await openRepDialog();
+    await openBillDialog();
     expect(screen.queryByRole("button", { name: "Share…" })).toBeNull();
     expect(screen.getByRole("button", { name: "Copy link" })).toBeTruthy();
   });
@@ -168,7 +146,7 @@ describe("Share…", () => {
     shareSpy = vi.fn<ShareFn>(async () => {
       throw new DOMException("cancelled", "AbortError");
     });
-    await openRepDialog();
+    await openBillDialog();
     fireEvent.click(screen.getByRole("button", { name: "Share…" }));
     await waitFor(() => expect(shareSpy).toHaveBeenCalled());
     await Promise.resolve();
@@ -180,7 +158,7 @@ describe("Share…", () => {
     shareSpy = vi.fn<ShareFn>(async () => {
       throw new DOMException("denied", "NotAllowedError");
     });
-    await openRepDialog();
+    await openBillDialog();
     fireEvent.click(screen.getByRole("button", { name: "Share…" }));
     expect(await screen.findByText("Sharing didn't work here. Copy the link instead.")).toBeTruthy();
   });
@@ -188,16 +166,16 @@ describe("Share…", () => {
 
 describe("Copy link and a missing card", () => {
   it("copies the link", async () => {
-    await openRepDialog();
+    await openBillDialog();
     fireEvent.click(screen.getByRole("button", { name: "Copy link" }));
     expect(await screen.findByText("Link copied.")).toBeTruthy();
-    expect(clipboard).toEqual([REP_URL]);
-    expect(track).toHaveBeenCalledWith("share", { kind: "rep", channel: "copy" });
+    expect(clipboard).toEqual([BILL_URL]);
+    expect(track).toHaveBeenCalledWith("share", { kind: "bill", channel: "copy" });
   });
 
   it("offers nothing to share when the card would 404", async () => {
     imageStatus = 404;
-    await openRepDialog();
+    await openBillDialog();
     expect(await screen.findByText(/This card isn't available/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Copy link" })).toHaveProperty("disabled", true);
     expect(screen.queryByRole("link", { name: "X" })).toBeNull();
@@ -206,7 +184,7 @@ describe("Copy link and a missing card", () => {
 
   it("still shares the link when the image fails to load", async () => {
     imageStatus = 500;
-    await openRepDialog();
+    await openBillDialog();
     expect(await screen.findByText(/didn't load/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Copy link" })).toHaveProperty("disabled", false);
   });

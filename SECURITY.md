@@ -4,7 +4,7 @@
 
 Please report security problems privately, not in a public issue, pull request or discussion.
 
-Use GitHub's [private vulnerability reporting](https://github.com/justabill-org/justabill/security/advisories/new)
+Use GitHub's [private vulnerability reporting](https://github.com/justabill-org/justabill-mirror/security/advisories/new)
 (the repository's **Security** tab, then **Report a vulnerability**). Only the maintainers can see
 the report. Include:
 
@@ -30,4 +30,4 @@ the report. Include:
 
 Problems in upstream services (Congress.gov, GovInfo, the Census geocoder, Google Cloud, Vercel) go
 to those providers. Wrong or outdated bill and vote data is a normal
-[bug report](https://github.com/justabill-org/justabill/issues/new/choose), not a security issue.
+[bug report](https://github.com/justabill-org/justabill-mirror/issues/new/choose), not a security issue.

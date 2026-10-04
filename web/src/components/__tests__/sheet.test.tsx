@@ -86,6 +86,32 @@ describe("Sheet", () => {
     expect(document.activeElement).toBe(active);
   });
 
+  // #883: below 1024 px the bill text reader's contents is display: none until opened, and the
+  // text behind the open contents is inert. Tab past the last control a person can reach must
+  // wrap, not leave the dialog through one they can't.
+  it("wraps past controls that aren't rendered or are inert", () => {
+    render(
+      <Sheet open onOpenChange={() => {}}>
+        <SheetContent>
+          <SheetTitle>Reader</SheetTitle>
+          <button type="button">Contents</button>
+          <button type="button">Hidden entry</button>
+          <div inert>
+            <a href="https://www.congress.gov/">Inert link</a>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+    const hidden = screen.getByRole("button", { name: "Hidden entry" });
+    hidden.checkVisibility = () => false; // jsdom has no layout: say what the browser would.
+    const contents = screen.getByRole("button", { name: "Contents" });
+    contents.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(document.activeElement).toBe(contents);
+    fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(contents);
+  });
+
   it("pulls focus back in if it escaped the dialog", () => {
     openSheet();
     document.body.focus();

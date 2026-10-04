@@ -20,7 +20,6 @@ export const ROUTE_PATTERNS = [
   "/share/aggregate/[bill]/[scope]",
   "/share/bill/[bill]/[vote]",
   "/share/bill/[bill]/[vote]/[member]",
-  "/share/rep/[member]/[score]",
   "/signup",
   "/terms",
   "/vote",

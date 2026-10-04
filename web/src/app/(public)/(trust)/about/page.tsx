@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Section, TrustPage } from "@/components/trust/trust-page";
-import { CODE_PUBLICATION, trustMetadata } from "@/lib/trust";
+import { PUBLIC_REPO_NAME, PUBLIC_REPO_URL, trustMetadata } from "@/lib/trust";
 
 export const metadata = trustMetadata(
   "/about",
@@ -59,9 +59,11 @@ export default function AboutPage() {
 
       <Section id="code" title="The code">
         <p>
-          {CODE_PUBLICATION} That includes the rules that pick which vote counts and the instructions given to the AI
-          model. Until then, the <Link href="/methodology">Methodology</Link> page explains how summaries and the
-          scorecard are made.
+          The code of each release is published under the Apache-2.0 license at{" "}
+          <a href={PUBLIC_REPO_URL}>{PUBLIC_REPO_NAME}</a>. We build in a private workspace and publish there with
+          every release. That includes the rules that pick which vote counts and the instructions given to the AI
+          model; the <Link href="/methodology">Methodology</Link> page explains how summaries and the scorecard are
+          made, and links to both.
         </p>
       </Section>
 

@@ -70,13 +70,55 @@ describe("trust pages", () => {
     expect(body).not.toMatch(/reviews are|public repository/);
   });
 
+  // #822: each release's code is public at the mirror, and the pages say so with links to it.
+  const REPO = "https://github.com/justabill-org/justabill-mirror";
+  const PUBLISHED = "The code of each release is published under the Apache-2.0 license at github.com/justabill-org/justabill-mirror";
+
   it.each([
     { path: "/about", Page: AboutPage },
     { path: "/contact", Page: ContactPage },
-    { path: "/methodology", Page: MethodologyPage },
     { path: "/terms", Page: TermsPage },
-  ])("$path says, without a date, that we'll publish the code under Apache-2.0 (#806)", ({ Page }) => {
-    expect(text(renderToStaticMarkup(<Page />))).toContain("We'll publish the code under the Apache-2.0 license.");
+  ])("$path says the code of each release is published at the public repo, and links it (#822)", ({ Page }) => {
+    const html = renderToStaticMarkup(<Page />);
+    expect(text(html)).toContain(PUBLISHED);
+    expect(html).toContain(`<a href="${REPO}">github.com/justabill-org/justabill-mirror</a>`);
+  });
+
+  it("About says we build privately and publish each release, without promising more (#822)", () => {
+    const body = text(renderToStaticMarkup(<AboutPage />));
+    expect(body).toContain("We build in a private workspace and publish there with every release.");
+  });
+
+  it("Terms leave the code to its license (#822)", () => {
+    expect(text(renderToStaticMarkup(<TermsPage />))).toContain(
+      "justabill-mirror ; that license, not these Terms, governs your use of the code.",
+    );
+  });
+
+  it("Contact offers public issues for problems, private reporting for security, email for privacy (#822)", () => {
+    const html = renderToStaticMarkup(<ContactPage />);
+    const section = (id: string) => new RegExp(`id="${id}"[\\s\\S]*?</section>`).exec(html)?.[0] ?? "";
+    expect(section("report")).toContain(`href="mailto:${CONTACT_EMAIL}"`);
+    expect(section("report")).toContain(`href="${REPO}/issues"`);
+    expect(text(section("report"))).toContain("An issue is public");
+    expect(section("security")).toContain(`href="${REPO}/security/advisories/new"`);
+    expect(section("security")).toContain(`href="mailto:${CONTACT_EMAIL}"`);
+    expect(section("privacy")).toContain(`href="mailto:${PRIVACY_EMAIL}"`);
+    expect(section("privacy")).not.toContain("github.com");
+    expect(section("contribute")).toContain(`href="${REPO}/blob/main/CONTRIBUTING.md"`);
+  });
+
+  it("Methodology links the summary instructions, the scorecard rule and its code in the public repo (#822)", () => {
+    const html = renderToStaticMarkup(<MethodologyPage />);
+    expect(html).toContain(`href="${REPO}/blob/main/pipeline/internal/ai/prompt.go"`);
+    expect(html).toContain(`href="${REPO}/blob/main/docs/methodology/scorecard.md"`);
+    expect(html).toContain(`href="${REPO}/tree/main/db/scoring"`);
+  });
+
+  it("Privacy says an issue on the public repo is public and GitHub's (#822)", () => {
+    const body = text(renderToStaticMarkup(<PrivacyPage />));
+    expect(body).toContain("on our public code repository on GitHub, it's public");
+    expect(body).toContain("GitHub hosts it under its own terms and privacy statement, not this policy.");
   });
 
   it("Methodology names each source, the summary model, the schedule and the scorecard rule", () => {
@@ -204,6 +246,10 @@ describe("trust pages", () => {
     expect(html).toContain('href="#sharing"');
     expect(body).toContain("Nothing about a card is sent until you open the share dialog.");
     expect(body).toContain("doesn't include your other votes, your address, your account");
+    // The scorecard card is gone (#894): a card holds one bill's vote, never an agreement count.
+    expect(body).toContain("the bill, your vote on that one bill and, if you pick one, the member.");
+    expect(body).not.toContain("share how often you agree");
+    expect(body).not.toContain("how many bills you agree on");
     expect(body).toContain("We don't save cards or links in our database.");
     expect(body).toContain("never the vote or counts on it");
     expect(body).toContain("Anyone with the link can see the card");

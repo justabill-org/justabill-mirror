@@ -121,14 +121,12 @@ describe("RepCard score", () => {
     expect(screen.queryByText("Bills compared")).toBeNull();
   });
 
-  it("offers Share only from five bills compared, with no empty space below fewer", () => {
+  it.each([5, 50])("offers no Share with %i bills compared, nor space for one (#894)", (compared) => {
     viewport(true);
-    const { container } = render(<RepCard rep={rep} score={scored} />);
-    expect(screen.queryByRole("button", { name: /^Share/ })).toBeNull();
+    const { container } = render(<RepCard rep={rep} score={{ ...scored, matching: 4, compared }} />);
+    expect(screen.queryByRole("button", { name: /share/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /share/i })).toBeNull();
     expect(container.querySelector(".mt-auto")).toBeNull();
-    cleanup();
-    render(<RepCard rep={rep} score={{ ...scored, matching: 4, compared: 5 }} />);
-    expect(screen.getByRole("button", { name: "Share your result with Cora Chen" })).toBeTruthy();
   });
 
   it("says it's loading while the member's votes load", () => {

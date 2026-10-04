@@ -72,7 +72,9 @@ describe("routePattern", () => {
     ["/bills/119-hr-1/", "/bills/[id]"],
     ["/members/A000360?tab=votes#x", "/members/[id]"],
     ["/share/bill/119-hr-1/yea/A000360", "/share/bill/[bill]/[vote]/[member]"],
-    ["/share/rep/A000360/82", "/share/rep/[member]/[score]"],
+    ["/share/aggregate/hr-119-1/CA-12", "/share/aggregate/[bill]/[scope]"],
+    // The scorecard card is gone (#894).
+    ["/share/rep/A000360/8-of-12", UNKNOWN_ROUTE],
     ["/vote", "/vote"],
     ["/no/such/page", UNKNOWN_ROUTE],
     ["/bills/119-hr-1/extra", UNKNOWN_ROUTE],

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PolicyAttribution, PolicyChanges, Section, TrustPage } from "@/components/trust/trust-page";
-import { CODE_PUBLICATION, POLICIES_LAST_UPDATED, trustMetadata } from "@/lib/trust";
+import { POLICIES_LAST_UPDATED, PUBLIC_REPO_NAME, PUBLIC_REPO_URL, trustMetadata } from "@/lib/trust";
 
 export const metadata = trustMetadata(
   "/terms",
@@ -147,7 +147,9 @@ export default function TermsPage() {
         <ol>
           <li>
             Bill text, actions and vote records are works of the United States government, which we republish.{" "}
-            {CODE_PUBLICATION} Once we do, that license, not these Terms, governs your use of the code.
+            The code of each release is published under the Apache-2.0 license at{" "}
+            <a href={PUBLIC_REPO_URL}>{PUBLIC_REPO_NAME}</a>; that license, not these Terms, governs your use of the
+            code.
           </li>
           <li>
             You give us a limited license to use what you submit (such as your votes) in order to provide the Service to

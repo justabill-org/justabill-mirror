@@ -9,19 +9,11 @@ import {
   billShareText,
   intentLinks,
   isAbortError,
-  repShareText,
   shareFileName,
   shareSupport,
 } from "../share-links";
 
 describe("share text", () => {
-  it("says the scorecard result with the same rounding as score()", () => {
-    expect(repShareText("Hana Hill", { matching: 8, compared: 12 })).toBe(
-      "I agree with Hana Hill on 8 of 12 bills (67%)."
-    );
-    expect(repShareText("Hana Hill", { matching: 1, compared: 8 })).toContain("(13%)");
-  });
-
   it("says the sharer's vote on a bill", () => {
     expect(billShareText("hr-119-1", "yea")).toBe("I'd vote Yea on H.R. 1.");
     expect(billShareText("sjres-118-42", "nay")).toBe("I'd vote Nay on S.J.Res. 42.");
@@ -40,8 +32,8 @@ describe("share text", () => {
 
 describe("absoluteShareUrl", () => {
   it("puts the path on the page's origin", () => {
-    expect(absoluteShareUrl("/share/rep/X000001/8-of-12", "https://justabill.io")).toBe(
-      "https://justabill.io/share/rep/X000001/8-of-12"
+    expect(absoluteShareUrl("/share/bill/hr-119-1/yea", "https://justabill.io")).toBe(
+      "https://justabill.io/share/bill/hr-119-1/yea"
     );
   });
 });
@@ -182,7 +174,7 @@ describe("shareSupport", () => {
 
 describe("shareFileName", () => {
   it("names the file after the card", () => {
-    expect(shareFileName("/share/rep/X000001/8-of-12")).toBe("just-a-bill-rep-X000001-8-of-12.png");
+    expect(shareFileName("/share/bill/hr-119-1/yea")).toBe("just-a-bill-bill-hr-119-1-yea.png");
     expect(shareFileName("/share/bill/hr-119-1/yea/X000002")).toBe("just-a-bill-bill-hr-119-1-yea-X000002.png");
   });
 });

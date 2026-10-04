@@ -82,11 +82,11 @@ export default function PrivacyPage() {
 
         <h3 id="sharing">Sharing</h3>
         <p>
-          You can share how often you agree with one of your representatives, or how you&apos;d vote on a bill, as a
-          card with a link. Nothing about a card is sent until you open the share dialog. Then your browser loads the
-          card&apos;s image from our website, and the card&apos;s web address holds only what the card shows: the
-          member or bill, and either your vote on that one bill or how many bills you agree on out of how many were
-          compared. It doesn&apos;t include your other votes, your address, your account or anything else about you.
+          You can share how you&apos;d vote on a bill as a card with a link, alone or next to one of your
+          representatives&apos; recorded votes on it. Nothing about a card is sent until you open the share dialog.
+          Then your browser loads the card&apos;s image from our website, and the card&apos;s web address holds only
+          what the card shows: the bill, your vote on that one bill and, if you pick one, the member. It doesn&apos;t
+          include your other votes, your address, your account or anything else about you.
         </p>
         <p>
           You can also share how Just a Bill users voted on a bill, nationwide or in one state or district. That
@@ -233,6 +233,11 @@ export default function PrivacyPage() {
         <p>
           When you email us, for example to report a problem, we keep your message, your email address and our reply
           in our mailbox, and use them only to answer you. Ask us to delete your messages and we will.
+        </p>
+        <p>
+          If you instead open an issue or a pull request on our public code repository on GitHub, it&apos;s public:
+          anyone can read it, along with your GitHub username. GitHub hosts it under its own terms and privacy
+          statement, not this policy.
         </p>
       </Section>
 

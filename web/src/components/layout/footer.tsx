@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
-import { TRUST_LINKS } from "@/lib/trust";
+import { PUBLIC_REPO_URL, TRUST_LINKS } from "@/lib/trust";
 
 /** The sources the footer names on every page, each linking to its publisher. */
 const CONGRESS_GOV = { href: "https://www.congress.gov", label: "Congress.gov" };
@@ -9,8 +9,9 @@ const HOUSE_CLERK = { href: "https://clerk.house.gov", label: "the House Clerk" 
 const SENATE = { href: "https://www.senate.gov", label: "the Senate" };
 
 /**
- * The footer: the brand, where the data comes from, and the pages about the project. The main
- * links aren't repeated here; the header has them on every page (#661).
+ * The footer: the brand, where the data comes from, the pages about the project and, last, the public
+ * repo with each release's code (#822). The main links aren't repeated here; the header has them on
+ * every page (#661).
  */
 export function Footer() {
   return (
@@ -33,6 +34,9 @@ export function Footer() {
                 {link.label}
               </Link>
             ))}
+            <a href={PUBLIC_REPO_URL} className="transition-colors hover:text-foreground">
+              GitHub
+            </a>
           </nav>
         </div>
       </div>

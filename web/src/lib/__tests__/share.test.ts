@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   aggregateCardCopy,
   aggregateShareUrl,
-  alignmentPercent,
   billCardCopy,
   billShareUrl,
   memberLabel,
@@ -11,10 +10,7 @@ import {
   isShareableCell,
   parseAggregateShare,
   parseBillShare,
-  parseRepShare,
   plainText,
-  repCardCopy,
-  repShareUrl,
   shareImageUrl,
   truncateTitle,
   MAX_CARD_TITLE_LENGTH,
@@ -23,43 +19,6 @@ import {
 
 const senator: CardMember = { firstName: "Jane", lastName: "Doe", chamber: "Senate", state: "NY", party: "D" };
 const rep: CardMember = { firstName: "John", lastName: "Roe", chamber: "House", state: "TX", district: 2, party: "R" };
-
-describe("parseRepShare", () => {
-  it.each([
-    ["X000001", "8-of-12", { memberId: "X000001", matching: 8, compared: 12 }],
-    ["X000001", "0-of-5", { memberId: "X000001", matching: 0, compared: 5 }],
-    ["X000001", "5-of-5", { memberId: "X000001", matching: 5, compared: 5 }],
-    ["X000001", "2000-of-2000", { memberId: "X000001", matching: 2000, compared: 2000 }],
-  ])("accepts %s/%s", (member, score, want) => {
-    expect(parseRepShare(member, score)).toEqual(want);
-  });
-
-  it.each([
-    ["x000001", "8-of-12"], // lowercase bioguide ID
-    ["X00001", "8-of-12"], // too short
-    ["X0000011", "8-of-12"], // too long
-    ["X000001", "08-of-12"], // leading zero
-    ["X000001", "8-of-012"],
-    ["X000001", "+8-of-12"],
-    ["X000001", "-1-of-12"],
-    ["X000001", "8-of-12.0"],
-    ["X000001", "13-of-12"], // matching > compared
-    ["X000001", "3-of-4"], // below MIN_SHARE_COMPARED
-    ["X000001", "0-of-0"],
-    ["X000001", "8-of-2001"], // above the maximum
-    ["X000001", "8of12"],
-    ["X000001", "8-OF-12"],
-  ])("refuses %s/%s", (member, score) => {
-    expect(parseRepShare(member, score)).toBeNull();
-  });
-
-  it("round-trips through repShareUrl", () => {
-    const share = { memberId: "X000001", matching: 8, compared: 12 };
-    expect(repShareUrl(share)).toBe("/share/rep/X000001/8-of-12");
-    const [, , , member, score] = repShareUrl(share).split("/");
-    expect(parseRepShare(member, score)).toEqual(share);
-  });
-});
 
 describe("parseBillShare", () => {
   it.each([
@@ -121,32 +80,6 @@ describe("memberLabel", () => {
     [{ ...senator, party: "O" }, "Sen. Jane Doe (NY)"], // unknown party letters aren't printed
   ])("labels %o", (member, want) => {
     expect(memberLabel(member)).toBe(want);
-  });
-});
-
-describe("alignmentPercent", () => {
-  it.each([
-    [8, 12, 67],
-    [1, 8, 13], // 12.5 rounds up, like Math.round in score()
-    [0, 5, 0],
-    [5, 5, 100],
-    [2, 3, 67],
-  ])("%i of %i is %i%%", (matching, compared, want) => {
-    expect(alignmentPercent(matching, compared)).toBe(want);
-  });
-});
-
-describe("repCardCopy", () => {
-  it("speaks in the first person and prints the counts next to the percentage", () => {
-    const copy = repCardCopy(senator, { memberId: "X000001", matching: 8, compared: 12 });
-    expect(plainText(copy.headline)).toBe("I agree with Sen. Jane Doe (D-NY) on 8 of 12 bills (67%)");
-    expect(copy.summary).toBe("I agree with Sen. Jane Doe (D-NY) on 8 of 12 bills (67%)");
-    expect(copy.note).toBe("My votes on Just a Bill compared with Sen. Doe's recorded votes on final passage");
-    expect(copy.headline.filter((r) => r.strong).map((r) => r.text)).toEqual(["Sen. Jane Doe (D-NY)", "8 of 12"]);
-    expect(copy.plain).toBe(
-      "I agree with Sen. Jane Doe (D-NY) on 8 of 12 bills (67%). " +
-        "My votes on Just a Bill compared with Sen. Doe's recorded votes on final passage."
-    );
   });
 });
 
