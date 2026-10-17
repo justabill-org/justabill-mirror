@@ -27,6 +27,37 @@ for (const colorScheme of ["light", "dark"] as const) {
       await expectAccessible(page, `/ (${colorScheme})`);
     });
 
+    // #955: one Tab from the top shows "Skip to main content", and Enter moves focus into <main>.
+    // The home page renders its own header and <main> (#951's Review Focus 1), so it's checked too.
+    test(`skip link reaches the main content on /, /bills and a bill page (${colorScheme})`, async ({ page }) => {
+      // Three pages, each with an axe run on the focused link: past the 30s default on a busy CI runner.
+      test.slow();
+      for (const path of ["/", "/bills", `/bills/${HOUSE_BILL.id}`]) {
+        await page.goto(path);
+        const main = page.getByRole("main");
+        await expect(main).toBeVisible();
+        const skip = page.getByRole("link", { name: "Skip to main content" });
+        // Visually hidden (sr-only's 1px box) until it has focus.
+        expect((await skip.boundingBox())?.width, `${path}: hidden before Tab`).toBeLessThanOrEqual(1);
+
+        await page.keyboard.press("Tab");
+        await expect(skip, `${path}: the first Tab stop`).toBeFocused();
+        const box = await skip.boundingBox();
+        expect(box?.width, `${path}: shown on focus`).toBeGreaterThan(24);
+        expect(box?.y, `${path}: in view`).toBeGreaterThanOrEqual(0);
+        // Color contrast on: the focused link's text in this scheme.
+        await expectAccessible(page, `${path} with the skip link focused (${colorScheme})`);
+
+        await page.keyboard.press("Enter");
+        await expect(main, `${path}: Enter focuses <main>`).toBeFocused();
+        await page.keyboard.press("Tab");
+        expect(
+          await page.evaluate(() => document.querySelector("main")?.contains(document.activeElement) ?? false),
+          `${path}: the next Tab stays in <main>`,
+        ).toBe(true);
+      }
+    });
+
     test(`bill list, its views and its filter panel are accessible (${colorScheme})`, async ({ page }) => {
       // Five axe runs: past the 30s default on a busy CI runner.
       test.slow();

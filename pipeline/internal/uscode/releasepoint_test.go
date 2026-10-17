@@ -26,7 +26,7 @@ func TestFindReleasePointPage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	rp, err := uscode.FindReleasePoint(page, mustURL(t, uscode.DefaultPageURL))
+	rp, err := uscode.FindReleasePoint(page, mustURL(t, uscode.LegacyPageURL))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func TestFindReleasePointMaintenancePage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = uscode.FindReleasePoint(page, mustURL(t, uscode.DefaultPageURL))
+	_, err = uscode.FindReleasePoint(page, mustURL(t, uscode.LegacyPageURL))
 	if !errors.Is(err, uscode.ErrSiteUnavailable) {
 		t.Fatalf("err = %v, want ErrSiteUnavailable", err)
 	}
@@ -120,5 +120,35 @@ func TestFindReleasePointVariants(t *testing.T) {
 				t.Errorf("LawDate = %v, want 2026-09-18", rp.LawDate)
 			}
 		})
+	}
+}
+
+// TestFindReleasePointTemporaryPage reads download.html as uscode.house.gov served it on 2026-10-14,
+// in its temporary format, and the "Page Not Found" page it served for download.shtml then.
+func TestFindReleasePointTemporaryPage(t *testing.T) {
+	t.Parallel()
+	page, err := os.ReadFile("testdata/download.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	rp, err := uscode.FindReleasePoint(page, mustURL(t, uscode.DefaultPageURL))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "https://uscode.house.gov/download/releasepoints/us/pl/119/120/xml_uscAll@119-120.zip"; rp.ID != "119-120" ||
+		rp.ZipURL != want {
+		t.Errorf("got %s %s, want 119-120 %s", rp.ID, rp.ZipURL, want)
+	}
+	if rp.LawDate == nil || !rp.LawDate.Equal(time.Date(2026, 10, 7, 0, 0, 0, 0, time.UTC)) {
+		t.Errorf("LawDate = %v, want 2026-10-07", rp.LawDate)
+	}
+
+	notFound, err := os.ReadFile("testdata/notfound.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = uscode.FindReleasePoint(notFound, mustURL(t, uscode.LegacyPageURL))
+	if !errors.Is(err, uscode.ErrNoReleasePoint) {
+		t.Fatalf("not found page: err = %v, want ErrNoReleasePoint", err)
 	}
 }

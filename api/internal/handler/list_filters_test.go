@@ -2,9 +2,12 @@ package handler_test
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/justabill-org/justabill/api/internal/handler"
@@ -60,6 +63,26 @@ func memberListReads(_ *mockBillRepo, members *memberStore, _ *listReadsUserRepo
 
 func userListReads(_ *mockBillRepo, _ *memberStore, users *listReadsUserRepo) []model.ListParams {
 	return users.calls
+}
+
+// ignores reports whether the route ignores a list filter, which then reaches its repository unset:
+// the counts and the bill list read no state or district, and the member list no type (#943).
+func (rt listRoute) ignores(filter string) bool {
+	switch rt.path {
+	case "/api/v1/bills", "/api/v1/bills/counts":
+		return filter == "state" || filter == "district"
+	case "/api/v1/members":
+		return filter == "type"
+	}
+	return false
+}
+
+// sent is want, the value a filter should reach the repository with, or "" if the route ignores it.
+func (rt listRoute) sent(filter, want string) string {
+	if rt.ignores(filter) {
+		return ""
+	}
+	return want
 }
 
 func listRoutes() []listRoute {
@@ -164,8 +187,147 @@ func TestListFilters_GoodValues(t *testing.T) {
 	}
 }
 
+// TestListFilters_BadText: on every list route, a type, chamber or state outside its value set is
+// a 400 before any read. Invalid UTF-8 would otherwise fail the query as a 500, and any other text
+// would run a query that matches nothing under a cache key of its own (#915).
+func TestListFilters_BadText(t *testing.T) {
+	tests := []struct{ query, wantErr string }{
+		{"type=%ff", billTypeErr},
+		{"bill_type=%ff", billTypeErr},
+		{"type=bill", billTypeErr},
+		{"type=h.r.", billTypeErr},
+		{"chamber=%ff", chamberErr},
+		{"chamber=committee", chamberErr},
+		{"chamber=houses", chamberErr},
+		{"state=%ff", stateErr},
+		{"state=california", stateErr},
+		{"state=C", stateErr},
+		{"state=C1", stateErr},
+		{"state=%C3%A9a", stateErr},
+	}
+	for _, rt := range listRoutes() {
+		for _, tt := range tests {
+			if rt.path == "/api/v1/bills/counts" && strings.HasPrefix(tt.query, "state=") {
+				continue // the counts don't read state
+			}
+			t.Run(rt.path+"?"+tt.query, func(t *testing.T) {
+				w, reads := serveList(rt, tt.query)
+
+				if w.Code != http.StatusBadRequest {
+					t.Fatalf("status = %d, want 400 (%s)", w.Code, w.Body.String())
+				}
+				if got := errorBody(t, w); got != tt.wantErr {
+					t.Errorf("error = %q, want %q", got, tt.wantErr)
+				}
+				if len(reads) != 0 {
+					t.Errorf("repository read %d times, want 0", len(reads))
+				}
+			})
+		}
+	}
+}
+
+// TestListFilters_TextNormalized: a type, chamber or state in any case reaches the repository in
+// the case the columns hold (bill types lower-case, postal codes upper-case), so each filter has
+// one cache key; chamber is lower-cased, as the web sends it (#915).
+func TestListFilters_TextNormalized(t *testing.T) {
+	tests := []struct{ query, wantType, wantChamber, wantState string }{
+		{"type=HR", "hr", "", ""},
+		{"bill_type=SJRes", "sjres", "", ""},
+		{"type=hconres", "hconres", "", ""},
+		{"chamber=House", "", "house", ""},
+		{"chamber=SENATE", "", "senate", ""},
+		{"state=ca", "", "", "CA"},
+		{"state=Dc", "", "", "DC"},
+		{"type=s&chamber=senate&state=TX", "s", "senate", "TX"},
+	}
+	for _, rt := range listRoutes() {
+		for _, tt := range tests {
+			t.Run(rt.path+"?"+tt.query, func(t *testing.T) {
+				w, reads := serveList(rt, tt.query)
+
+				if w.Code != http.StatusOK {
+					t.Fatalf("status = %d, want 200 (%s)", w.Code, w.Body.String())
+				}
+				if len(reads) != 1 {
+					t.Fatalf("repository read %d times, want 1", len(reads))
+				}
+				got := [3]string{deref(reads[0].BillType), deref(reads[0].Chamber), deref(reads[0].State)}
+				want := [3]string{rt.sent("type", tt.wantType), tt.wantChamber, rt.sent("state", tt.wantState)}
+				if got != want {
+					t.Errorf("type, chamber, state = %q, want %q", got, want)
+				}
+			})
+		}
+	}
+}
+
+// TestListFilters_IgnoredUnset: the bill list and the member list read their repository with only
+// the params they use, so one they ignore can't change the query or its cache key (#943), and a
+// sort or status_mode outside its set reads as the default.
+func TestListFilters_IgnoredUnset(t *testing.T) {
+	latest, farm, hr, health := "latest_action", "farm", "hr", "Health"
+	congress, district := 119, 7
+	state, house := "CA", "house"
+	tests := []struct {
+		path, query string
+		want        model.ListParams
+	}{
+		{"/api/v1/bills", "state=CA&district=7", model.ListParams{Limit: 20}},
+		{"/api/v1/bills", "sort=introduced_date&status=signed&status_mode=at", model.ListParams{
+			Limit: 20, Statuses: []string{"signed"},
+		}},
+		{"/api/v1/bills", "sort=latest_action&q=farm&type=hr&policy_area=Health&status=signed&status_mode=past",
+			model.ListParams{
+				Limit: 20, Sort: &latest, Search: &farm, BillType: &hr, PolicyArea: &health,
+				Statuses: []string{"signed"}, StatusMode: "past",
+			}},
+		{"/api/v1/members", "q=x&type=hr&sort=latest_action&policy_area=Health&status=signed&status_mode=past",
+			model.ListParams{Limit: 20}},
+		{"/api/v1/members", "q=x&congress=119&chamber=house&state=ca&district=7", model.ListParams{
+			Limit: 20, Congress: &congress, Chamber: &house, State: &state, District: &district,
+		}},
+	}
+	routes := map[string]listRoute{}
+	for _, rt := range listRoutes() {
+		routes[rt.path] = rt
+	}
+	for _, tt := range tests {
+		t.Run(tt.path+"?"+tt.query, func(t *testing.T) {
+			w, reads := serveList(routes[tt.path], tt.query)
+
+			if w.Code != http.StatusOK {
+				t.Fatalf("status = %d, want 200 (%s)", w.Code, w.Body.String())
+			}
+			if len(reads) != 1 {
+				t.Fatalf("repository read %d times, want 1", len(reads))
+			}
+			if !reflect.DeepEqual(reads[0], tt.want) {
+				t.Errorf("params = %s, want %s", showParams(reads[0]), showParams(tt.want))
+			}
+		})
+	}
+}
+
+// showParams is p as JSON, its pointers followed, for a failure message.
+func showParams(p model.ListParams) string {
+	b, err := json.Marshal(p)
+	if err != nil {
+		return err.Error()
+	}
+	return string(b)
+}
+
+// deref is the value s points to, or "" for nil.
+func deref(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
 // checkFilters checks the route read its repository once, with the congress and district wanted
-// (the counts don't read district).
+// (unset where the route ignores district).
 func checkFilters(t *testing.T, rt listRoute, reads []model.ListParams, wantCongress, wantDistrict *int) {
 	t.Helper()
 	if len(reads) != 1 {
@@ -174,8 +336,8 @@ func checkFilters(t *testing.T, rt listRoute, reads []model.ListParams, wantCong
 	if got := reads[0].Congress; !equalIntPtr(got, wantCongress) {
 		t.Errorf("congress = %s, want %s", showIntPtr(got), showIntPtr(wantCongress))
 	}
-	if rt.path == "/api/v1/bills/counts" {
-		return
+	if rt.ignores("district") {
+		wantDistrict = nil
 	}
 	if got := reads[0].District; !equalIntPtr(got, wantDistrict) {
 		t.Errorf("district = %s, want %s", showIntPtr(got), showIntPtr(wantDistrict))

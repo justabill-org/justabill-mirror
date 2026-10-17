@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -357,6 +358,12 @@ func TestListCacheKey(t *testing.T) {
 		"bill_type=hr&congress=119",
 		"congress=119&type=hr&offset=0&limit=20",
 		"congress=119&type=hr&unvoted=true",
+		// A sort the bill list doesn't know is its default order, newest introduced first, as is
+		// the web's introduced_date: none mints a key of its own (#943).
+		"congress=119&type=hr&sort=x%26congress%3D118",
+		"congress=119&type=hr&sort=introduced_date",
+		"congress=119&type=hr&sort=LATEST_ACTION",
+		"congress=119&type=hr&sort=",
 	} {
 		if got := parse(query); got != base {
 			t.Errorf("key(%q) = %q, want %q", query, got, base)
@@ -373,8 +380,20 @@ func TestListCacheKey(t *testing.T) {
 			t.Errorf("key(%q) = %q, want %q", query, got, laws)
 		}
 	}
-	if got, want := parse("status=passed_house"), "bills:list:limit=20&offset=0&status=passed_house"; got != want {
-		t.Errorf("key(status=passed_house) = %q, want %q", got, want)
+	// Any status_mode but past is the default, a bill's current status, under the default's key (#943).
+	for _, query := range []string{
+		"status=passed_house",
+		"status=passed_house&status_mode=at",
+		"status=passed_house&status_mode=PAST",
+		"status=passed_house&status_mode=" + strings.Repeat("x", 500),
+	} {
+		if got, want := parse(query), "bills:list:limit=20&offset=0&status=passed_house"; got != want {
+			t.Errorf("key(%.60s) = %q, want %q", query, got, want)
+		}
+	}
+	if got, want := parse("status=passed_house&status_mode=past"),
+		"bills:list:limit=20&offset=0&status=passed_house&status_mode=past"; got != want {
+		t.Errorf("key(status_mode=past) = %q, want %q", got, want)
 	}
 	for _, query := range []string{
 		"congress=119&status=became_law",
@@ -392,7 +411,9 @@ func TestListCacheKey(t *testing.T) {
 		"congress=119&type=hr&status=passed_house&status_mode=past",
 		"congress=119&type=hr&policy_area=Health",
 		"congress=119&type=hr&sort=latest_action",
-		"congress=119&type=hr%26congress%3D118",
+		"congress=119&type=hr&sort=updated_at",
+		"congress=119&type=hr&sort=number",
+		"congress=119&type=hr&q=x%26congress%3D118",
 	} {
 		if got := parse(query); got == base {
 			t.Errorf("key(%q) = %q, want it to differ from %q", query, got, base)
@@ -403,6 +424,51 @@ func TestListCacheKey(t *testing.T) {
 	}
 }
 
+// TestRouteListCacheKeys: each list route keys its cache on the params it reads alone, so one it
+// ignores (state and district on /bills; a search, type, policy area, sort or status on /members)
+// shares the unfiltered list's key rather than caching the same list again (#943).
+func TestRouteListCacheKeys(t *testing.T) {
+	tests := []struct {
+		name, prefix, query, want string
+		narrow                    func(model.ListParams) model.ListParams
+	}{
+		{"bills, state", "bills:list", "state=CA", "bills:list:limit=20&offset=0", handler.BillListParams},
+		{"bills, district", "bills:list", "district=7", "bills:list:limit=20&offset=0", handler.BillListParams},
+		{
+			"bills, filters kept", "bills:list",
+			"state=CA&district=7&congress=119&type=hr&chamber=house&policy_area=Health&q=farm" +
+				"&status=passed_house&status_mode=past&sort=latest_action&offset=20&limit=10",
+			"bills:list:chamber=house&congress=119&limit=10&offset=20&policy_area=Health&q=farm" +
+				"&sort=latest_action&status=passed_house&status_mode=past&type=hr",
+			handler.BillListParams,
+		},
+		{"members, search type sort", "members:list", "q=x&type=hr&sort=y", "members:list:limit=20&offset=0",
+			handler.MemberListParams},
+		{
+			"members, bill filters", "members:list",
+			"policy_area=Health&status=signed&status_mode=past&sort=latest_action",
+			"members:list:limit=20&offset=0", handler.MemberListParams,
+		},
+		{
+			"members, filters kept", "members:list",
+			"q=x&congress=119&chamber=house&state=ca&district=7&offset=20&limit=10",
+			"members:list:chamber=house&congress=119&district=7&limit=10&offset=20&state=CA",
+			handler.MemberListParams,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p, err := handler.ParseListParams(httptest.NewRequest(http.MethodGet, "/api/v1/x?"+tt.query, nil))
+			if err != nil {
+				t.Fatalf("parse %q: %v", tt.query, err)
+			}
+			if got := handler.ListCacheKey(tt.prefix, tt.narrow(p)); got != tt.want {
+				t.Errorf("key = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestListCacheKey_UnknownParamsShareCache(t *testing.T) {
 	c := testCache(t)
 	members := &countingMemberRepo{}
@@ -410,18 +476,24 @@ func TestListCacheKey_UnknownParamsShareCache(t *testing.T) {
 	h.Members = members
 	h.SetCache(c)
 
-	// A state unique to this run, so runs sharing a Redis don't see each other's keys.
-	state := fmt.Sprintf("T%d", time.Now().UnixNano())
+	// A state and district picked by the clock, so runs sharing a Redis are unlikely to see each
+	// other's keys (a state is two letters, #915).
+	now := time.Now().UnixNano()
+	state := string([]byte{byte('A' + now%26), byte('A' + now/26%26)})
+	district := int(now / 676 % 100)
 	t.Cleanup(func() {
 		chamber := "house"
 		_ = c.Delete(context.Background(), handler.ListCacheKey("members:list", model.ListParams{
-			Limit: 20, State: &state, Chamber: &chamber,
+			Limit: 20, State: &state, Chamber: &chamber, District: &district,
 		}))
 	})
+	filters := fmt.Sprintf("state=%s&district=%d", state, district)
 	for _, query := range []string{
-		"state=" + state + "&chamber=house",
-		"chamber=house&state=" + state,
-		"chamber=house&state=" + state + fmt.Sprintf("&x=%d", time.Now().UnixNano()),
+		filters + "&chamber=house",
+		"chamber=house&" + filters,
+		"chamber=house&" + filters + fmt.Sprintf("&x=%d", now),
+		// The member list reads no search, type or sort (#943).
+		"chamber=house&" + filters + fmt.Sprintf("&q=%d&type=hr&sort=%d", now, now),
 	} {
 		w := httptest.NewRecorder()
 		h.ListMembers(w, httptest.NewRequest(http.MethodGet, "/api/v1/members?"+query, nil))

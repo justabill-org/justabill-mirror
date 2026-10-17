@@ -11,6 +11,7 @@ import type { UserFavorite } from "../types";
 import { FollowButton } from "@/components/bill/follow-button";
 import { FollowedBills, FOLLOWED_PAGE_SIZE } from "@/app/(app)/settings/followed-bills";
 import { YourData } from "@/app/(app)/settings/your-data";
+import { findAlert } from "@/test/alert";
 
 // Following bills (#282): the Follow button on a bill page and "Followed bills" in settings, over
 // a fake /me/favorites that keeps its list in memory, newest first.
@@ -108,9 +109,10 @@ describe("FollowButton", () => {
 
   it("keeps the previous state and says so when following fails", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
-    renderButton("signed-in", fakeApi([], { addFavorite: true }).api);
+    const { container } = renderButton("signed-in", fakeApi([], { addFavorite: true }).api);
     fireEvent.click(await screen.findByRole("button", { name: "Follow" }));
-    expect((await screen.findByRole("alert")).textContent).toContain("couldn't follow this bill");
+    expect((await findAlert()).textContent).toContain("couldn't follow this bill");
+    expect(await axeViolations(container)).toEqual([]);
     const button = screen.getByRole("button", { name: "Follow" });
     expect(button.getAttribute("aria-pressed")).toBe("false");
     expect(screen.queryByRole("button", { name: "Following" })).toBeNull();
@@ -120,7 +122,7 @@ describe("FollowButton", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     renderButton("signed-in", fakeApi(["hr-119-1"], { removeFavorite: true }).api);
     fireEvent.click(await screen.findByRole("button", { name: "Following" }));
-    expect((await screen.findByRole("alert")).textContent).toContain("couldn't unfollow this bill");
+    expect((await findAlert()).textContent).toContain("couldn't unfollow this bill");
     expect(screen.getByRole("button", { name: "Following" })).toBeTruthy();
   });
 
@@ -195,7 +197,7 @@ describe("FollowedBills", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     render(<FollowedBills user={user} api={fakeApi(["s-119-5"], { removeFavorite: true }).api} />);
     fireEvent.click(await screen.findByRole("button", { name: "Unfollow S. 5" }));
-    expect((await screen.findByRole("alert")).textContent).toContain("couldn't unfollow S. 5");
+    expect((await findAlert()).textContent).toContain("couldn't unfollow S. 5");
     expect(screen.getByRole("link", { name: "S. 5" })).toBeTruthy();
   });
 

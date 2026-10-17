@@ -5,12 +5,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"reflect"
+	"regexp"
 	"slices"
+	"strings"
 	"testing"
 
 	"cloud.google.com/go/spanner"
 
 	"github.com/justabill-org/justabill/db/fixture"
+	"github.com/justabill-org/justabill/db/schema"
 )
 
 func TestTablesParentsFirst(t *testing.T) {
@@ -165,5 +168,91 @@ func checkSections(t *testing.T, v reflect.Value) {
 	}
 	if err := json.Unmarshal(raw, &parsed); err != nil || len(parsed) == 0 || len(parsed[0].Children) == 0 {
 		t.Errorf("sections = %s (%v), want a unit with children", raw, err)
+	}
+}
+
+// TestUpgradeTablesCoverSchema checks that every table in db/schema.sql is
+// either seeded for the migration upgrade test or listed, with a reason, as
+// not seeded, so a new table can't be left out of that test silently.
+func TestUpgradeTablesCoverSchema(t *testing.T) {
+	ddl, err := schema.Read()
+	if err != nil {
+		t.Fatal(err)
+	}
+	createTable := regexp.MustCompile(`^CREATE TABLE (\w+)`)
+	var tables []string
+	for _, stmt := range ddl {
+		if m := createTable.FindStringSubmatch(stmt); m != nil {
+			tables = append(tables, m[1])
+		}
+	}
+	if len(tables) < 40 {
+		t.Fatalf("found %d tables in schema.sql, want every CREATE TABLE (40 or more)", len(tables))
+	}
+
+	seeded := map[string]bool{}
+	for _, table := range fixture.UpgradeTables() {
+		if len(table.Rows) > 0 {
+			seeded[table.Name] = true
+		}
+	}
+	unseeded := fixture.UnseededTables()
+	for _, name := range tables {
+		reason, skipped := unseeded[name]
+		switch {
+		case seeded[name] && skipped:
+			t.Errorf("%s is seeded and also listed as not seeded (%q)", name, reason)
+		case !seeded[name] && !skipped:
+			t.Errorf("%s is in schema.sql but neither seeded by UpgradeTables nor listed in UnseededTables", name)
+		case skipped && strings.TrimSpace(reason) == "":
+			t.Errorf("%s is listed as not seeded with no reason", name)
+		}
+	}
+	for name := range unseeded {
+		if !slices.Contains(tables, name) {
+			t.Errorf("UnseededTables lists %s, which isn't in schema.sql", name)
+		}
+	}
+	for name := range seeded {
+		if !slices.Contains(tables, name) {
+			t.Errorf("UpgradeTables seeds %s, which isn't in schema.sql", name)
+		}
+	}
+}
+
+// TestUpgradeTablesLegacyUserVote checks that the upgrade seed holds a vote
+// written before migration 21, with no recorded_at or App Check result, next
+// to one written since, so a migration that requires either fails the test.
+func TestUpgradeTablesLegacyUserVote(t *testing.T) {
+	var legacy, current int
+	for _, table := range fixture.UpgradeTables() {
+		if table.Name != "user_votes" {
+			continue
+		}
+		for _, row := range table.Rows {
+			v := reflect.ValueOf(row)
+			recorded, _ := reflect.TypeAssert[spanner.NullTime](v.FieldByName("RecordedAt"))
+			appCheck, _ := reflect.TypeAssert[spanner.NullBool](v.FieldByName("AppCheckOK"))
+			switch {
+			case !recorded.Valid && !appCheck.Valid:
+				legacy++
+			case recorded.Valid && appCheck.Valid:
+				current++
+			}
+		}
+	}
+	if legacy == 0 || current == 0 {
+		t.Errorf("user_votes has %d legacy rows (NULL recorded_at and app_check_ok) and %d current ones, want both",
+			legacy, current)
+	}
+}
+
+// TestUpgradeTablesStartWithTables checks that the upgrade seed is the
+// shared fixture plus more, so the upgrade test still covers every row
+// SeedFixture writes.
+func TestUpgradeTablesStartWithTables(t *testing.T) {
+	base, upgrade := fixture.Tables(), fixture.UpgradeTables()
+	if len(upgrade) <= len(base) || !reflect.DeepEqual(upgrade[:len(base)], base) {
+		t.Errorf("UpgradeTables doesn't start with Tables' %d tables", len(base))
 	}
 }

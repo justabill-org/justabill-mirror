@@ -55,18 +55,20 @@ func SeedFixture(ctx context.Context, t *testing.T, client *spanner.Client) {
 	}
 }
 
-// SeedFixtureForSchema inserts SeedFixture's rows into a database whose schema
-// may be older than db/schema.sql, such as one migrated to main's version
-// before a branch's new migrations run. Tables and columns the database
-// doesn't have yet are left out, so the rows are what older code could have
-// written. It fails the test if the rows still don't fit, for example when a
-// column the fixture no longer sets is NOT NULL there.
+// SeedFixtureForSchema inserts SeedFixture's rows, and a row or more in every
+// other table production holds data in (fixture.UpgradeTables: users, their
+// votes and favorites, actions, diffs, sync state and the rest), into a
+// database whose schema may be older than db/schema.sql, such as one migrated
+// to main's version before a branch's new migrations run. Tables and columns
+// the database doesn't have yet are left out, so the rows are what older code
+// could have written. It fails the test if the rows still don't fit, for
+// example when a column the fixture no longer sets is NOT NULL there.
 func SeedFixtureForSchema(ctx context.Context, t *testing.T, client *spanner.Client) {
 	t.Helper()
 
 	have := schemaColumns(ctx, t, client)
 	var muts []*spanner.Mutation
-	for _, table := range fixture.Tables() {
+	for _, table := range fixture.UpgradeTables() {
 		cols, ok := have[table.Name]
 		if !ok {
 			continue

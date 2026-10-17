@@ -196,6 +196,14 @@ describe("member page recent votes", () => {
     await renderPage(member({ recent_votes: [] }));
     expect(screen.getByRole("region", { name: "Recent votes" }).textContent).toContain("No recorded votes yet.");
   });
+
+  it("says the recent votes couldn't be loaded when their read failed, not that there are none (#929)", async () => {
+    await renderPage(member({ recent_votes: null }));
+    const section = screen.getByRole("region", { name: "Recent votes" });
+    expect(section.textContent).toContain("Recent votes couldn't be loaded right now.");
+    expect(section.textContent).not.toContain("No recorded votes yet.");
+    expect(within(section).queryAllByRole("listitem")).toHaveLength(0);
+  });
 });
 
 describe("member page terms", () => {

@@ -12,6 +12,7 @@ import type {
   LawChangeEntry,
 } from "@/lib/types";
 import { SwipeCard } from "../vote/swipe-card";
+import { findAlert } from "@/test/alert";
 
 // The /vote card of #662: each acceptance criterion against the facts GET /bills?include=card
 // serves (#705), and the Details popup (#717) that reads the rest of the record when it opens.
@@ -272,7 +273,7 @@ describe("the card's Details popup (#662, #717)", () => {
     renderCard({ card: lawCard });
     const dialog = openDetails();
 
-    const alert = await within(dialog).findByRole("alert");
+    const alert = await findAlert(dialog);
     expect(alert.textContent).toContain("couldn't be loaded right now");
     expect(within(dialog).getByText(crs.lead)).toBeTruthy();
     expect(within(dialog).getByRole("heading", { name: "How Congress voted" })).toBeTruthy();

@@ -6,6 +6,7 @@ import { Button, buttonClasses } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Pagination } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
+import { VotesUnavailable } from "@/components/votes/votes-unavailable";
 import { loadBillStatuses } from "@/lib/bill-statuses";
 import type { LocalVote, LocalVoteStore } from "@/lib/local/votes";
 import {
@@ -23,7 +24,7 @@ import {
   type MyVotesQuery,
 } from "@/lib/my-votes";
 import type { VoteStorage } from "@/lib/votes/backend";
-import { useVoteBackend, useVotes } from "@/lib/votes/hooks";
+import { useVotes } from "@/lib/votes/hooks";
 import { CompactVoteRow } from "./compact-vote-row";
 import { DeviceTools } from "./device-tools";
 import { VoteFilterBar } from "./vote-filter-bar";
@@ -86,10 +87,17 @@ export function MyVotes({ deviceStore, loadStatuses = loadBillStatuses }: MyVote
     setPage(0);
   }
 
+  // First and keyed in every state, so it's the same live region when the votes fail to load (#955).
+  const unavailable = <VotesUnavailable key="unavailable" storage={storage} />;
   if (storage === "server") {
-    return <Skeleton className="h-64 w-full rounded-xl" role="status" aria-label="Loading your votes" />;
+    return (
+      <>
+        {unavailable}
+        <Skeleton className="h-64 w-full rounded-xl" role="status" aria-label="Loading your votes" />
+      </>
+    );
   }
-  if (storage === "unavailable") return <VotesUnavailable />;
+  if (storage === "unavailable") return <>{unavailable}</>;
 
   const tools =
     storage === "account" ? null : <DeviceTools store={deviceStore} onChange={() => setRevision((r) => r + 1)} />;
@@ -122,68 +130,71 @@ export function MyVotes({ deviceStore, loadStatuses = loadBillStatuses }: MyVote
   // The device tools keep their place whether or not there are votes, so the message of an import
   // that fills an empty page (or a clear that empties it) survives the switch.
   return (
-    <div className="space-y-8">
-      {empty ? (
-        <NoVotes storage={storage} />
-      ) : (
-        <div className="space-y-8">
-          <VoteSummary
-            summary={summary}
-            query={query}
-            loading={statusesLoading}
-            note={<StorageNote storage={storage} />}
-            onQuery={setQuery}
-          />
+    <>
+      {unavailable}
+      <div className="space-y-8">
+        {empty ? (
+          <NoVotes storage={storage} />
+        ) : (
+          <div className="space-y-8">
+            <VoteSummary
+              summary={summary}
+              query={query}
+              loading={statusesLoading}
+              note={<StorageNote storage={storage} />}
+              onQuery={setQuery}
+            />
 
-          <div ref={listTop} className="scroll-mt-20 space-y-3">
-            {summary.total >= MY_VOTES_FILTER_BAR_MIN && (
-              <VoteFilterBar
-                query={query}
-                facets={myVoteFacets(votes, statuses, query)}
-                statusesLoading={statusesLoading}
-                onQuery={setQuery}
-              />
-            )}
-            <div className="flex min-h-8 flex-wrap items-center justify-between gap-x-4">
-              <p role="status" className="text-sm text-muted-foreground">
-                {filtered
-                  ? `${rows.length.toLocaleString()} of ${summary.total.toLocaleString()} votes`
-                  : "Newest first"}
-              </p>
-              {filtered && (
-                <Button variant="ghost" size="sm" onClick={() => setQuery(MY_VOTES_ALL)}>
-                  Clear filters
-                </Button>
+            <div ref={listTop} className="scroll-mt-20 space-y-3">
+              {summary.total >= MY_VOTES_FILTER_BAR_MIN && (
+                <VoteFilterBar
+                  query={query}
+                  facets={myVoteFacets(votes, statuses, query)}
+                  statusesLoading={statusesLoading}
+                  onQuery={setQuery}
+                />
+              )}
+              <div className="flex min-h-8 flex-wrap items-center justify-between gap-x-4">
+                <p role="status" className="text-sm text-muted-foreground">
+                  {filtered
+                    ? `${rows.length.toLocaleString()} of ${summary.total.toLocaleString()} votes`
+                    : "Newest first"}
+                </p>
+                {filtered && (
+                  <Button variant="ghost" size="sm" onClick={() => setQuery(MY_VOTES_ALL)}>
+                    Clear filters
+                  </Button>
+                )}
+              </div>
+
+              {rows.length === 0 ? (
+                <p className="border-t border-border py-10 text-center text-muted-foreground">
+                  None of your votes match these filters.
+                </p>
+              ) : (
+                <>
+                  <ul className="divide-y divide-border border-y border-border">
+                    {rows.slice(current * MY_VOTES_PAGE_SIZE, (current + 1) * MY_VOTES_PAGE_SIZE).map(row)}
+                  </ul>
+                  <Pagination
+                    total={rows.length}
+                    offset={current * MY_VOTES_PAGE_SIZE}
+                    limit={MY_VOTES_PAGE_SIZE}
+                    onPageChange={(p) => {
+                      setPage(p - 1);
+                      // To the top of the list, not of the page: the summary doesn't come back each turn.
+                      listTop.current?.scrollIntoView({ block: "start" });
+                    }}
+                  />
+                </>
               )}
             </div>
-
-            {rows.length === 0 ? (
-              <p className="border-t border-border py-10 text-center text-muted-foreground">
-                None of your votes match these filters.
-              </p>
-            ) : (
-              <>
-                <ul className="divide-y divide-border border-y border-border">
-                  {rows.slice(current * MY_VOTES_PAGE_SIZE, (current + 1) * MY_VOTES_PAGE_SIZE).map(row)}
-                </ul>
-                <Pagination
-                  total={rows.length}
-                  offset={current * MY_VOTES_PAGE_SIZE}
-                  limit={MY_VOTES_PAGE_SIZE}
-                  onPageChange={(p) => {
-                    setPage(p - 1);
-                    // To the top of the list, not of the page: the summary doesn't come back each turn.
-                    listTop.current?.scrollIntoView({ block: "start" });
-                  }}
-                />
-              </>
-            )}
           </div>
-        </div>
-      )}
+        )}
 
-      {tools}
-    </div>
+        {tools}
+      </div>
+    </>
   );
 }
 
@@ -222,24 +233,6 @@ function NoVotes({ storage }: { storage: VoteStorage }) {
         <Link href="/vote" className={buttonClasses({ className: "mt-6" })}>
           Start voting
         </Link>
-      </CardContent>
-    </Card>
-  );
-}
-
-function VotesUnavailable() {
-  const backend = useVoteBackend();
-  return (
-    <Card>
-      <CardContent className="py-8 text-center">
-        <p role="alert" className="text-destructive">
-          We couldn&apos;t load your votes from your account.
-        </p>
-        {backend.refresh && (
-          <Button variant="outline" className="mt-4" onClick={backend.refresh}>
-            Try again
-          </Button>
-        )}
       </CardContent>
     </Card>
   );

@@ -5,8 +5,8 @@
 //
 // Every request is checked against its x-vercel-signature (HMAC-SHA1 of the body) in constant
 // time before anything is parsed. Drain lines are scrubbed: only an allowlist of fields is kept,
-// query strings are stripped, and the message goes through obs.Redact. Lines our own code already
-// exported through obs are dropped as duplicates.
+// query strings are stripped, and the message goes through obs.Redact before it's capped at 16 KB.
+// Lines our own code already exported through obs are dropped as duplicates.
 //
 // Before that filter, each line goes through a census (justabill.vercel.drain.lines and .lag),
 // and each lambda line that marks a crash, timeout or 5xx counts its request once in

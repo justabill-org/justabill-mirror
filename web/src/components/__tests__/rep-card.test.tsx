@@ -8,6 +8,7 @@ import type { VoteComparison } from "@/lib/types";
 import type { LocalRep, LocalReps } from "@/lib/local/reps";
 import type { MemberScore } from "@/lib/scorecard";
 import { axeViolations } from "@/test/axe";
+import { getAlert } from "@/test/alert";
 
 // #667: a card per representative, a way into /vote before any votes, and "My votes" folded away.
 
@@ -267,10 +268,11 @@ describe("ScorecardView", () => {
     expect(screen.getByRole("list").compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("shows a retry when the votes didn't load", () => {
+  it("shows a retry when the votes didn't load", async () => {
     const onRetry = vi.fn();
-    renderView({ votes: vote, scores: { status: "error" }, onRetry });
-    expect(screen.getByRole("alert").textContent).toContain("couldn't load");
+    const { container } = renderView({ votes: vote, scores: { status: "error" }, onRetry });
+    expect(getAlert().textContent).toContain("couldn't load");
+    expect(await axeViolations(container)).toEqual([]);
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(onRetry).toHaveBeenCalledOnce();
   });

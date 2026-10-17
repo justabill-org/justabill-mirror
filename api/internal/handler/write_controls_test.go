@@ -67,7 +67,7 @@ func TestCastVotePassesChecks(t *testing.T) {
 		handler.WithWriteRules(testRules())(h)
 
 		w := serveWrite("/api/v1/bills/{id}/vote", h.CastVote, http.MethodPost,
-			"/api/v1/bills/119-hr-1/vote", `{"vote":"yea"}`, tt.appCheck)
+			"/api/v1/bills/hr-119-1/vote", `{"vote":"yea"}`, tt.appCheck)
 		if w.Code != http.StatusOK || len(users.voteChecks) != 1 {
 			t.Fatalf(
 				"app check %q: status %d, %d votes; want 200 and one vote",
@@ -100,7 +100,7 @@ func TestCastVoteOverDailyCap(t *testing.T) {
 	handler.WithWriteRules(testRules())(h)
 
 	w := serveWrite("/api/v1/bills/{id}/vote", h.CastVote, http.MethodPost,
-		"/api/v1/bills/119-hr-1/vote", `{"vote":"nay"}`, "")
+		"/api/v1/bills/hr-119-1/vote", `{"vote":"nay"}`, "")
 	if w.Code != http.StatusTooManyRequests || !strings.Contains(w.Body.String(), `"code":"daily_vote_cap"`) ||
 		!strings.Contains(w.Body.String(), "500 bills a day") {
 		t.Errorf("over the cap: %d %s; want 429 daily_vote_cap naming the cap", w.Code, w.Body)

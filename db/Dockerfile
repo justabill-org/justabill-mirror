@@ -7,7 +7,7 @@
 # Run: SPANNER_PROJECT, SPANNER_INSTANCE and SPANNER_DATABASE (and SPANNER_EMULATOR_HOST
 # locally). It needs a writable /tmp (an emptyDir under a read-only root filesystem).
 
-FROM golang:1.27.1-alpine3.24@sha256:8a5910f31396cd4d89662f56c68b3ae31d374308270a1c3bd96672ee5ed43414 AS builder
+FROM golang:1.27.2-alpine3.24@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS builder
 
 # The Go checksum database verifies wrench and its dependencies at this exact version.
 RUN CGO_ENABLED=0 GOBIN=/out go install -trimpath github.com/cloudspannerecosystem/wrench@v1.13.5

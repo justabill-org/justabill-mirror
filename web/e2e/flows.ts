@@ -186,7 +186,7 @@ export async function signInSeeded(page: Page, subject: string, next = "/") {
  * (CI's runners, or `docker run --cpus=1` locally) it then never reached the SDK and the popup stayed
  * open (PR #507). Waiting for the connection first avoids that race.
  */
-async function helperIframeReady(page: Page) {
+export async function helperIframeReady(page: Page) {
   await expect.poll(() => page.frames().some((f) => isHelperIframe(f.url())), { timeout: POPUP_STEP_MS }).toBe(true);
   const helper = page.frames().find((f) => isHelperIframe(f.url()))!;
   // playwright.config.ts checks the build's emulator host; this checks what the browser really loaded.
@@ -198,9 +198,20 @@ async function helperIframeReady(page: Page) {
         `popup sign-ins stall that way (${CROSS_SITE_STALL_ISSUE}); build with the emulator on ${pageHost}`,
     );
   }
-  await helper.waitForFunction(() => (window as unknown as { parentContainer: unknown }).parentContainer != null, null, {
-    timeout: POPUP_STEP_MS,
-  });
+  // Polled from here, not with `helper.waitForFunction` (#918): that re-evaluates only on the frame's
+  // requestAnimationFrame, which Chromium stops after a frame or two in this offscreen 1×1
+  // cross-origin iframe, so a helper that connected just after the first evaluation timed out.
+  // Each poll finds the helper frames again, as the SDK may open a new one or a document may be
+  // replaced, and any of them having connected will do.
+  await expect(async () => {
+    const helpers = page.frames().filter((f) => isHelperIframe(f.url()));
+    const connected = await Promise.all(
+      helpers.map((f) =>
+        f.evaluate(() => (window as unknown as { parentContainer: unknown }).parentContainer != null).catch(() => false),
+      ),
+    );
+    expect(connected, "the helper iframe connects to the page (parentContainer)").toContain(true);
+  }).toPass({ timeout: POPUP_STEP_MS, intervals: [50, 100, 250] });
 }
 
 /**
@@ -244,6 +255,26 @@ function watchGoogleApiRequests(context: BrowserContext): () => string[] {
 
 /** A popup attempt that stopped because Google's script didn't load (#794), not because of our code. */
 class HelperIframeStall extends Error {}
+
+/**
+ * Dismisses every dialog `page` opens, its frames' included, and says which it saw. Playwright
+ * dismisses them unseen otherwise, and the emulator's helper iframe reports its errors with alert()
+ * ("Error loading gapi.iframe!", "Sending authEvent failed."), so a failed attempt names them (#918).
+ */
+function watchDialogs(page: Page): () => string[] {
+  const shown: string[] = [];
+  page.on("dialog", async (dialog) => {
+    shown.push(`${dialog.type()} ${JSON.stringify(dialog.message())}`);
+    // Another listener may have handled it.
+    await dialog.dismiss().catch(() => {});
+  });
+  return () => [...shown];
+}
+
+/** What a failed attempt adds about the dialogs its page showed, if any. */
+function dialogNote(shown: string[]): string {
+  return shown.length > 0 ? `; the page showed ${shown.join(", ")}` : "";
+}
 
 /**
  * One popup sign-in on `page`, already on /login: clicks Continue with Google, lets `complete`
@@ -305,16 +336,22 @@ export async function signInThroughPopupFresh(
     // The project's options (Desktop Chrome's viewport and user agent, baseURL), as the page fixture gets.
     const context = await browser.newContext(test.info().project.use);
     const googleTrouble = watchGoogleApiRequests(context);
+    let dialogs = (): string[] => [];
     try {
       const page = await context.newPage();
+      dialogs = watchDialogs(page);
       await prepare(page);
       await page.goto(start);
       await popupAttempt(page, complete, googleTrouble);
       return page;
     } catch (err) {
       await context.close();
-      if (!(err instanceof HelperIframeStall)) throw err;
-      const why = `popup sign-in attempt ${attempt} stalled on Google's script: ${err.message}`;
+      const shown = dialogNote(dialogs());
+      if (!(err instanceof HelperIframeStall)) {
+        if (!shown || !(err instanceof Error)) throw err;
+        throw new Error(`${err.message}${shown}`, { cause: err });
+      }
+      const why = `popup sign-in attempt ${attempt} stalled on Google's script: ${err.message}${shown}`;
       test.info().annotations.push({ type: "warning", description: why });
       if (attempt >= attempts) {
         throw new Error(`Google's script didn't load in any of ${attempts} popup sign-ins (last: ${err.message})`, {

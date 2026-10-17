@@ -14,6 +14,7 @@ import { createAccountVoteBackend, type AccountVotesApi } from "@/lib/votes/acco
 import { localVoteBackend, VOTE_CAP_REACHED, type VoteBackend } from "@/lib/votes/backend";
 import { VoteBackendContext } from "@/lib/votes/hooks";
 import { axeViolations } from "@/test/axe";
+import { filledAlerts, findAlert, getAlert } from "@/test/alert";
 
 // My votes (#738, redesigned in #843): the summary, the filters, search and pages, where each bill
 // stands, and changing, removing and undoing a vote, against the real local and account backends.
@@ -365,19 +366,21 @@ describe("changing a vote", () => {
       if (failures-- > 0) throw new Error("offline");
       await local.setVote(id, vote, title);
     });
-    await withBackend({ ...local, setVote });
+    const { container } = await withBackend({ ...local, setVote });
     const row = rowOf("hr-119-1");
     openChange(row);
 
     await act(async () => fireEvent.click(within(row).getByRole("button", { name: "Nay" })));
 
-    expect(screen.getByRole("alert").textContent).toContain("Your Nay vote couldn't be saved.");
+    expect(getAlert().textContent).toContain("Your Nay vote couldn't be saved.");
+    // The row's error (CompactVoteRow) with its Try again, inside My votes.
+    expect(await axeViolations(container)).toEqual([]);
     expect(store.getSnapshot().value["hr-119-1"].vote).toBe("yea");
     expect(within(row).getByRole("button", { name: "Yea" }).getAttribute("aria-pressed")).toBe("true");
 
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Try again" })));
     expect(setVote).toHaveBeenLastCalledWith("hr-119-1", "nay", "Companion Act");
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(filledAlerts()).toEqual([]);
     expect(store.getSnapshot().value["hr-119-1"].vote).toBe("nay");
   });
 
@@ -389,7 +392,7 @@ describe("changing a vote", () => {
 
     await act(async () => fireEvent.click(within(row).getByRole("button", { name: "Nay" })));
 
-    expect(screen.getByRole("alert").textContent).toBe(VOTE_CAP_REACHED);
+    expect(getAlert().textContent).toBe(VOTE_CAP_REACHED);
     expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
     expect(store.getSnapshot().value["hr-119-1"].vote).toBe("yea");
   });
@@ -434,7 +437,7 @@ describe("removing a vote", () => {
 
     await act(async () => fireEvent.click(within(row).getByRole("button", { name: "Remove my vote on H.R. 1" })));
 
-    expect(screen.getByRole("alert").textContent).toContain("Your vote couldn't be removed.");
+    expect(getAlert().textContent).toContain("Your vote couldn't be removed.");
     expect(store.getSnapshot().value["hr-119-1"].vote).toBe("yea");
     expect(row.textContent).toContain("Your vote: Yea");
   });
@@ -503,9 +506,10 @@ describe("signed in", () => {
       .mockResolvedValue({ items: ROWS, total: 2, offset: 0, limit: 100 });
     const { backend } = accountApi([], { getMyVotes });
     vi.spyOn(console, "error").mockImplementation(() => {});
-    await withBackend(backend);
+    const { container } = await withBackend(backend);
 
-    expect((await screen.findByRole("alert")).textContent).toBe("We couldn't load your votes from your account.");
+    expect((await findAlert()).textContent).toMatch(/^We couldn't load your votes from your account\.Try again$/);
+    expect(await axeViolations(container)).toEqual([]);
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Try again" })));
     expect(await screen.findByText(/^Saved in your account\./)).toBeTruthy();
     expect(getMyVotes).toHaveBeenCalledTimes(2);

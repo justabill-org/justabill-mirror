@@ -139,9 +139,12 @@ type seenEntry struct {
 // failureSet remembers the request IDs of failures counted in the last failureTTL. Only failing
 // requests' IDs go in it, so its size follows failures, not traffic.
 type failureSet struct {
-	mu        sync.Mutex
-	seen      map[string]time.Time
-	order     []seenEntry // oldest first; an ID re-counted after expiring has a stale earlier entry
+	mu   sync.Mutex
+	seen map[string]time.Time
+	// order is oldest first from head on; an ID re-counted after expiring has a stale earlier
+	// entry. Slots before head are dropped and zeroed, and are reclaimed once they're half of it.
+	order     []seenEntry
+	head      int
 	lastSweep time.Time
 	max       int
 }
@@ -173,19 +176,24 @@ func (fs *failureSet) first(id string, now time.Time) bool {
 	return true
 }
 
-// dropWhile removes the oldest entries while drop says so.
+// dropWhile removes the oldest entries while drop says so. It moves the head past them, and
+// copies the rest down in place only once the dropped slots are half the slice, so a drop costs
+// amortised O(1) and allocates nothing (#917).
 func (fs *failureSet) dropWhile(drop func(seenEntry) bool) {
-	n := 0
-	for n < len(fs.order) && drop(fs.order[n]) {
-		e := fs.order[n]
+	for fs.head < len(fs.order) && drop(fs.order[fs.head]) {
+		e := fs.order[fs.head]
 		if at, ok := fs.seen[e.id]; ok && at.Equal(e.at) {
 			delete(fs.seen, e.id)
 		}
-		n++
+		fs.order[fs.head] = seenEntry{} // don't keep the dropped ID's string alive
+		fs.head++
 	}
 
-	if n > 0 {
-		fs.order = append(fs.order[:0:0], fs.order[n:]...)
+	if fs.head > 0 && fs.head*2 >= len(fs.order) {
+		live := copy(fs.order, fs.order[fs.head:])
+		clear(fs.order[live:])
+		fs.order = fs.order[:live]
+		fs.head = 0
 	}
 }
 

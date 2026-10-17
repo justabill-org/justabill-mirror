@@ -7,9 +7,10 @@ import { VoteBadge } from "@/components/member/vote-badge";
 
 /**
  * A member's recent roll calls (#787): the bill each was on (linking to it when we have the bill),
- * the question, result, chamber and date, and how the member voted.
+ * the question, result, chamber and date, and how the member voted. Null votes failed to load
+ * (#929), which is not the same as none.
  */
-export function RecentVotes({ votes }: { votes: MemberVoteSummary[] }) {
+export function RecentVotes({ votes }: { votes: MemberVoteSummary[] | null }) {
   return (
     <section aria-label="Recent votes">
       <Card>
@@ -17,7 +18,11 @@ export function RecentVotes({ votes }: { votes: MemberVoteSummary[] }) {
           <CardTitle className="text-lg">Recent Votes</CardTitle>
         </CardHeader>
         <CardContent>
-          {votes.length === 0 ? (
+          {votes === null ? (
+            <p className="text-sm text-muted-foreground">
+              Recent votes couldn&apos;t be loaded right now. Try again in a minute.
+            </p>
+          ) : votes.length === 0 ? (
             <p className="text-sm text-muted-foreground">No recorded votes yet.</p>
           ) : (
             <ul className="-mt-3 divide-y divide-border">

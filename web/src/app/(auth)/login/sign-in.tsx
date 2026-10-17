@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { afterSignInPath } from "@/lib/auth/onboarding";
@@ -100,19 +101,20 @@ export function SignIn() {
           Signed in. Taking you back...
         </p>
       )}
-      {status === "error" && (
-        <div role="alert" className="mt-4 text-center text-sm text-destructive">
-          <p>You&apos;re signed in, but we couldn&apos;t load your account.</p>
-          <Button variant="ghost" size="sm" className="mt-2" onClick={retry}>
-            Try again
-          </Button>
-        </div>
-      )}
-      {signInError && (
-        <p role="alert" className="mt-4 text-center text-sm text-destructive">
-          {signInError}
-        </p>
-      )}
+      {/* Always in the page, so a screen reader announces each message when it appears (#955). */}
+      <Alert variant="error" className="mt-4">
+        {status === "error" && (
+          <>
+            <p>You&apos;re signed in, but we couldn&apos;t load your account.</p>
+            <Button variant="outline" size="sm" className="mt-2" onClick={retry}>
+              Try again
+            </Button>
+          </>
+        )}
+      </Alert>
+      <Alert variant="error" className="mt-4">
+        {signInError}
+      </Alert>
     </SignInCard>
   );
 }

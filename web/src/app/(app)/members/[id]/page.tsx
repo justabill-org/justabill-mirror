@@ -86,7 +86,7 @@ export default async function MemberPage({ params }: MemberPageProps) {
 
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="min-w-0 lg:col-span-3">
-          <RecentVotes votes={member.recent_votes ?? []} />
+          <RecentVotes votes={member.recent_votes} />
         </div>
         <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
           <MemberTerms bioguideId={member.bioguide_id} terms={terms} congresses={congresses} />

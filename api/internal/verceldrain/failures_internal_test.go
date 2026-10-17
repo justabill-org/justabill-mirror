@@ -40,6 +40,14 @@ func TestClassify(t *testing.T) {
 		{"200", 200, 200, "", 0},
 		{"invalid L and P", 0, 0, "", 0},
 		{"invalid L, too high", 700, noProxy, "", 0},
+		// The shapes measured in production (design 473, "Measured"): a request line has no
+		// statusCode, only proxy.statusCode; a stderr line has neither.
+		{"request line 500", 0, 500, jsemconv.VercelFailureKindError, 500},
+		{"request line 502", 0, 502, jsemconv.VercelFailureKindError, 502},
+		{"request line 504", 0, 504, jsemconv.VercelFailureKindTimeout, 504},
+		{"request line 200", 0, 200, "", 0},
+		{"request line 404", 0, 404, "", 0},
+		{"stderr line without a status", 0, noProxy, "", 0},
 	}
 
 	for _, tt := range tests {
@@ -117,15 +125,71 @@ func TestFailureSetExpires(t *testing.T) {
 			t.Errorf("step %d: size = %d, want %d", i, got, s.size)
 		}
 	}
+
+	// The last sweep emptied the slice: the head starts over rather than pointing past its end.
+	if fs.head != 0 || len(fs.order) != 1 {
+		t.Errorf("after emptying: head = %d, len(order) = %d; want 0 and 1 (c)", fs.head, len(fs.order))
+	}
+}
+
+func TestFailureSetSweepsStaleEntries(t *testing.T) {
+	const recounted = 50
+
+	fs := newFailureSet(maxFailures)
+	start := time.Unix(1_790_000_000, 0)
+
+	for i := range recounted {
+		fs.first("id-"+strconv.Itoa(i), start)
+	}
+
+	// A sweep just before the IDs expire, so the next one is a minute away.
+	fs.first("x", start.Add(failureTTL-30*time.Second))
+
+	// Expired but not yet swept: each ID counts again, and its first entry stays queued.
+	for i := range recounted {
+		if !fs.first("id-"+strconv.Itoa(i), start.Add(failureTTL+time.Second)) {
+			t.Fatalf("expired id-%d didn't count again", i)
+		}
+	}
+
+	if got, want := len(fs.order)-fs.head, 2*recounted+1; got != want {
+		t.Fatalf("queued entries = %d, want %d (stale, x, re-counted)", got, want)
+	}
+
+	// The next sweep drops the stale entries without forgetting the re-counts.
+	fs.first("new", start.Add(failureTTL+31*time.Second))
+
+	if got, want := fs.size(), recounted+2; got != want {
+		t.Errorf("size = %d, want %d", got, want)
+	}
+
+	if got := len(fs.order) - fs.head; got != len(fs.seen) {
+		t.Errorf("queued entries = %d, want one per remembered ID (%d)", got, len(fs.seen))
+	}
+
+	for i := range recounted {
+		if fs.first("id-"+strconv.Itoa(i), start.Add(failureTTL+32*time.Second)) {
+			t.Errorf("the sweep forgot re-counted id-%d", i)
+		}
+	}
 }
 
 func TestFailureSetCapDropsOldest(t *testing.T) {
-	const limit = 3
+	for _, limit := range []int{1, 2, 3} {
+		t.Run(strconv.Itoa(limit), func(t *testing.T) { checkCapDropsOldest(t, limit) })
+	}
+}
+
+// checkCapDropsOldest fills a set capped at limit well past its cap, then checks it remembers
+// only the newest IDs.
+func checkCapDropsOldest(t *testing.T, limit int) {
+	t.Helper()
 
 	fs := newFailureSet(limit)
 	now := time.Unix(1_790_000_000, 0)
+	n := 4*limit + 3 // enough inserts past the cap to compact several times
 
-	for i := range limit + 2 {
+	for i := range n {
 		if !fs.first("id-"+strconv.Itoa(i), now) {
 			t.Fatalf("id-%d not first", i)
 		}
@@ -135,12 +199,89 @@ func TestFailureSetCapDropsOldest(t *testing.T) {
 		t.Errorf("size = %d, want the cap %d", got, limit)
 	}
 
-	// The two oldest were dropped, so they count again; the newest are still remembered.
-	if fs.first("id-4", now) {
-		t.Error("the newest ID was dropped")
+	// The newest limit IDs are still remembered; the one before them was dropped.
+	for i := n - limit; i < n; i++ {
+		if fs.first("id-"+strconv.Itoa(i), now) {
+			t.Errorf("id-%d, one of the newest %d, was dropped", i, limit)
+		}
+	}
+
+	if !fs.first("id-"+strconv.Itoa(n-limit-1), now) {
+		t.Errorf("id-%d, the newest one past the cap, wasn't dropped", n-limit-1)
 	}
 
 	if !fs.first("id-0", now) {
 		t.Error("the oldest ID wasn't dropped")
+	}
+}
+
+func TestFailureSetReleasesDroppedIDs(t *testing.T) {
+	fs := newFailureSet(4)
+	now := time.Unix(1_790_000_000, 0)
+
+	for i := range 50 {
+		fs.first("id-"+strconv.Itoa(i), now)
+
+		// Only the queued entries may reference a request ID: a dropped one, before the head or in
+		// the spare capacity after a compaction, would keep its string alive.
+		for j, e := range fs.order[:cap(fs.order)] {
+			if (j < fs.head || j >= len(fs.order)) && e != (seenEntry{}) {
+				t.Fatalf("after id-%d: slot %d outside [%d, %d) holds %q", i, j, fs.head, len(fs.order), e.id)
+			}
+		}
+	}
+}
+
+// filledFailureSet is a set at maxFailures, and spare request IDs not in it.
+func filledFailureSet(spare int) (*failureSet, []string, time.Time) {
+	fs := newFailureSet(maxFailures)
+	now := time.Unix(1_790_000_000, 0)
+
+	for i := range maxFailures {
+		fs.first("old-"+strconv.Itoa(i), now)
+	}
+
+	ids := make([]string, spare)
+	for i := range ids {
+		ids[i] = "new-" + strconv.Itoa(i)
+	}
+
+	return fs, ids, now
+}
+
+func TestFailureSetEvictsWithoutCopying(t *testing.T) {
+	const runs = 1000
+
+	fs, ids, now := filledFailureSet(runs + 1) // AllocsPerRun calls once more to warm up
+	next := 0
+
+	// The IDs are built beforehand, so only the set's own allocations count. Copying the queue
+	// on every eviction is one per call; an occasional map or slice growth rounds down to 0.
+	allocs := testing.AllocsPerRun(runs, func() {
+		if !fs.first(ids[next], now) {
+			t.Fatalf("%s not first", ids[next])
+		}
+		next++
+	})
+	if allocs >= 1 {
+		t.Errorf("first at the cap allocates %v times per call, want 0", allocs)
+	}
+
+	if got := fs.size(); got != maxFailures {
+		t.Errorf("size = %d, want the cap %d", got, maxFailures)
+	}
+}
+
+// BenchmarkFailureSetFirstAtCap records a new failure in a full set (#917): the cost of each
+// failing request during a storm. Run it with `task bench BENCH=FailureSet`.
+func BenchmarkFailureSetFirstAtCap(b *testing.B) {
+	// Twice the cap, so an ID has been dropped before it comes round again: every call is new.
+	fs, ids, now := filledFailureSet(2 * maxFailures)
+	next := 0
+
+	b.ReportAllocs()
+	for b.Loop() {
+		fs.first(ids[next%len(ids)], now)
+		next++
 	}
 }

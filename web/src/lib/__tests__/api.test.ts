@@ -49,7 +49,8 @@ const {
   REVALIDATE,
   CACHE_TAGS,
   isPartialBillDetail,
-  PARTIAL_BILL_RETRY_HEADER,
+  isPartialMember,
+  PARTIAL_RETRY_HEADER,
 } = await import("../api");
 const { isNotFound } = await import("../fallback");
 
@@ -144,8 +145,8 @@ describe("caching (#74)", () => {
     const [firstUrl, first] = mockFetch.mock.calls[0];
     const [retryUrl, retry] = mockFetch.mock.calls[1];
     expect(retryUrl).toBe(firstUrl);
-    expect(first.headers[PARTIAL_BILL_RETRY_HEADER]).toBeUndefined();
-    expect(retry.headers[PARTIAL_BILL_RETRY_HEADER]).toBe("1");
+    expect(first.headers[PARTIAL_RETRY_HEADER]).toBeUndefined();
+    expect(retry.headers[PARTIAL_RETRY_HEADER]).toBe("1");
     expect(retry.next).toEqual({ revalidate: REVALIDATE.partialBill, tags: ["bills", "bill:hr-119-1"] });
     expect(REVALIDATE.partialBill).toBeLessThan(REVALIDATE.bill);
   });
@@ -183,6 +184,34 @@ describe("caching (#74)", () => {
       tags: ["members", "member:A000001"],
     });
     expect(mockFetch.mock.calls[1][1].next).toEqual({ revalidate: REVALIDATE.member, tags: ["congresses"] });
+  });
+
+  it("reads a member whose recent votes failed again for REVALIDATE.partialMember (#929)", async () => {
+    const partial = { bioguide_id: "A000001", terms: [], recent_votes: null };
+    const whole = { bioguide_id: "A000001", terms: [], recent_votes: [] };
+    mockFetch.mockResolvedValueOnce(mockResponse(partial)).mockResolvedValueOnce(mockResponse(whole));
+    expect(await getMember("A000001")).toEqual(whole);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    const [firstUrl, first] = mockFetch.mock.calls[0];
+    const [retryUrl, retry] = mockFetch.mock.calls[1];
+    expect(retryUrl).toBe(firstUrl);
+    expect(first.headers[PARTIAL_RETRY_HEADER]).toBeUndefined();
+    expect(retry.headers[PARTIAL_RETRY_HEADER]).toBe("1");
+    expect(retry.next).toEqual({ revalidate: REVALIDATE.partialMember, tags: ["members", "member:A000001"] });
+    expect(REVALIDATE.partialMember).toBeLessThan(REVALIDATE.member);
+  });
+
+  it("returns a member's retry even when its recent votes failed again, so the page still renders", async () => {
+    const partial = { bioguide_id: "A000001", terms: [], recent_votes: null };
+    mockFetch.mockResolvedValue(mockResponse(partial));
+    expect(await getMember("A000001")).toEqual(partial);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("reads a member with no recent votes once", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ bioguide_id: "A000001", terms: [], recent_votes: [] }));
+    await getMember("A000001");
+    expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
   it("doesn't cache user reads", async () => {
@@ -695,4 +724,24 @@ describe("isPartialBillDetail (#454)", () => {
       expect(isPartialBillDetail({ ...whole, [section]: null })).toBe(true);
     },
   );
+});
+
+describe("isPartialMember (#929)", () => {
+  const member = { bioguide_id: "A000001", first_name: "Ada", last_name: "Alvarez", terms: [] };
+
+  it("is true when the recent votes are null: the API's read failed", () => {
+    expect(isPartialMember({ ...member, recent_votes: null })).toBe(true);
+  });
+
+  it("is false when there are no recent votes, or some", () => {
+    expect(isPartialMember({ ...member, recent_votes: [] })).toBe(false);
+    expect(
+      isPartialMember({
+        ...member,
+        recent_votes: [
+          { vote_id: "v", vote_date: "2025-03-04T00:00:00Z", member_vote: "Yea", chamber: "House" },
+        ],
+      }),
+    ).toBe(false);
+  });
 });

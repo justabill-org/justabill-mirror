@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import type { Bill, BillDetailResponse, Congress } from "@/lib/types";
+import { filledAlerts } from "@/test/alert";
 
 // Review focus (#870): a signed-out visitor with votes on the device opens /vote with a /bills
 // filter that matches nothing, through the real URL parsing, list query, local vote store and deck.
@@ -117,7 +118,7 @@ describe("a /vote card for a bill with no CRS summary, no AI summary and no text
     fireEvent.click(screen.getByRole("button", { name: "Details" }));
     expect(await screen.findByText(/This bill has no summary yet/)).toBeTruthy();
     expect(screen.queryByRole("status", { name: "Loading more about this bill" })).toBeNull();
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(filledAlerts()).toEqual([]);
     expect(screen.getByText("Introduced Mar 1, 2025")).toBeTruthy();
     expect(screen.queryByText("What it changes in law")).toBeNull();
     expect(screen.queryByText("How Congress voted")).toBeNull();

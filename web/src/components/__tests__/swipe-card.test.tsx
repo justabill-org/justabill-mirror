@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { axeViolations } from "@/test/axe";
 import { SwipeCard } from "../vote/swipe-card";
 import type { Bill, BillCardFacts, BillDetailResponse, BillLawChangesResponse, BillSummary } from "@/lib/types";
+import { filledAlerts, findAlert } from "@/test/alert";
 
 // /vote's card and its Details sheet (#717): the sheet answers what the card can't, loads the
 // bill's record when it opens, and takes the vote itself.
@@ -183,14 +184,14 @@ describe("SwipeCard details", () => {
     api.getBill.mockRejectedValueOnce(new Error("down"));
     api.getBillLawChanges.mockResolvedValue(null);
     const dialog = open({ bill_id: bill.id, short_summary: "Pairs votes." });
-    const alert = await within(dialog).findByRole("alert");
+    const alert = await findAlert(dialog);
     expect(alert.textContent).toContain("couldn't be loaded right now");
     expect(dialog.textContent).toContain("Pairs votes.");
 
     api.getBill.mockResolvedValue(detail());
     fireEvent.click(within(alert).getByRole("button", { name: "Try again" }));
     expect(await within(dialog).findByRole("heading", { name: "Who backed it" })).toBeTruthy();
-    expect(within(dialog).queryByRole("alert")).toBeNull();
+    expect(filledAlerts(dialog)).toEqual([]);
   });
 
   it("opens as a popup in the middle of the screen, not a sheet from the bottom (#717)", () => {

@@ -92,8 +92,26 @@ func TestGetMember(t *testing.T) {
 		"vote_date":"2026-03-04T00:00:00Z","question":"On Passage","member_vote":"Yea","chamber":"House"}]}`)
 }
 
-// A member whose recent votes can't be read is still served, without them: the page shows the
-// member, and the votes are a section of it.
+// A member with no recorded votes gets `[]`, so it can't be read as a failed section (#929): the
+// repository returns none as a nil slice.
+func TestGetMember_NoRecentVotes(t *testing.T) {
+	members := seededMembers()
+	members.recent = nil
+	h := newTestHandler(&mockBillRepo{})
+	h.Members = members
+
+	w := get(t, memberRouter(h), "/api/v1/members/P000197")
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200 (%s)", w.Code, w.Body.String())
+	}
+	assertJSON(t, w.Body.Bytes(), `{"bioguide_id":"P000197","first_name":"Nancy","last_name":"Pelosi",
+		"terms":[],"recent_votes":[]}`)
+}
+
+// A member whose recent votes can't be read is still served, with the section null, the API's
+// mark for a failed section (bill detail's, #454): the web says the votes couldn't be loaded
+// rather than that there are none (#929).
 func TestGetMember_RecentVotesUnreadable(t *testing.T) {
 	members := seededMembers()
 	members.votesErr = errSpanner
@@ -192,21 +210,25 @@ func TestListMembers_ReadFails(t *testing.T) {
 // TestListMembers_Cached: the second request is answered from Redis, byte for byte the first.
 func TestListMembers_Cached(t *testing.T) {
 	c := testCache(t)
-	// A search unique to this run, so runs sharing a Redis don't see each other's keys.
-	search := fmt.Sprintf("cached%d", time.Now().UnixNano())
+	// A state and district picked by the clock, so runs sharing a Redis are unlikely to see each
+	// other's keys (the member list reads no search, so a search can't set one apart, #943).
+	now := time.Now().UnixNano()
+	state := string([]byte{byte('A' + now%26), byte('A' + now/26%26)})
+	district := int(now / 676 % 100)
 	t.Cleanup(func() {
 		_ = c.Delete(context.Background(), handler.ListCacheKey("members:list", model.ListParams{
-			Limit: 20, Search: &search,
+			Limit: 20, State: &state, District: &district,
 		}))
 	})
+	query := fmt.Sprintf("/api/v1/members?state=%s&district=%d", state, district)
 	members := seededMembers()
 	h := newTestHandler(&mockBillRepo{})
 	h.Members = members
 	h.SetCache(c)
 	router := memberRouter(h)
 
-	first := get(t, router, "/api/v1/members?q="+search)
-	second := get(t, router, "/api/v1/members?q="+search)
+	first := get(t, router, query)
+	second := get(t, router, query)
 
 	if first.Code != http.StatusOK || second.Code != http.StatusOK {
 		t.Fatalf("statuses = %d, %d, want 200 twice", first.Code, second.Code)

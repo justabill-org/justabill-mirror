@@ -47,6 +47,13 @@ const (
 	// (slowloris) long before readTimeout would.
 	readHeaderTimeout = 5 * time.Second
 	writeTimeout      = 30 * time.Second
+	// requestTimeout is each request's deadline, after which chi's Timeout
+	// answers 504. It must end well before writeTimeout, which starts a little
+	// earlier (when the headers are read): chi writes its 504, and a handler
+	// its error, after the handler returns, and nothing reaches the client once
+	// the write deadline has passed (#930). It also stays under the load
+	// balancer's 30 s backend timeout, so the 504 is the API's own.
+	requestTimeout = writeTimeout - 5*time.Second
 	// defaultIdleTimeout outlasts the 600 s keepalive of Google's external
 	// Application Load Balancer, so the API never closes a connection the
 	// load balancer is about to reuse (which shows up as a stray 502).
@@ -385,6 +392,8 @@ type edge struct {
 	// the API is public; nil (as in tests) is the same.
 	gate     func(http.Handler) http.Handler
 	redisURL string // REDIS_URL, or the file REDIS_URL_FILE names
+	// requestTimeout is requestTimeout; tests scale it down.
+	requestTimeout time.Duration
 }
 
 // edgeSettings reads TRUSTED_PROXY_HOPS, CORS_ORIGIN, API_SERVER_KEYS,
@@ -431,7 +440,7 @@ func edgeSettings(production bool, logger *slog.Logger) (edge, error) {
 	}
 	return edge{
 		hops: hops, cors: cors, callers: callers, webServerLimit: limit, webServerSearchLimit: searchLimit,
-		gate: gate, redisURL: redis,
+		gate: gate, redisURL: redis, requestTimeout: requestTimeout,
 	}, nil
 }
 
@@ -547,8 +556,9 @@ func buildRouter(h *handler.Handler, logger *slog.Logger, accounts *accountMiddl
 	// anything reads the client IP.
 	r.Use(mw.Visitor(e.callers, logger))
 	r.Use(obs.RecoverHandler(logger, mw.RoutePattern))
-	r.Use(middleware.Timeout(writeTimeout))
+	// The access log wraps Timeout, so it records the 504 Timeout writes.
 	r.Use(mw.Logger(logger))
+	r.Use(middleware.Timeout(e.requestTimeout))
 	// JSON bodies are gzipped for clients that accept it: a big bill's text or
 	// detail is megabytes uncompressed (#450).
 	r.Use(middleware.Compress(gzipLevel, "application/json"))

@@ -24,6 +24,10 @@ const (
 	codeAggregatesOff = "aggregates_off"
 	msgAggregatesOff  = "aggregates aren't public"
 	msgInvalidBillID  = "invalid bill id"
+
+	msgInvalidMemberID  = "invalid member id"
+	msgInvalidVersionID = "invalid text version id"
+	msgInvalidDiffID    = "invalid diff id"
 )
 
 // scopeKeyPattern is a state ("CA") or district ("CA-12", at-large "AK-0") scope key.
@@ -219,7 +223,7 @@ func (h *Handler) GetMemberAlignment(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := chi.URLParam(r, "id")
 	if !validBioguideID(id) {
-		writeError(w, http.StatusBadRequest, "invalid member id")
+		writeError(w, http.StatusBadRequest, msgInvalidMemberID)
 		return
 	}
 	cacheKey := "aggregates:alignment:" + id

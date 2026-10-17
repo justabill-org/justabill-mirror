@@ -105,11 +105,12 @@ func (in billInclude) any() bool { return in.summary || in.card || in.crsSummary
 // response private.
 func (h *Handler) ListBills(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	params, err := parseListParams(r)
+	parsed, err := parseListParams(r)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	params := billListParams(parsed)
 	include, err := parseBillInclude(r.URL.Query()["include"])
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
@@ -189,8 +190,9 @@ func (h *Handler) CountBills(w http.ResponseWriter, r *http.Request) {
 }
 
 // parseCountParams reads GET /bills/counts' filters: the ones [parseListParams] reads for a bill
-// list, minus paging, sort and status, with the same congress, policy area and search checks. A
-// filter the list gains must be read here too, or the counts stop matching the list.
+// list, minus paging, sort and status, with the same congress, type, chamber, policy area and
+// search checks. A filter the list gains must be read here too, or the counts stop matching the
+// list.
 func parseCountParams(r *http.Request) (model.ListParams, error) {
 	q := r.URL.Query()
 	congress, err := queryCongress(q)
@@ -199,10 +201,11 @@ func parseCountParams(r *http.Request) (model.ListParams, error) {
 	}
 	params := model.ListParams{
 		Congress:   congress,
-		BillType:   queryStr(q, "type", "bill_type"),
-		Chamber:    queryStr(q, "chamber"),
 		PolicyArea: queryStr(q, "policy_area"),
 		Search:     queryStr(q, "q", "search"),
+	}
+	if err = readBillFilters(q, &params); err != nil {
+		return model.ListParams{}, err
 	}
 	if err = checkPolicyArea(params.PolicyArea); err != nil {
 		return model.ListParams{}, err
@@ -325,6 +328,11 @@ func mapBills[T any](page *model.ListResult[model.Bill], item func(model.Bill) T
 func (h *Handler) GetBill(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := chi.URLParam(r, "id")
+	// Checked before the cache, so no lookup runs on a key built from raw bytes (#915).
+	if !validBillID(id) {
+		writeError(w, http.StatusBadRequest, msgInvalidBillID)
+		return
+	}
 
 	cacheKey := cachekey.BillDetail(id)
 	if cached, ok := h.cacheGet(ctx, cacheKey); ok {
@@ -461,8 +469,10 @@ func writeBillList[T any](
 // text's sections parsed, the raw XML is left out (it roughly doubles a big
 // bill's response) unless the request asks for it with ?raw=1.
 func (h *Handler) GetBillText(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	vid := chi.URLParam(r, "vid")
+	id, vid := chi.URLParam(r, "id"), chi.URLParam(r, "vid")
+	if !validTextPath(w, id, vid, msgInvalidVersionID) {
+		return
+	}
 
 	text, err := h.Bills.GetTextContent(r.Context(), id, vid)
 	if err != nil {
@@ -482,6 +492,20 @@ func (h *Handler) GetBillText(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, text)
 }
 
+// validTextPath checks a text or diff route's bill ID and its version or diff ID, a UUID, and
+// writes the 400 (msgBadID for the second) when one is malformed (#915).
+func validTextPath(w http.ResponseWriter, billID, uuid, msgBadID string) bool {
+	switch {
+	case !validBillID(billID):
+		writeError(w, http.StatusBadRequest, msgInvalidBillID)
+	case !validUUID(uuid):
+		writeError(w, http.StatusBadRequest, msgBadID)
+	default:
+		return true
+	}
+	return false
+}
+
 // hasSections reports whether sections, a JSON array, has at least one
 // element. A column that is NULL, "null" or "[]" has none. It looks only at
 // the brackets: a big bill's sections run to megabytes.
@@ -493,8 +517,10 @@ func hasSections(sections []byte) bool {
 // GetBillDiff returns a specific diff with its AI change summary.
 func (h *Handler) GetBillDiff(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	id := chi.URLParam(r, "id")
-	did := chi.URLParam(r, "did")
+	id, did := chi.URLParam(r, "id"), chi.URLParam(r, "did")
+	if !validTextPath(w, id, did, msgInvalidDiffID) {
+		return
+	}
 
 	diff, err := h.Bills.GetDiffByID(ctx, id, did)
 	if err != nil {

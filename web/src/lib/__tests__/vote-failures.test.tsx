@@ -13,6 +13,7 @@ import { VoteBackendContext } from "../votes/hooks";
 import { VotingSession } from "@/app/(app)/vote/voting-session";
 import { VoteSection } from "@/app/(app)/bills/[id]/vote-section";
 import { deckOf } from "@/test/deck";
+import { filledAlerts, getAlert } from "@/test/alert";
 
 afterEach(() => {
   cleanup();
@@ -73,7 +74,7 @@ describe("bill page vote after a failed save", () => {
 
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Yea" })));
 
-    expect(screen.getByRole("alert").textContent).toContain("Your Yea vote couldn't be saved.");
+    expect(getAlert().textContent).toContain("Your Yea vote couldn't be saved.");
     expect(pressed("Yea")).toBe("false");
     expect(pressed("Nay")).toBe("true");
     expect(store.getSnapshot().value["hr-119-1"].vote).toBe("nay");
@@ -82,7 +83,7 @@ describe("bill page vote after a failed save", () => {
 
     expect(setVote).toHaveBeenCalledTimes(2);
     expect(setVote).toHaveBeenLastCalledWith("hr-119-1", "yea", "Example Act");
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(filledAlerts()).toEqual([]);
     expect(pressed("Yea")).toBe("true");
     expect(store.getSnapshot().value["hr-119-1"].vote).toBe("yea");
   });
@@ -91,7 +92,7 @@ describe("bill page vote after a failed save", () => {
     const { backend } = flakyBackend(0);
     withBackend(backend, <VoteSection billId="hr-119-1" billTitle="Example Act" />);
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Skip" })));
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(filledAlerts()).toEqual([]);
     expect(pressed("Skip")).toBe("true");
   });
 });
@@ -114,7 +115,7 @@ describe("bill page vote past the daily vote cap", () => {
 
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Yea" })));
 
-    expect(screen.getByRole("alert").textContent).toBe(VOTE_CAP_REACHED);
+    expect(getAlert().textContent).toBe(VOTE_CAP_REACHED);
     expect(screen.queryByText("Your Yea vote couldn't be saved.")).toBeNull();
     expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
     expect(pressed("Yea")).toBe("false");
@@ -129,7 +130,7 @@ describe("bill page vote past the daily vote cap", () => {
 
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Yea" })));
 
-    expect(screen.getByRole("alert").textContent).toContain("Your Yea vote couldn't be saved.");
+    expect(getAlert().textContent).toContain("Your Yea vote couldn't be saved.");
     expect(screen.queryByText(VOTE_CAP_REACHED)).toBeNull();
     expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
   });
@@ -158,7 +159,7 @@ describe("/vote after a failed save", () => {
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Yea" })));
     await act(async () => vi.advanceTimersByTime(1000));
 
-    expect(screen.getByRole("alert").textContent).toContain("Your Yea vote couldn't be saved.");
+    expect(getAlert().textContent).toContain("Your Yea vote couldn't be saved.");
     expect(cardTitle()).toBe(first);
     expect(screen.getByText("Laws: 3 of 3 bills left")).toBeTruthy();
     expect(screen.getByText("0 voted this visit")).toBeTruthy();
@@ -171,7 +172,7 @@ describe("/vote after a failed save", () => {
 
     expect(setVote).toHaveBeenCalledTimes(2);
     expect(setVote).toHaveBeenLastCalledWith(billId, "yea", first);
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(filledAlerts()).toEqual([]);
     expect(screen.getByText("Laws: 2 of 3 bills left")).toBeTruthy();
     expect(screen.getByText("1 voted this visit")).toBeTruthy();
     expect(cardTitle()).not.toBe(first);
@@ -183,13 +184,13 @@ describe("/vote after a failed save", () => {
     withBackend(backend, <VotingSession {...deckOf(cards)} />);
 
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Nay" })));
-    expect(screen.getByRole("alert").textContent).toContain("Your Nay vote couldn't be saved.");
+    expect(getAlert().textContent).toContain("Your Nay vote couldn't be saved.");
 
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Skip" })));
     await act(async () => vi.advanceTimersByTime(1000));
 
     expect(setVote).toHaveBeenLastCalledWith(expect.any(String), "skip", expect.any(String));
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(filledAlerts()).toEqual([]);
     expect(screen.getByText("Laws: 2 of 3 bills left")).toBeTruthy();
     expect(screen.getByText("0 voted this visit")).toBeTruthy();
   });
@@ -208,7 +209,7 @@ describe("/vote past the daily vote cap", () => {
     await act(async () => vi.advanceTimersByTime(1000));
 
     expect(setVote).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole("alert").textContent).toBe(VOTE_CAP_REACHED);
+    expect(getAlert().textContent).toBe(VOTE_CAP_REACHED);
     expect(screen.queryByText("Your Yea vote couldn't be saved.")).toBeNull();
     expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
     expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(first);

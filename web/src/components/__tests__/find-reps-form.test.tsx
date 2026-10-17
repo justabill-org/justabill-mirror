@@ -130,9 +130,10 @@ describe("FindRepsForm: the address fields", () => {
 
   it("says the lookup didn't work when the API fails", async () => {
     vi.mocked(api.getReps).mockRejectedValue(new Error("429"));
-    render(<FindRepsForm />);
+    const { container } = render(<FindRepsForm />);
     fillAddress({ street: "1 Main St", zip: "81501" });
     expect(await screen.findByText("The lookup didn't work. Please try again in a moment.")).toBeDefined();
+    expect(await axeViolations(container)).toEqual([]);
   });
 });
 

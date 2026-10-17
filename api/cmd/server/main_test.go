@@ -131,6 +131,7 @@ func devEdge(t *testing.T, hops int) edge {
 	return edge{
 		hops: hops, cors: devCORS(t),
 		webServerLimit: defaultWebServerRateLimit, webServerSearchLimit: defaultWebServerSearchRateLimit,
+		requestTimeout: requestTimeout,
 	}
 }
 
@@ -199,7 +200,7 @@ func TestAccountRoutesLifecycle(t *testing.T) {
 		{http.MethodGet, "/api/v1/me", "alice", "", http.StatusOK},
 		{http.MethodPost, "/api/v1/me/votes:import", "alice", `{"votes":[{"bill_id":"119-hr-1","vote":"yea"}]}`,
 			http.StatusOK},
-		{http.MethodDelete, "/api/v1/bills/119-hr-1/vote", "alice", "", http.StatusNoContent},
+		{http.MethodDelete, "/api/v1/bills/hr-119-1/vote", "alice", "", http.StatusNoContent},
 		{http.MethodPost, "/api/v1/auth/register", "", `{"email":"a@example.com"}`, http.StatusNotFound},
 		{http.MethodDelete, "/api/v1/me", "alice", "", http.StatusNoContent},
 		{http.MethodGet, "/api/v1/me", "alice", "", http.StatusForbidden},
@@ -220,7 +221,7 @@ func TestAppCheckGuardsVoteAndImportOnly(t *testing.T) {
 		t.Fatalf("POST /me without App Check = %d, want 201: %s", rr.Code, rr.Body)
 	}
 	for _, route := range []struct{ method, path, body string }{
-		{http.MethodPost, "/api/v1/bills/119-hr-1/vote", `{"vote":"yea"}`},
+		{http.MethodPost, "/api/v1/bills/hr-119-1/vote", `{"vote":"yea"}`},
 		{http.MethodPost, "/api/v1/me/votes:import", `{"votes":[{"bill_id":"119-hr-1","vote":"yea"}]}`},
 	} {
 		rr := do(t, r, route.method, route.path, "alice", route.body)
@@ -247,8 +248,8 @@ func TestAccountRoutesOff(t *testing.T) {
 		{http.MethodGet, "/api/v1/me"},
 		{http.MethodPost, "/api/v1/me"},
 		{http.MethodDelete, "/api/v1/me"},
-		{http.MethodPost, "/api/v1/bills/119-hr-1/vote"},
-		{http.MethodDelete, "/api/v1/bills/119-hr-1/vote"},
+		{http.MethodPost, "/api/v1/bills/hr-119-1/vote"},
+		{http.MethodDelete, "/api/v1/bills/hr-119-1/vote"},
 		{http.MethodGet, "/api/v1/me/export"},
 	} {
 		if rr := do(t, r, route.method, route.path, "alice", ""); rr.Code != http.StatusNotFound {

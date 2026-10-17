@@ -187,6 +187,16 @@ body {
   outline-offset: 2px;
 }
 
+/* The skip link's target (#955): <main id="main" tabIndex={-1}> takes focus so the next Tab
+   starts inside it. It isn't a control, so it draws no outline, and it lands below the sticky
+   header (h-16) rather than under it. */
+#main {
+  scroll-margin-top: 4rem;
+}
+#main:focus {
+  outline: none;
+}
+
 /* Animation keyframes */
 @keyframes slide-in-from-bottom {
   from {

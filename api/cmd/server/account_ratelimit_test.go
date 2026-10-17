@@ -64,7 +64,7 @@ func sendAccount(r http.Handler, client, method, path, token string) *httptest.R
 func swipe(t *testing.T, r http.Handler, client, token string, n int) {
 	t.Helper()
 	for i := range n {
-		path := fmt.Sprintf("/api/v1/bills/119-hr-%d/vote", i+1)
+		path := fmt.Sprintf("/api/v1/bills/hr-119-%d/vote", i+1)
 		if rr := sendAccount(r, client, http.MethodPost, path, token); rr.Code != http.StatusOK {
 			t.Fatalf("%s's vote %d = %d, want 200: %s", token, i+1, rr.Code, rr.Body)
 		}

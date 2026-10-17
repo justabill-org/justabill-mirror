@@ -33,12 +33,13 @@ const (
 // ListMembers returns a paginated list of members.
 func (h *Handler) ListMembers(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	params, err := parseListParams(r)
+	parsed, err := parseListParams(r)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
+	params := memberListParams(parsed)
 	cacheKey := listCacheKey("members:list", params)
 	if cached, ok := h.cacheGet(ctx, cacheKey); ok {
 		writeCachedJSON(w, cached)
@@ -60,7 +61,7 @@ func (h *Handler) ListMembers(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetMember(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if !validBioguideID(id) {
-		writeError(w, http.StatusBadRequest, "invalid member id")
+		writeError(w, http.StatusBadRequest, msgInvalidMemberID)
 		return
 	}
 
@@ -74,11 +75,16 @@ func (h *Handler) GetMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// A failed read leaves recent_votes null and a member with none gets [], as a bill detail's
+	// sections do (#454), so the page can tell "couldn't load" from "no votes" (#929).
 	recentVotes, votesErr := h.Members.GetRecentVotes(r.Context(), id, defaultPageSize)
-	if votesErr != nil {
+	switch {
+	case votesErr != nil:
 		h.log.WarnContext(r.Context(), "failed to get member votes", "member_id", id, "error", votesErr)
-	}
-	if recentVotes != nil {
+		member.RecentVotes = nil
+	case recentVotes == nil:
+		member.RecentVotes = []model.MemberVoteSummary{}
+	default:
 		member.RecentVotes = recentVotes
 	}
 
@@ -101,7 +107,7 @@ func (h *Handler) GetMemberPositions(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := chi.URLParam(r, "id")
 	if !validBioguideID(id) {
-		writeError(w, http.StatusBadRequest, "invalid member id")
+		writeError(w, http.StatusBadRequest, msgInvalidMemberID)
 		return
 	}
 	congress, ok := parseCongress(r.URL.Query().Get("congress"))

@@ -8,13 +8,13 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"mime"
 	"net/http"
 	"net/url"
 	"os"
 	"regexp"
 	"slices"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/justabill-org/justabill/db/model"
@@ -35,9 +35,6 @@ const (
 	httpTimeout = 30 * time.Minute
 	// defaultBatchRows is how many changed sections go to the store at a time.
 	defaultBatchRows = 500
-	// DefaultOutageGrace is how long [Loader.Run] reports a maintenance page as unavailable
-	// before it reports it as a failure.
-	DefaultOutageGrace = 24 * time.Hour
 )
 
 // titleFilePattern matches a title's file in the zip, usc42.xml, and not an appendix's
@@ -49,6 +46,8 @@ var (
 	ErrHTTPStatus = errors.New("uscode: unexpected HTTP status")
 	ErrTooLarge   = errors.New("uscode: download exceeds the size cap")
 	ErrWrongTitle = errors.New("uscode: title file holds another title")
+	// ErrNotZip means the zip link served an HTML page other than the maintenance page.
+	ErrNotZip = errors.New("uscode: the zip link served an HTML page")
 )
 
 // Store is the part of [repository.PipelineStore] the loader writes through.
@@ -78,15 +77,9 @@ type Loader struct {
 	store     Store
 	log       *slog.Logger
 	client    *http.Client
-	pageURL   string
+	pageURLs  []string
 	now       func() time.Time
 	batchRows int
-	grace     time.Duration
-
-	mu sync.Mutex
-	// downSince is when [Loader.Run] first found the site down in the current outage; zero
-	// while it's up.
-	downSince time.Time
 }
 
 // Option configures a [Loader].
@@ -98,9 +91,10 @@ func WithHTTPClient(c *http.Client) Option {
 	return func(l *Loader) { l.client = c }
 }
 
-// WithPageURL replaces [DefaultPageURL], the page the release point is found on.
-func WithPageURL(u string) Option {
-	return func(l *Loader) { l.pageURL = u }
+// WithPageURL replaces the pages the release point is found on, [DefaultPageURL] then
+// [LegacyPageURL], with urls, tried in order.
+func WithPageURL(urls ...string) Option {
+	return func(l *Loader) { l.pageURLs = urls }
 }
 
 // WithBatchRows sets how many changed sections are written at a time (default 500).
@@ -108,13 +102,7 @@ func WithBatchRows(n int) Option {
 	return func(l *Loader) { l.batchRows = max(n, 1) }
 }
 
-// WithOutageGrace sets how long [Loader.Run] reports the site as unavailable before it reports
-// a failure (default [DefaultOutageGrace]).
-func WithOutageGrace(d time.Duration) Option {
-	return func(l *Loader) { l.grace = d }
-}
-
-// WithClock replaces the wall clock, which times outages and stamps loaded release points.
+// WithClock replaces the wall clock, which stamps loaded release points.
 func WithClock(now func() time.Time) Option {
 	return func(l *Loader) { l.now = now }
 }
@@ -125,10 +113,9 @@ func NewLoader(store Store, log *slog.Logger, opts ...Option) *Loader {
 		store:     store,
 		log:       log,
 		client:    &http.Client{Timeout: httpTimeout},
-		pageURL:   DefaultPageURL,
+		pageURLs:  []string{DefaultPageURL, LegacyPageURL},
 		now:       time.Now,
 		batchRows: defaultBatchRows,
-		grace:     DefaultOutageGrace,
 	}
 	for _, opt := range opts {
 		opt(l)
@@ -184,45 +171,52 @@ func (l *Loader) Load(ctx context.Context, force bool) (Result, error) {
 	return res, nil
 }
 
-// Run is serve's load-uscode job: [Loader.Load] without force. While uscode.house.gov serves its
-// maintenance page, Run wraps [ErrSiteUnavailable] in [obs.ErrUnavailable], so the run is
-// reported unavailable, not failed, and the failed-job alert stays quiet; once the outage has
-// lasted the grace period (counted from the first such run this Loader saw), it returns the
-// error alone, so the alert fires. Any other result ends the outage.
+// Run is serve's load-uscode job: [Loader.Load] without force. While uscode.house.gov is down
+// (its maintenance page, HTTP 5xx, or no answer: [ErrSiteUnavailable]), Run wraps the error in
+// [obs.ErrUnavailable], for as long as the outage lasts, so the run is reported unavailable, not
+// failed: the job retries, and the Pipeline stale alert tracks the outage. Anything else, such
+// as a changed page or a zip that doesn't parse, fails.
 func (l *Loader) Run(ctx context.Context) error {
 	_, err := l.Load(ctx, false)
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	if !errors.Is(err, ErrSiteUnavailable) {
-		l.downSince = time.Time{}
-		return err
-	}
-	now := l.now()
-	if l.downSince.IsZero() {
-		l.downSince = now
-	}
-	if now.Sub(l.downSince) < l.grace {
+	if errors.Is(err, ErrSiteUnavailable) {
 		return fmt.Errorf("%w: %w", obs.ErrUnavailable, err)
 	}
-	return fmt.Errorf("%w since %s", err, l.downSince.UTC().Format(time.RFC3339))
+	return err
 }
 
+// findReleasePoint reads each download page in turn and returns the first release point found.
+// If none has one, the error joins each page's.
 func (l *Loader) findReleasePoint(ctx context.Context) (ReleasePoint, error) {
-	pageURL, err := url.Parse(l.pageURL)
+	errs := make([]error, 0, len(l.pageURLs))
+	for _, pageURL := range l.pageURLs {
+		rp, err := l.readPage(ctx, pageURL)
+		if err == nil {
+			return rp, nil
+		}
+		if ctx.Err() != nil {
+			return ReleasePoint{}, err
+		}
+		errs = append(errs, err)
+	}
+	return ReleasePoint{}, errors.Join(errs...)
+}
+
+func (l *Loader) readPage(ctx context.Context, rawURL string) (ReleasePoint, error) {
+	pageURL, err := url.Parse(rawURL)
 	if err != nil {
 		return ReleasePoint{}, fmt.Errorf("uscode: page URL: %w", err)
 	}
-	body, err := l.get(ctx, l.pageURL)
+	body, err := l.get(ctx, rawURL)
 	if err != nil {
 		return ReleasePoint{}, err
 	}
 	defer func() { _ = body.Close() }()
 	page, err := io.ReadAll(io.LimitReader(body, maxPageBytes+1))
 	if err != nil {
-		return ReleasePoint{}, fmt.Errorf("uscode: read %s: %w", l.pageURL, err)
+		return ReleasePoint{}, l.readError(ctx, "read", rawURL, err)
 	}
 	if len(page) > maxPageBytes {
-		return ReleasePoint{}, fmt.Errorf("%w: %s", ErrTooLarge, l.pageURL)
+		return ReleasePoint{}, fmt.Errorf("%w: %s", ErrTooLarge, rawURL)
 	}
 	return FindReleasePoint(page, pageURL)
 }
@@ -230,29 +224,58 @@ func (l *Loader) findReleasePoint(ctx context.Context) (ReleasePoint, error) {
 // download streams the zip at zipURL to a temporary file in [os.TempDir] and returns it open,
 // with its size. The caller closes and removes it.
 func (l *Loader) download(ctx context.Context, zipURL string) (*os.File, int64, error) {
-	body, err := l.get(ctx, zipURL)
+	resp, err := l.do(ctx, zipURL)
 	if err != nil {
 		return nil, 0, err
 	}
-	defer func() { _ = body.Close() }()
+	defer func() { _ = resp.Body.Close() }()
+	if mediaType, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type")); mediaType == "text/html" {
+		return nil, 0, l.htmlInPlaceOfZip(ctx, resp.Body, zipURL)
+	}
 	f, err := os.CreateTemp("", "uscode-*.zip")
 	if err != nil {
 		return nil, 0, fmt.Errorf("uscode: temp file: %w", err)
 	}
-	n, err := io.Copy(f, io.LimitReader(body, maxZipBytes+1))
+	n, err := io.Copy(f, io.LimitReader(resp.Body, maxZipBytes+1))
 	if err == nil && n > maxZipBytes {
 		err = fmt.Errorf("%w: %s", ErrTooLarge, zipURL)
+	} else if err != nil {
+		err = l.readError(ctx, "download", zipURL, err)
 	}
 	if err != nil {
 		_ = f.Close()
 		_ = os.Remove(f.Name())
-		return nil, 0, fmt.Errorf("uscode: download %s: %w", zipURL, err)
+		return nil, 0, err
 	}
 	l.log.InfoContext(ctx, "us code release point downloaded", "url", zipURL, "bytes", n)
 	return f, n, nil
 }
 
+// htmlInPlaceOfZip is the error for an HTML page served at zipURL: the site being unavailable if
+// it's the maintenance page, else [ErrNotZip].
+func (l *Loader) htmlInPlaceOfZip(ctx context.Context, body io.Reader, zipURL string) error {
+	page, err := io.ReadAll(io.LimitReader(body, maxPageBytes))
+	if err != nil {
+		return l.readError(ctx, "download", zipURL, err)
+	}
+	if maintenanceTitlePattern.Match(page) {
+		return fmt.Errorf("%w (a maintenance page for %s)", ErrSiteUnavailable, zipURL)
+	}
+	return fmt.Errorf("%w: %s", ErrNotZip, zipURL)
+}
+
+// get requests rawURL and returns the body of a 200 answer.
 func (l *Loader) get(ctx context.Context, rawURL string) (io.ReadCloser, error) {
+	resp, err := l.do(ctx, rawURL)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Body, nil
+}
+
+// do requests rawURL and returns a 200 answer. An answer of HTTP 5xx, or none, is
+// [ErrSiteUnavailable], unless ctx ended; any other status is [ErrHTTPStatus].
+func (l *Loader) do(ctx context.Context, rawURL string) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("uscode: request %s: %w", rawURL, err)
@@ -260,13 +283,31 @@ func (l *Loader) get(ctx context.Context, rawURL string) (io.ReadCloser, error) 
 	req.Header.Set("User-Agent", userAgent)
 	resp, err := l.client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("uscode: get %s: %w", rawURL, err)
+		if urlErr, ok := errors.AsType[*url.Error](err); ok {
+			err = urlErr.Err // its text repeats the method and the URL
+		}
+		return nil, l.readError(ctx, "get", rawURL, err)
 	}
-	if resp.StatusCode != http.StatusOK {
+	switch {
+	case resp.StatusCode == http.StatusOK:
+		return resp, nil
+	case resp.StatusCode >= http.StatusInternalServerError:
+		_ = resp.Body.Close()
+		return nil, fmt.Errorf("%w (HTTP %d for %s)", ErrSiteUnavailable, resp.StatusCode, rawURL)
+	default:
 		_ = resp.Body.Close()
 		return nil, fmt.Errorf("%w: %d for %s", ErrHTTPStatus, resp.StatusCode, rawURL)
 	}
-	return resp.Body, nil
+}
+
+// readError is the error for a request to rawURL that failed in op ("get", "read" or "download")
+// before it had all of its answer: the site being unavailable, unless ctx ended, as when the job's
+// deadline passes.
+func (*Loader) readError(ctx context.Context, op, rawURL string, err error) error {
+	if ctx.Err() != nil {
+		return fmt.Errorf("uscode: %s %s: %w", op, rawURL, err)
+	}
+	return fmt.Errorf("%w (%s %s: %w)", ErrSiteUnavailable, op, rawURL, err)
 }
 
 type titleFile struct {

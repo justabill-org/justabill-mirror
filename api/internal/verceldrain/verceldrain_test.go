@@ -12,6 +12,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/log"
@@ -377,6 +378,55 @@ func TestDrainTruncatesLongMessages(t *testing.T) {
 	got := logs[0].Body().AsString()
 	if len(got) > 16<<10 || !strings.HasPrefix(got, "éé") || strings.ContainsRune(got, '�') {
 		t.Errorf("body not truncated cleanly: %d bytes", len(got))
+	}
+}
+
+func TestRedactsBeforeTruncating(t *testing.T) {
+	// The address starts 5 bytes before the 16 KB cut, so cutting first would keep "alice" or
+	// "10.20" and leave Redact nothing it recognizes.
+	pad := strings.Repeat("x", 16<<10-6) + " "
+	drainLine := func(msg string) string { return `{"source":"lambda","level":"error","message":"` + msg + `"}` }
+
+	tests := []struct {
+		name, path, body, part string
+	}{
+		{"email across the cut", "/v1/drain", drainLine(pad + "alice@example.com failed"), "alice"},
+		{"ipv4 across the cut", "/v1/drain", drainLine(pad + "10.20.30.40 refused"), "10.20"},
+		{
+			"webhook ipv4 across the cut",
+			"/v1/webhook",
+			`{"type":"alerts.triggered","payload":{"alerts":[{"title":"` + pad + `10.20.30.40 refused"}]}}`,
+			"10.20",
+		},
+		// Under the cap before redaction, over it after: each 7-byte email becomes 17 bytes.
+		{"redaction grows the line", "/v1/drain", drainLine(strings.Repeat("a@b.io ", 2000)), "a@b"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h, tel := setup(t)
+
+			secret := drainSecret
+			if tt.path == "/v1/webhook" {
+				secret = webhookSecret
+			}
+
+			if rec := post(t, h, tt.path, secret, []byte(tt.body)); rec.Code != http.StatusOK {
+				t.Fatalf("status = %d", rec.Code)
+			}
+
+			logs := tel.Logs()
+			if len(logs) != 1 {
+				t.Fatalf("records = %d", len(logs))
+			}
+
+			got := logs[0].Body().AsString()
+			if len(got) > 16<<10 || !utf8.ValidString(got) {
+				t.Errorf("body is %d bytes or not valid UTF-8", len(got))
+			}
+
+			assertNoLeaks(t, logs, tt.part)
+		})
 	}
 }
 

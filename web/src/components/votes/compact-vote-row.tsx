@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { VoteButtons } from "@/components/vote/vote-buttons";
 import { ordinal } from "@/lib/graph";
@@ -232,19 +233,18 @@ export function CompactVoteRow({ billId, vote, removedVote, status, onRemoved, o
             </Link>
           )}
         </div>
-        {capped && (
-          <p role="alert" className="mt-2 text-sm text-destructive">
-            {VOTE_CAP_REACHED}
-          </p>
-        )}
-        {failed && (
-          <div role="alert" className="mt-2 flex flex-wrap items-center gap-3">
-            <p className="text-sm text-destructive">{failed === "remove" ? REMOVE_FAILED : VOTE_FAILED[failed]}</p>
-            <Button variant="outline" size="sm" onClick={() => (failed === "remove" ? handleRemove() : handleVote(failed))}>
-              Try again
-            </Button>
-          </div>
-        )}
+        {/* Always in the page, so a screen reader announces the message when it appears (#955). */}
+        <Alert variant="error" className="mt-2">
+          {capped && VOTE_CAP_REACHED}
+          {failed && (
+            <div className="flex flex-wrap items-center gap-3">
+              <p>{failed === "remove" ? REMOVE_FAILED : VOTE_FAILED[failed]}</p>
+              <Button variant="outline" size="sm" onClick={() => (failed === "remove" ? handleRemove() : handleVote(failed))}>
+                Try again
+              </Button>
+            </div>
+          )}
+        </Alert>
       </div>
     </li>
   );

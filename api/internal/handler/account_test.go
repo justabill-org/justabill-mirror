@@ -358,14 +358,14 @@ func TestDeleteVote(t *testing.T) {
 	p := auth.Principal{UID: "uid-1"}
 
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, signedIn(http.MethodDelete, "/bills/119-hr-1/vote", "", "t", p, "user-1"))
-	if w.Code != http.StatusNoContent || fmt.Sprint(users.deletedVotes) != "[user-1|119-hr-1]" {
-		t.Errorf("DELETE vote = %d, deleted %v; want 204 and user-1's vote on 119-hr-1", w.Code, users.deletedVotes)
+	r.ServeHTTP(w, signedIn(http.MethodDelete, "/bills/hr-119-1/vote", "", "t", p, "user-1"))
+	if w.Code != http.StatusNoContent || fmt.Sprint(users.deletedVotes) != "[user-1|hr-119-1]" {
+		t.Errorf("DELETE vote = %d, deleted %v; want 204 and user-1's vote on hr-119-1", w.Code, users.deletedVotes)
 	}
 
 	users.deleteVoteErr = errors.New("spanner down")
 	w = httptest.NewRecorder()
-	r.ServeHTTP(w, signedIn(http.MethodDelete, "/bills/119-hr-1/vote", "", "t", p, "user-1"))
+	r.ServeHTTP(w, signedIn(http.MethodDelete, "/bills/hr-119-1/vote", "", "t", p, "user-1"))
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("DELETE vote with a failing store = %d, want 500", w.Code)
 	}

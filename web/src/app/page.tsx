@@ -3,6 +3,7 @@ import { buttonClasses } from "@/components/ui/button";
 import { BillListCard } from "@/components/bill/bill-list-card";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+import { MAIN_ID } from "@/components/layout/skip-link";
 import { PartyIndicator } from "@/components/member/party-indicator";
 import { accountsEnabled } from "@/lib/accounts";
 import { listBills, listBillsWithSummaries, listCongresses } from "@/lib/api";
@@ -99,7 +100,7 @@ export default async function Home() {
       {/* The same header as every page (#661), with "Start voting" as the home page's call to action. */}
       <Navbar accounts={accounts} cta={{ href: "/vote", label: "Start voting" }} />
 
-      <main className="flex-1">
+      <main id={MAIN_ID} tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* The statement: what the site is, in one line, with the two ways in. */}
           <section className="border-b border-border py-12 sm:py-16" aria-labelledby="home-title">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { importMyVotes } from "@/lib/api";
@@ -96,11 +97,9 @@ export function ImportLocalVotes({ onDecline, importCall = importMyVotes }: Impo
             </Button>
           )}
         </div>
-        {failed && (
-          <p role="alert" className="text-sm text-destructive">
-            We couldn&apos;t add your votes. They&apos;re still on this device. Please try again.
-          </p>
-        )}
+        <Alert variant="error">
+          {failed && "We couldn't add your votes. They're still on this device. Please try again."}
+        </Alert>
       </CardContent>
     </Card>
   );

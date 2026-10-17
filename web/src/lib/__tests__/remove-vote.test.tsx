@@ -10,6 +10,7 @@ import { createAccountVoteBackend, type AccountVotesApi } from "../votes/account
 import { localVoteBackend, type VoteBackend } from "../votes/backend";
 import { useVotes, VoteBackendContext } from "../votes/hooks";
 import { VoteSection } from "@/app/(app)/bills/[id]/vote-section";
+import { filledAlerts, getAlert } from "@/test/alert";
 
 // "Remove my vote" on the bill page (#593): signed in it calls DELETE /bills/{id}/vote, signed out
 // it clears the vote from this browser and sends nothing.
@@ -130,14 +131,14 @@ describe("Remove my vote, signed in", () => {
     withBackend(backend, section);
     await act(async () => fireEvent.click(await screen.findByRole("button", { name: "Remove my vote" })));
 
-    expect(screen.getByRole("alert").textContent).toContain("Your vote couldn't be removed.");
+    expect(getAlert().textContent).toContain("Your vote couldn't be removed.");
     expect(pressed("Nay")).toBe("true");
     expect(screen.getByTestId("voted").textContent).toBe("hr-119-1,s-119-2");
 
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Try again" })));
 
     expect(api.deleteVote).toHaveBeenCalledTimes(2);
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(filledAlerts()).toEqual([]);
     expect(pressed("Nay")).toBe("false");
     expect(api.castVote).not.toHaveBeenCalled();
   });

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiError, deleteMe, exportMe } from "@/lib/api";
@@ -119,11 +120,7 @@ export function YourData({ user, api = DEFAULT_API, save = downloadJson }: YourD
           </div>
         )}
 
-        {message && (
-          <p role="alert" className="text-sm text-destructive">
-            {message}
-          </p>
-        )}
+        <Alert variant="error">{message}</Alert>
       </CardContent>
     </Card>
   );

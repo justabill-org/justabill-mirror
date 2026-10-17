@@ -1,6 +1,6 @@
 module github.com/justabill-org/justabill/pipeline
 
-go 1.27.1
+go 1.27.2
 
 require (
 	cloud.google.com/go/storage v1.68.0
@@ -80,7 +80,7 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.57.0 // indirect
-	golang.org/x/net v0.59.0 // indirect
+	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect

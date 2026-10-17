@@ -14,6 +14,7 @@ import {
   type Address,
 } from "@/components/reps/address-fields";
 import { LocationAccuracy, OrEnterYourAddress, UseMyLocation } from "@/components/reps/use-my-location";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 interface SettingsFormProps {
@@ -183,7 +184,7 @@ export function SettingsForm({ user, getIdToken, onSaved }: SettingsFormProps) {
       )}
 
       {/* Always in the page, so a screen reader announces the message when it appears. */}
-      <div role="alert">{repsError && <p className="text-sm text-destructive">{repsError}</p>}</div>
+      <Alert variant="error">{repsError}</Alert>
 
       {/* Representatives for the address or location just looked up */}
       {reps && (

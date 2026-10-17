@@ -3,6 +3,7 @@ package uscode_test
 import (
 	"archive/zip"
 	"bytes"
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -19,7 +20,6 @@ import (
 
 	"github.com/justabill-org/justabill/db/model"
 	"github.com/justabill-org/justabill/db/repository"
-	"github.com/justabill-org/justabill/obs"
 	"github.com/justabill-org/justabill/pipeline/internal/uscode"
 )
 
@@ -82,14 +82,34 @@ func (s *fakeStore) RecordUSCReleasePoint(_ context.Context, rp repository.USCRe
 
 // olrc serves a download page and the zip it links, and counts zip downloads.
 type olrc struct {
-	mu         sync.Mutex
-	rp         string
-	files      map[string]string
-	zipGets    int
+	mu      sync.Mutex
+	rp      string
+	files   map[string]string
+	zipGets int
+	// pagePath is where the download page is; legacyPagePath when empty.
+	pagePath   string
 	pageStatus int
-	// maintenance serves the site's maintenance page, with status 200, in place of the page.
+	// page replaces the download page's body.
+	page []byte
+	// maintenance serves the site's maintenance page, with status 200, in place of every page.
 	maintenance []byte
+	zipStatus   int
+	// zipPage is served as text/html, with status 200, in place of the zip.
+	zipPage []byte
+	// badZip serves bytes that aren't a zip; cutZip drops the connection partway through it.
+	badZip, cutZip bool
+	// notFound is served, with status 200, for any other path, as the site's "Page Not Found"
+	// page; a 404 when nil.
+	notFound []byte
+	// url and client reach the server.
+	url    string
+	client *http.Client
 }
+
+const (
+	pagePath       = "/download.html"
+	legacyPagePath = "/download/download.shtml"
+)
 
 func (o *olrc) set(rp string, files map[string]string) {
 	o.mu.Lock()
@@ -102,32 +122,65 @@ func (o *olrc) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer o.mu.Unlock()
 	congress, law, _ := strings.Cut(o.rp, "-")
 	zipPath := fmt.Sprintf("/download/releasepoints/us/pl/%s/%s/xml_uscAll@%s.zip", congress, law, o.rp)
-	switch r.URL.Path {
-	case "/download/download.shtml":
-		if o.pageStatus != 0 {
-			w.WriteHeader(o.pageStatus)
-			return
-		}
-		if o.maintenance != nil {
-			_, _ = w.Write(o.maintenance)
-			return
-		}
-		_, _ = fmt.Fprintf(w, `<h3 class="releasepointinformation">Public Law %s (09/18/2026)</h3>`+
-			`<a href="releasepoints/us/pl/%s/%s/xml_uscAll@%s.zip" title="All USC Titles in XML">[XML]</a>`,
-			o.rp, congress, law, o.rp)
-	case zipPath:
-		o.zipGets++
-		var buf bytes.Buffer
-		zw := zip.NewWriter(&buf)
-		for name, body := range o.files {
-			f, _ := zw.Create(name)
-			_, _ = f.Write([]byte(body))
-		}
-		_ = zw.Close()
-		_, _ = w.Write(buf.Bytes())
+	switch {
+	case o.maintenance != nil && !strings.HasSuffix(r.URL.Path, ".zip"):
+		_, _ = w.Write(o.maintenance)
+	case r.URL.Path == cmp.Or(o.pagePath, legacyPagePath):
+		o.servePage(w, congress, law)
+	case r.URL.Path == zipPath:
+		o.serveZip(w)
+	case o.notFound != nil:
+		_, _ = w.Write(o.notFound)
 	default:
 		http.NotFound(w, r)
 	}
+}
+
+func (o *olrc) servePage(w http.ResponseWriter, congress, law string) {
+	switch {
+	case o.pageStatus != 0:
+		w.WriteHeader(o.pageStatus)
+	case o.page != nil:
+		_, _ = w.Write(o.page)
+	default:
+		// The page's links are relative to it, as on the site: the legacy page's to /download/.
+		prefix := "download/releasepoints"
+		if cmp.Or(o.pagePath, legacyPagePath) == legacyPagePath {
+			prefix = "releasepoints"
+		}
+		_, _ = fmt.Fprintf(w, `<h3 class="releasepointinformation">Public Law %s (09/18/2026)</h3>`+
+			`<a href="%s/us/pl/%s/%s/xml_uscAll@%s.zip" title="All USC Titles in XML">[XML]</a>`,
+			o.rp, prefix, congress, law, o.rp)
+	}
+}
+
+func (o *olrc) serveZip(w http.ResponseWriter) {
+	o.zipGets++
+	switch {
+	case o.zipStatus != 0:
+		w.WriteHeader(o.zipStatus)
+		return
+	case o.zipPage != nil:
+		w.Header().Set("Content-Type", "text/html")
+		_, _ = w.Write(o.zipPage)
+		return
+	case o.cutZip:
+		hijackAndCut(w)
+		return
+	case o.badZip:
+		w.Header().Set("Content-Type", "application/x-zip-compressed")
+		_, _ = w.Write([]byte("not a zip"))
+		return
+	}
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	for name, body := range o.files {
+		f, _ := zw.Create(name)
+		_, _ = f.Write([]byte(body))
+	}
+	_ = zw.Close()
+	w.Header().Set("Content-Type", "application/x-zip-compressed")
+	_, _ = w.Write(buf.Bytes())
 }
 
 func (o *olrc) setMaintenance(page []byte) {
@@ -167,8 +220,9 @@ func newTestLoader(t *testing.T, store *fakeStore, opts ...uscode.Option) (*usco
 	o := &olrc{}
 	srv := httptest.NewServer(o)
 	t.Cleanup(srv.Close)
+	o.url, o.client = srv.URL, srv.Client()
 	opts = append([]uscode.Option{
-		uscode.WithPageURL(srv.URL + "/download/download.shtml"),
+		uscode.WithPageURL(srv.URL+pagePath, srv.URL+legacyPagePath),
 		uscode.WithHTTPClient(srv.Client()),
 	}, opts...)
 	return uscode.NewLoader(store, slog.New(slog.DiscardHandler), opts...), o
@@ -290,7 +344,7 @@ func TestLoaderErrors(t *testing.T) {
 	}{
 		{
 			name:  "page status",
-			setup: func(o *olrc, _ *fakeStore) { o.pageStatus = http.StatusServiceUnavailable },
+			setup: func(o *olrc, _ *fakeStore) { o.pageStatus = http.StatusNotFound },
 			want:  uscode.ErrHTTPStatus,
 		},
 		{
@@ -348,7 +402,7 @@ func TestLoaderMissingZip(t *testing.T) {
 	}))
 	t.Cleanup(srv.Close)
 	l := uscode.NewLoader(store, slog.New(slog.DiscardHandler),
-		uscode.WithPageURL(srv.URL+"/download/download.shtml"), uscode.WithHTTPClient(srv.Client()))
+		uscode.WithPageURL(srv.URL+legacyPagePath), uscode.WithHTTPClient(srv.Client()))
 	if _, err := l.Load(t.Context(), false); !errors.Is(err, uscode.ErrHTTPStatus) {
 		t.Fatalf("err = %v, want ErrHTTPStatus", err)
 	}
@@ -363,122 +417,5 @@ func TestLoaderCanceled(t *testing.T) {
 	cancel()
 	if _, err := l.Load(ctx, false); !errors.Is(err, context.Canceled) {
 		t.Fatalf("err = %v, want context.Canceled", err)
-	}
-}
-
-// runWant is what a [uscode.Loader.Run] should return.
-type runWant int
-
-const (
-	runOK runWant = iota
-	runUnavailable
-	runFailed
-)
-
-// checkRun checks Run's error at a step of an outage that started at 2026-10-03T16:43:00Z.
-func checkRun(t *testing.T, at time.Duration, err error, want runWant) {
-	t.Helper()
-	switch want {
-	case runOK:
-		if err != nil {
-			t.Fatalf("at +%v: Run = %v, want nil", at, err)
-		}
-	case runUnavailable:
-		if !errors.Is(err, obs.ErrUnavailable) || !errors.Is(err, uscode.ErrSiteUnavailable) {
-			t.Fatalf("at +%v: Run = %v, want ErrSiteUnavailable wrapped in obs.ErrUnavailable", at, err)
-		}
-	case runFailed:
-		if errors.Is(err, obs.ErrUnavailable) || !errors.Is(err, uscode.ErrSiteUnavailable) {
-			t.Fatalf("at +%v: Run = %v, want ErrSiteUnavailable alone", at, err)
-		}
-		if !strings.Contains(err.Error(), "since 2026-10-03T16:43:00Z") {
-			t.Errorf("at +%v: Run = %q, want the outage's start", at, err)
-		}
-	}
-}
-
-// TestLoaderRunOutage drives serve's load-uscode job through a maintenance outage: unavailable
-// for the grace period from the first run that found the site down, then a failure, until a run
-// gets through.
-func TestLoaderRunOutage(t *testing.T) {
-	t.Parallel()
-	maintenance, err := os.ReadFile("testdata/maintenance.html")
-	if err != nil {
-		t.Fatal(err)
-	}
-	start := time.Date(2026, 10, 3, 16, 43, 0, 0, time.UTC)
-	now := start // Run reads the clock on the test's goroutine.
-	store := newFakeStore()
-	l, o := newTestLoader(t, store, uscode.WithClock(func() time.Time { return now }))
-	o.set("119-111", releaseFiles(t, "x"))
-
-	steps := []struct {
-		at   time.Duration
-		down bool
-		want runWant
-	}{
-		{at: 0, down: true, want: runUnavailable},
-		{at: time.Hour, down: true, want: runUnavailable},
-		{at: 23*time.Hour + 59*time.Minute, down: true, want: runUnavailable},
-		{at: 24 * time.Hour, down: true, want: runFailed},
-		{at: 25 * time.Hour, down: true, want: runFailed},
-		{at: 26 * time.Hour, down: false, want: runOK},
-		// A new outage gets a new grace period.
-		{at: 50 * time.Hour, down: true, want: runUnavailable},
-		{at: 73 * time.Hour, down: true, want: runUnavailable},
-	}
-	for _, step := range steps {
-		now = start.Add(step.at)
-		page := maintenance
-		if !step.down {
-			page = nil
-		}
-		o.setMaintenance(page)
-		checkRun(t, step.at, l.Run(t.Context()), step.want)
-	}
-	if len(store.points) != 1 || store.points[0].ReleasePoint != "119-111" {
-		t.Fatalf("release points = %+v, want 119-111 loaded once, when the site was up", store.points)
-	}
-	if got := store.points[0].LoadedAt; !got.Equal(start.Add(26 * time.Hour)) {
-		t.Errorf("LoadedAt = %v, want the clock's time", got)
-	}
-}
-
-// TestLoaderRunOtherErrorsFail checks that only a maintenance page counts as unavailable: a
-// failed page request fails at once, and ends an outage.
-func TestLoaderRunOtherErrorsFail(t *testing.T) {
-	t.Parallel()
-	maintenance, err := os.ReadFile("testdata/maintenance.html")
-	if err != nil {
-		t.Fatal(err)
-	}
-	start := time.Date(2026, 10, 3, 16, 43, 0, 0, time.UTC)
-	now := start // Run reads the clock on the test's goroutine.
-	l, o := newTestLoader(t, newFakeStore(), uscode.WithOutageGrace(time.Hour),
-		uscode.WithClock(func() time.Time { return now }))
-	o.set("119-111", releaseFiles(t, "x"))
-
-	o.setMaintenance(maintenance)
-	if err = l.Run(t.Context()); !errors.Is(err, obs.ErrUnavailable) {
-		t.Fatalf("Run = %v, want unavailable", err)
-	}
-	o.setMaintenance(nil)
-	o.mu.Lock()
-	o.pageStatus = http.StatusBadGateway
-	o.mu.Unlock()
-	now = start.Add(30 * time.Minute)
-	err = l.Run(t.Context())
-	if errors.Is(err, obs.ErrUnavailable) || !errors.Is(err, uscode.ErrHTTPStatus) {
-		t.Fatalf("Run = %v, want ErrHTTPStatus alone", err)
-	}
-
-	// Two hours after the first maintenance page, past the grace, but in a new outage.
-	o.mu.Lock()
-	o.pageStatus = 0
-	o.mu.Unlock()
-	o.setMaintenance(maintenance)
-	now = start.Add(2 * time.Hour)
-	if err = l.Run(t.Context()); !errors.Is(err, obs.ErrUnavailable) {
-		t.Fatalf("Run = %v, want unavailable: the failed request ended the earlier outage", err)
 	}
 }

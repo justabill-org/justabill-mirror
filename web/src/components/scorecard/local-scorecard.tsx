@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { VotesUnavailable } from "@/components/votes/votes-unavailable";
 import { CongressSwitch, useCongressSelection } from "@/components/congress/congress-switch";
 import { RepCard } from "@/components/scorecard/rep-card";
 import { FindRepsForm } from "@/components/scorecard/find-reps-form";
@@ -29,7 +31,7 @@ import { getMemberAlignment } from "@/lib/api";
 import { pickAlignment } from "@/lib/aggregates";
 import type { RepAlignment } from "@/lib/types";
 import type { VoteStorage } from "@/lib/votes/backend";
-import { localReps, useLocalReps, useVoteBackend, useVotes } from "@/lib/votes/hooks";
+import { localReps, useLocalReps, useVotes } from "@/lib/votes/hooks";
 
 /** The positions for one set of members × congresses, keyed so a stale load is never shown. */
 type Loaded = { key: string; positions: PositionsByMember } | { key: string; error: true };
@@ -183,10 +185,17 @@ export function ScorecardView({
   control,
   onRetry,
 }: ScorecardViewProps) {
+  // First and keyed in every state, so it's the same live region when the votes fail to load (#955).
+  const unavailable = <VotesUnavailable key="unavailable" storage={storage} />;
   if (storage === "server") {
-    return <Skeleton className="h-64 w-full rounded-xl" role="status" aria-label="Loading your scorecard" />;
+    return (
+      <>
+        {unavailable}
+        <Skeleton className="h-64 w-full rounded-xl" role="status" aria-label="Loading your scorecard" />
+      </>
+    );
   }
-  if (storage === "unavailable") return <VotesUnavailable />;
+  if (storage === "unavailable") return <>{unavailable}</>;
   const voteCount = Object.values(votes).filter((v) => v.vote !== "skip").length;
 
   const scoreFor = (id: string): MemberScore | "loading" | undefined => {
@@ -196,51 +205,55 @@ export function ScorecardView({
   };
 
   return (
-    <div className="space-y-8">
-      {!reps && <FindMyReps />}
+    <>
+      {unavailable}
+      <div className="space-y-8">
+        {!reps && <FindMyReps />}
 
-      {reps && (
-        <section aria-labelledby="your-reps" className="space-y-4">
-          <YourReps reps={reps} />
-          {control}
-          {voteCount === 0 && <VoteFirst />}
-          {voteCount > 0 && scores.status === "none" && selected.length > 0 && <NoVotesInCongress selected={selected} />}
-          {scores.status === "error" && (
-            <div className="rounded-lg border border-border p-4 text-center">
-              <p role="alert" className="text-destructive">
-                We couldn&apos;t load your representatives&apos; votes. Please try again.
-              </p>
-              {onRetry && (
-                <Button variant="outline" className="mt-3" onClick={onRetry}>
-                  Try again
-                </Button>
+        {reps && (
+          <section aria-labelledby="your-reps" className="space-y-4">
+            <YourReps reps={reps} />
+            {control}
+            {voteCount === 0 && <VoteFirst />}
+            {voteCount > 0 && scores.status === "none" && selected.length > 0 && <NoVotesInCongress selected={selected} />}
+            {/* In the section from the start, so a screen reader announces the failure (#955). */}
+            <Alert variant="error">
+              {scores.status === "error" && (
+                <>
+                  <p>We couldn&apos;t load your representatives&apos; votes. Please try again.</p>
+                  {onRetry && (
+                    <Button variant="outline" size="sm" className="mt-2" onClick={onRetry}>
+                      Try again
+                    </Button>
+                  )}
+                </>
               )}
-            </div>
-          )}
-          <ul className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {reps.members.map((rep) => (
-              <li key={rep.id}>
-                <RepCard
-                  rep={rep}
-                  score={scoreFor(rep.id)}
-                  alignment={pickAlignment(alignments[rep.id] ?? [], rep, selected)}
-                  profile={profiles[rep.id]}
-                />
-              </li>
-            ))}
-          </ul>
-          <p className="text-sm text-muted-foreground">
-            Only each chamber&apos;s final vote on a bill counts, and Present or Not Voting counts neither way. The
-            rule is the same for every member.{" "}
-            <Link href="/methodology#scorecard" className="underline underline-offset-2 hover:text-foreground">
-              How the scorecard works
-            </Link>
-          </p>
-        </section>
-      )}
+            </Alert>
+            <ul className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {reps.members.map((rep) => (
+                <li key={rep.id}>
+                  <RepCard
+                    rep={rep}
+                    score={scoreFor(rep.id)}
+                    alignment={pickAlignment(alignments[rep.id] ?? [], rep, selected)}
+                    profile={profiles[rep.id]}
+                  />
+                </li>
+              ))}
+            </ul>
+            <p className="text-sm text-muted-foreground">
+              Only each chamber&apos;s final vote on a bill counts, and Present or Not Voting counts neither way. The
+              rule is the same for every member.{" "}
+              <Link href="/methodology#scorecard" className="underline underline-offset-2 hover:text-foreground">
+                How the scorecard works
+              </Link>
+            </p>
+          </section>
+        )}
 
-      <MyVotesLine storage={storage} voteCount={voteCount} />
-    </div>
+        <MyVotesLine storage={storage} voteCount={voteCount} />
+      </div>
+    </>
   );
 }
 
@@ -357,24 +370,6 @@ function NoVotesInCongress({ selected }: { selected: readonly number[] }) {
             Compare all your votes
           </Link>
         </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function VotesUnavailable() {
-  const backend = useVoteBackend();
-  return (
-    <Card>
-      <CardContent className="py-8 text-center">
-        <p role="alert" className="text-destructive">
-          We couldn&apos;t load your votes from your account.
-        </p>
-        {backend.refresh && (
-          <Button variant="outline" className="mt-4" onClick={backend.refresh}>
-            Try again
-          </Button>
-        )}
       </CardContent>
     </Card>
   );

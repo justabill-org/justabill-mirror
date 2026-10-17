@@ -44,17 +44,26 @@ func RoutePattern(r *http.Request) string {
 	return ""
 }
 
-// statusWriter records the status for the log line. Unwrap lets [http.ResponseController] reach the
-// underlying writer's Flush and deadlines.
+// statusWriter records the status for the log line: the first one written, which is the one the
+// client got (a later WriteHeader, such as chi Timeout's 504 after a late 200, sends nothing).
+// Unwrap lets [http.ResponseController] reach the underlying writer's Flush and deadlines.
 type statusWriter struct {
 	http.ResponseWriter
 
 	status int
+	wrote  bool
 }
 
 func (w *statusWriter) WriteHeader(code int) {
-	w.status = code
+	if !w.wrote {
+		w.status, w.wrote = code, true
+	}
 	w.ResponseWriter.WriteHeader(code)
+}
+
+func (w *statusWriter) Write(b []byte) (int, error) {
+	w.wrote = true
+	return w.ResponseWriter.Write(b)
 }
 
 func (w *statusWriter) Unwrap() http.ResponseWriter {

@@ -37,6 +37,10 @@ func normalizeVote(v string) (string, bool) {
 func (h *Handler) CastVote(w http.ResponseWriter, r *http.Request) {
 	userID := mw.UserIDFromContext(r.Context())
 	billID := chi.URLParam(r, "id")
+	if !validBillID(billID) {
+		writeError(w, http.StatusBadRequest, msgInvalidBillID)
+		return
+	}
 
 	var body struct {
 		Vote string `json:"vote"`
@@ -80,10 +84,15 @@ func (h *Handler) CastVote(w http.ResponseWriter, r *http.Request) {
 
 // DeleteVote removes the user's vote on a bill (the privacy policy's "remove
 // a vote"). It answers 204, also when there was no vote to remove, so
-// repeating it is safe.
+// repeating it is safe; a malformed bill ID is a 400.
 func (h *Handler) DeleteVote(w http.ResponseWriter, r *http.Request) {
 	userID := mw.UserIDFromContext(r.Context())
-	if err := h.Users.DeleteVote(r.Context(), userID, chi.URLParam(r, "id")); err != nil {
+	billID := chi.URLParam(r, "id")
+	if !validBillID(billID) {
+		writeError(w, http.StatusBadRequest, msgInvalidBillID)
+		return
+	}
+	if err := h.Users.DeleteVote(r.Context(), userID, billID); err != nil {
 		h.serverError(w, r, "failed to delete vote", err)
 		return
 	}
@@ -130,6 +139,10 @@ func (h *Handler) GetMyFavorites(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 	userID := mw.UserIDFromContext(r.Context())
 	billID := chi.URLParam(r, "billID")
+	if !validBillID(billID) {
+		writeError(w, http.StatusBadRequest, msgInvalidBillID)
+		return
+	}
 
 	if err := h.Users.AddFavorite(r.Context(), userID, billID); err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
@@ -197,6 +210,10 @@ func (h *Handler) GetScorecard(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CompareMember(w http.ResponseWriter, r *http.Request) {
 	userID := mw.UserIDFromContext(r.Context())
 	memberID := chi.URLParam(r, "memberID")
+	if !validBioguideID(memberID) {
+		writeError(w, http.StatusBadRequest, msgInvalidMemberID)
+		return
+	}
 	congresses, ok := h.congressFilter(w, r)
 	if !ok {
 		return

@@ -80,6 +80,8 @@ export const REVALIDATE = {
   member: 3600,
   /** A bill whose detail came back with a section missing (`getBill`): try again soon. */
   partialBill: 60,
+  /** A member whose recent votes failed to load (`getMember`): try again soon. */
+  partialMember: 60,
 } as const;
 
 /**
@@ -342,10 +344,10 @@ export function isPartialBillDetail(detail: BillDetailResponse): boolean {
 }
 
 /**
- * Sent on the second read of a partial bill detail, only so the fetch cache files it apart from
- * the first (the cache key includes the headers). The API ignores it.
+ * Sent on the second read of a partial bill detail or member, only so the fetch cache files it
+ * apart from the first (the cache key includes the headers). The API ignores it.
  */
-export const PARTIAL_BILL_RETRY_HEADER = "X-Partial-Retry";
+export const PARTIAL_RETRY_HEADER = "X-Partial-Retry";
 
 /**
  * GET /bills/{id}, cached for REVALIDATE.bill. A partial response (#454) is a 200, so the fetch
@@ -362,7 +364,7 @@ export async function getBill(id: string): Promise<BillDetailResponse> {
   if (!isPartialBillDetail(detail)) return detail;
   return request<BillDetailResponse>(path, {
     next: { revalidate: REVALIDATE.partialBill, tags },
-    headers: { [PARTIAL_BILL_RETRY_HEADER]: "1" },
+    headers: { [PARTIAL_RETRY_HEADER]: "1" },
   });
 }
 
@@ -497,10 +499,24 @@ export async function listMembers(
   });
 }
 
+/** Whether a member's recent votes failed to load: the API still answers 200, with them null (#929). */
+export function isPartialMember(member: MemberDetail): boolean {
+  return member.recent_votes === null;
+}
+
+/**
+ * GET /members/{id}, cached for REVALIDATE.member. A response whose recent votes failed is read
+ * again for REVALIDATE.partialMember under its own cache key, as `getBill` does for a partial
+ * bill, so the page doesn't say they couldn't be loaded for an hour.
+ */
 export async function getMember(id: string): Promise<MemberDetail> {
-  return cachedGet<MemberDetail>(`/members/${id}`, {
-    revalidate: REVALIDATE.member,
-    tags: [CACHE_TAGS.members, CACHE_TAGS.member(id)],
+  const path = `/members/${id}`;
+  const tags = [CACHE_TAGS.members, CACHE_TAGS.member(id)];
+  const member = await cachedGet<MemberDetail>(path, { revalidate: REVALIDATE.member, tags });
+  if (!isPartialMember(member)) return member;
+  return request<MemberDetail>(path, {
+    next: { revalidate: REVALIDATE.partialMember, tags },
+    headers: { [PARTIAL_RETRY_HEADER]: "1" },
   });
 }
 

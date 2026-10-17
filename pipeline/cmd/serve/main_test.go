@@ -86,8 +86,8 @@ func TestWithCRARules(t *testing.T) {
 	}
 }
 
-// The load-uscode job runs the loader's scheduled run: a failed download page is a failure, and a
-// maintenance page is the site being unavailable.
+// The load-uscode job runs the loader's scheduled run: a download page that's gone is a failure,
+// and a maintenance page is the site being unavailable.
 func TestLoadUSCodeJobRunsTheLoader(t *testing.T) {
 	cases := []struct {
 		name            string
@@ -96,8 +96,8 @@ func TestLoadUSCodeJobRunsTheLoader(t *testing.T) {
 		wantUnavailable bool
 	}{
 		{
-			name:    "page fails",
-			handler: func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusServiceUnavailable) },
+			name:    "page gone",
+			handler: func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNotFound) },
 			want:    uscode.ErrHTTPStatus,
 		},
 		{

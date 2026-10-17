@@ -98,6 +98,9 @@ const NEXT_BASE = "https://next.invalid";
  * The path to return to after sign-in: only same-site paths, so ?next= can't redirect elsewhere.
  * It resolves next the way the router will, since URL parsing drops tab, CR and LF and reads "\" as
  * "/" ("/\t/evil.example" becomes "//evil.example"), and returns the parsed path, query and hash.
+ * Parsing removes dot segments after it settles the origin, so "/.//evil.example" keeps our origin
+ * but its path is "//evil.example", which the router reads as another host: the path must start
+ * with a single "/" (#928).
  */
 export function safeNext(next: string | null | undefined, fallback = "/vote"): string {
   if (!next?.startsWith("/")) return fallback;
@@ -108,5 +111,6 @@ export function safeNext(next: string | null | undefined, fallback = "/vote"): s
     return fallback;
   }
   if (url.origin !== NEXT_BASE) return fallback;
-  return url.pathname + url.search + url.hash;
+  const path = url.pathname + url.search + url.hash;
+  return /^\/(?![/\\])/.test(path) ? path : fallback;
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ImportLocalVotes } from "@/components/account/import-local-votes";
+import { Alert } from "@/components/ui/alert";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -37,10 +38,24 @@ export function Onboarding() {
   const next = safeNext(useSearchParams().get("next"));
   const { status, account, getIdToken, setAccount, retry } = useUser();
   const [importClosed, setImportClosed] = useState(false);
+  // First and keyed while the account loads and if it fails, so it's the same live region (#955).
+  const accountError = (
+    <Alert key="account-error" variant="error" className="mx-auto w-fit">
+      {status === "error" && (
+        <>
+          <p>You&apos;re signed in, but we couldn&apos;t load your account.</p>
+          <Button variant="outline" size="sm" className="mt-2" onClick={retry}>
+            Try again
+          </Button>
+        </>
+      )}
+    </Alert>
+  );
 
   if (status === "loading") {
     return (
       <OnboardingFrame>
+        {accountError}
         <div aria-busy="true" aria-label="Loading your account" className="space-y-4">
           <Skeleton className="h-40 w-full" />
         </div>
@@ -48,22 +63,7 @@ export function Onboarding() {
     );
   }
 
-  if (status === "error") {
-    return (
-      <OnboardingFrame>
-        <Card>
-          <CardContent className="py-8 text-center">
-            <p role="alert" className="text-muted-foreground">
-              You&apos;re signed in, but we couldn&apos;t load your account.
-            </p>
-            <Button variant="outline" className="mt-4" onClick={retry}>
-              Try again
-            </Button>
-          </CardContent>
-        </Card>
-      </OnboardingFrame>
-    );
-  }
+  if (status === "error") return <OnboardingFrame>{accountError}</OnboardingFrame>;
 
   if (status !== "signed-in" || !account) {
     return (

@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.12.0 (2026-10-14)
+
+
+### Features
+
+* **web:** add a skip link and an Alert primitive, after USWDS's guidance (#958) (31b5df5)
+
+
+### Bug Fixes
+
+* **api:** answer 400 for malformed bill, member, version and diff IDs and list filters (#942) (cf32988)
+* **api:** answer 504 before the write deadline when a request runs out of time (#938) (5133c3b)
+* **api:** key list caches on the params each route reads, and canonical sort and status_mode (#954) (21bb7f3)
+* **api:** tell a failed recent-votes read from none on the member page (#939) (ab53c12)
+* **deps:** build on Go 1.27.2 and golang.org/x/net v0.60.0 (#925) (ddfd962)
+* **docs:** give the runbook's load Job template infra's ARGS, so break glass can re-derive (#901) (22d587e)
+* **obs:** mask IPv6 after a label and mapped IPv4, redact drain lines before the cut (#944) (194885e)
+* **pipeline:** load the US Code from its moved download page, and report outages as unavailable (#949) (aa0ddae)
+* **web:** poll the emulator's helper iframe from the test runner, not with requestAnimationFrame (#950) (9afd972)
+* **web:** stop safeNext returning a //host path after dot segments (#937) (880962d)
+* **web:** upgrade next to 16.4.0 and clear npm audit's high advisories (#923) (e1cb0af)
+
+
+### Performance Improvements
+
+* **api:** evict from vercel-drain's failure set without copying the slice (#953) (7a32501)
+
 ## 0.11.0 (2026-10-04)
 
 

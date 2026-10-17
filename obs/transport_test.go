@@ -125,6 +125,13 @@ func TestHTTPTransportFailures(t *testing.T) {
 			wantErrorType: "context.deadlineExceededError",
 			wantPort:      443,
 		},
+		{
+			name:          "bare transport error",
+			url:           "https://example.test/x",
+			err:           context.DeadlineExceeded,
+			wantErrorType: "context.deadlineExceededError",
+			wantPort:      443,
+		},
 	}
 
 	for _, tt := range tests {

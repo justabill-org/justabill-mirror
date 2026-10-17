@@ -104,6 +104,11 @@ const (
 	distTX        = 7
 	prevTitle     = "Earlier Act"
 
+	// lawVersionCode is LawBill's text version code, and billPrompt the
+	// summary prompt version its summary was written with.
+	lawVersionCode = "enr"
+	billPrompt     = "bill-v3"
+
 	statusIntroduced = "introduced"
 	statusBecameLaw  = "became_law"
 	// Ranks of the statuses in bill_status_history, as the pipeline writes them.
@@ -334,14 +339,14 @@ func lawRows(introduced civil.Date) lawFixture {
 			statusRow{LawBill, statusBecameLaw, enacted, rankBecameLaw},
 		},
 		version: textVersionRow{
-			LawBill, LawTextVersion, "Enrolled Bill", "enr", enacted, jsonCol(lawFormats), 1,
+			LawBill, LawTextVersion, "Enrolled Bill", lawVersionCode, enacted, jsonCol(lawFormats), 1,
 		},
 		text: textRow{
 			LawText, LawTextVersion, "Formatted XML", lawXML, contentHash, jsonCol(lawSections), fetched,
 		},
 		summary: summaryRow{
 			LawBill, lawShortSummary, lawLongSummary, lawWhoItAffects, "gemini-2.5-flash", fetched,
-			LawTextVersion, "enr", contentHash, "bill-v3",
+			LawTextVersion, lawVersionCode, contentHash, billPrompt,
 		},
 	}
 }

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+import { MAIN_ID } from "@/components/layout/skip-link";
 import { accountsEnabled } from "@/lib/accounts";
 
 export default function AuthLayout({
@@ -17,7 +18,7 @@ export default function AuthLayout({
       <Navbar accounts />
 
       {/* Content */}
-      <main className="flex flex-1 items-center justify-center px-4 py-12">
+      <main id={MAIN_ID} tabIndex={-1} className="flex flex-1 items-center justify-center px-4 py-12">
         {children}
       </main>
       <Footer />

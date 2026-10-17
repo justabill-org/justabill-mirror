@@ -57,7 +57,8 @@ func newCommand(logger *slog.Logger) *cobra.Command {
 	rootCmd.Flags().String("spanner-database", "", "Spanner database name")
 	rootCmd.Flags().Bool("force", false,
 		"Download and parse the release point even if it's loaded already (still writes only changed sections)")
-	rootCmd.Flags().String("page-url", uscode.DefaultPageURL, "Download page that links the current release point")
+	rootCmd.Flags().StringSlice("page-url", []string{uscode.DefaultPageURL, uscode.LegacyPageURL},
+		"Download pages that may link the current release point, tried in order")
 
 	_ = viper.BindPFlag("spanner_project", rootCmd.Flags().Lookup("spanner-project"))
 	_ = viper.BindPFlag("spanner_instance", rootCmd.Flags().Lookup("spanner-instance"))
@@ -70,7 +71,7 @@ func runLoad(cmd *cobra.Command, logger *slog.Logger) error {
 	if err != nil {
 		return err
 	}
-	pageURL, err := cmd.Flags().GetString("page-url")
+	pageURLs, err := cmd.Flags().GetStringSlice("page-url")
 	if err != nil {
 		return err
 	}
@@ -86,7 +87,7 @@ func runLoad(cmd *cobra.Command, logger *slog.Logger) error {
 
 	sigCtx, stop := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-	loader := uscode.NewLoader(spannerdb.NewPipelineStore(sc), logger, uscode.WithPageURL(pageURL))
+	loader := uscode.NewLoader(spannerdb.NewPipelineStore(sc), logger, uscode.WithPageURL(pageURLs...))
 	_, err = loader.Load(sigCtx, force)
 	return err
 }

@@ -8,6 +8,7 @@
 // bill's own share sheet (#810).
 
 import { useEffect, useState, type ReactNode } from "react";
+import { Alert } from "@/components/ui/alert";
 import { buttonClasses } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -131,33 +132,31 @@ export function ShareDialog({
   );
 }
 
+const CARD_PROBLEMS = {
+  missing: "This card isn't available. The bill or member may not be in our records yet.",
+  error: "The card image didn't load. You can still share the link.",
+};
+
 function CardPreview({ image, alt, waiting }: { image: CardImage | null; alt: string; waiting: boolean }) {
-  if (waiting || image === null) {
-    return <Skeleton className="aspect-[1200/630] w-full rounded-lg" role="status" aria-label="Making your card" />;
-  }
-  if (image.status === "missing") {
-    return (
-      <p role="alert" className="text-sm text-destructive">
-        This card isn&apos;t available. The bill or member may not be in our records yet.
-      </p>
-    );
-  }
-  if (image.status === "error") {
-    return (
-      <p role="alert" className="text-sm text-destructive">
-        The card image didn&apos;t load. You can still share the link.
-      </p>
-    );
-  }
+  const ready = waiting ? null : image;
   return (
-    // A blob: URL of the image already fetched, so next/image has nothing to optimize.
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={image.src}
-      alt={alt}
-      width={SHARE_IMAGE_WIDTH}
-      height={SHARE_IMAGE_HEIGHT}
-      className="h-auto w-full rounded-lg border border-border"
-    />
+    <>
+      {/* In the sheet while the card is made, so a screen reader announces a problem (#955). */}
+      <Alert variant="error">{ready && ready.status !== "ready" && CARD_PROBLEMS[ready.status]}</Alert>
+      {ready === null && (
+        <Skeleton className="aspect-[1200/630] w-full rounded-lg" role="status" aria-label="Making your card" />
+      )}
+      {ready?.status === "ready" && (
+        // A blob: URL of the image already fetched, so next/image has nothing to optimize.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={ready.src}
+          alt={alt}
+          width={SHARE_IMAGE_WIDTH}
+          height={SHARE_IMAGE_HEIGHT}
+          className="h-auto w-full rounded-lg border border-border"
+        />
+      )}
+    </>
   );
 }

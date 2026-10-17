@@ -56,7 +56,8 @@ export interface MemberVoteSummary {
 
 export interface MemberDetail extends Member {
   terms: MemberTerm[];
-  recent_votes: MemberVoteSummary[];
+  /** `[]` when the member has none; null when the API's read failed (#929, `isPartialMember`). */
+  recent_votes: MemberVoteSummary[] | null;
 }
 
 // --- Bills ---

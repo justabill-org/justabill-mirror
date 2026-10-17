@@ -31,6 +31,7 @@ import {
 } from "@/lib/vote-card";
 import { SummaryProvenance } from "@/components/bill/summary-provenance";
 import { PartyIndicator } from "@/components/member/party-indicator";
+import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -151,7 +152,7 @@ export function VoteDetails({ bill, summary, card, open, onOpenChange, onVote }:
             <SheetTitle className="text-left text-lg leading-snug">{bill.title}</SheetTitle>
             <WhatItDoes bill={bill} summary={summary} card={card} more={more} />
             {more.status === "loading" && <MoreLoading />}
-            {more.status === "error" && <MoreFailed onRetry={retry} />}
+            <MoreFailed failed={more.status === "error"} onRetry={retry} />
             {more.status === "loaded" && <LawChanges card={card} changes={more.changes} />}
             <HowCongressVoted card={card} />
             {more.status === "loaded" && <WhoBackedIt detail={more.detail} />}
@@ -302,14 +303,19 @@ function MoreLoading() {
   );
 }
 
-function MoreFailed({ onRetry }: { onRetry: () => void }) {
+/** In the sheet while it loads too, empty, so a screen reader announces the failure (#955). */
+function MoreFailed({ failed, onRetry }: { failed: boolean; onRetry: () => void }) {
   return (
-    <div role="alert" className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-      <p>The rest of this bill&apos;s record couldn&apos;t be loaded right now.</p>
-      <Button variant="outline" size="sm" onClick={onRetry}>
-        Try again
-      </Button>
-    </div>
+    <Alert variant="error">
+      {failed && (
+        <div className="flex flex-wrap items-center gap-3">
+          <p>The rest of this bill&apos;s record couldn&apos;t be loaded right now.</p>
+          <Button variant="outline" size="sm" onClick={onRetry}>
+            Try again
+          </Button>
+        </div>
+      )}
+    </Alert>
   );
 }
 

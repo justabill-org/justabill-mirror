@@ -160,6 +160,12 @@ const (
 
 const policyAreaErr = "policy_area must be a policy area name, as GET /policy-areas lists them"
 
+const (
+	billTypeErr = "type must be a bill type: hr, s, hjres, sjres, hconres, sconres, hres, sres"
+	chamberErr  = "chamber must be house or senate"
+	stateErr    = "state must be a two-letter postal code"
+)
+
 func TestListParams(t *testing.T) {
 	tests := []struct {
 		query      string
@@ -201,6 +207,12 @@ func TestListParams(t *testing.T) {
 		{"policy_area=" + url.QueryEscape(strings.Repeat("é", 100)), http.StatusOK, "", 0, 20},
 		{"policy_area=" + url.QueryEscape(strings.Repeat("a", 101)), http.StatusBadRequest, policyAreaErr, 0, 0},
 		{"policy_area=%ff", http.StatusBadRequest, policyAreaErr, 0, 0},
+		// The other text filters are bound into the query too: Spanner fails invalid UTF-8 as
+		// Internal, so they're checked against their value sets first (#915).
+		{"type=%ff", http.StatusBadRequest, billTypeErr, 0, 0},
+		{"bill_type=%ff", http.StatusBadRequest, billTypeErr, 0, 0},
+		{"chamber=%ff", http.StatusBadRequest, chamberErr, 0, 0},
+		{"state=%ff", http.StatusBadRequest, stateErr, 0, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.query, func(t *testing.T) {
@@ -454,6 +466,42 @@ func TestCacheWriteErrors_LogKeyPrefixNotSearch(t *testing.T) {
 			tt.write(h)
 
 			assertCacheWarning(t, &buf, tt.msg, "private")
+		})
+	}
+}
+
+// A query that fails once the request's deadline has passed answers 504, the time limit's
+// failure; one that fails while the request still has time, or after the client hung up, stays a
+// 500 (#930).
+func TestServerError_DeadlinePassedAnswers504(t *testing.T) {
+	expired := func() context.Context {
+		ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(-time.Second))
+		t.Cleanup(cancel)
+		return ctx
+	}
+	hungUp := func() context.Context {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		return ctx
+	}
+	tests := []struct {
+		name string
+		ctx  context.Context
+		want int
+	}{
+		{"deadline passed", expired(), http.StatusGatewayTimeout},
+		{"client hung up", hungUp(), http.StatusInternalServerError},
+		{"time left", context.Background(), http.StatusInternalServerError},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := newTestHandler(&mockBillRepo{countErr: errors.New("spanner: context deadline exceeded")})
+			req := httptest.NewRequestWithContext(tt.ctx, http.MethodGet, "/api/v1/bills/counts", nil)
+			w := httptest.NewRecorder()
+			h.CountBills(w, req)
+			if w.Code != tt.want {
+				t.Errorf("status = %d, want %d: %s", w.Code, tt.want, w.Body)
+			}
 		})
 	}
 }

@@ -141,6 +141,25 @@ func TestStartWithoutEndpointIsInert(t *testing.T) {
 	}
 }
 
+// slog's own handlers treat no attributes and an empty group name as no-ops: so does stderr's.
+func TestEmptyAttrsAndGroupAreNoOps(t *testing.T) {
+	clearEnv(t)
+
+	var buf bytes.Buffer
+	tel := start(t, obs.Config{Service: "justabill-test", Stderr: &buf})
+
+	slog.New(tel.Logger().Handler().WithAttrs(nil).WithGroup("")).Info("hello", slog.String("bill", "hr-119-1"))
+
+	got := lines(t, &buf)
+	if len(got) != 1 {
+		t.Fatalf("stderr has %d lines, want 1: %s", len(got), buf.String())
+	}
+
+	if got[0]["bill"] != "hr-119-1" {
+		t.Errorf("stderr bill = %v, want hr-119-1 at the root: %s", got[0]["bill"], buf.String())
+	}
+}
+
 func TestSeverityNames(t *testing.T) {
 	clearEnv(t)
 
@@ -234,7 +253,11 @@ func TestSDKDisabled(t *testing.T) {
 func TestUnsupportedConfig(t *testing.T) {
 	tests := []struct{ key, value string }{
 		{"OTEL_TRACES_EXPORTER", "console"},
+		{"OTEL_METRICS_EXPORTER", "prometheus"},
+		{"OTEL_LOGS_EXPORTER", "console"},
 		{"OTEL_EXPORTER_OTLP_PROTOCOL", "http/json"},
+		{"OTEL_EXPORTER_OTLP_METRICS_PROTOCOL", "http/json"},
+		{"OTEL_EXPORTER_OTLP_LOGS_PROTOCOL", "http/json"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.key, func(t *testing.T) {
@@ -247,6 +270,24 @@ func TestUnsupportedConfig(t *testing.T) {
 				t.Errorf("Start with %s=%s: no error", tt.key, tt.value)
 			}
 		})
+	}
+}
+
+func TestShutdownWithinLogsFailure(t *testing.T) {
+	clearEnv(t)
+	t.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://127.0.0.1:1")
+	t.Setenv("OTEL_METRICS_EXPORTER", "none")
+	t.Setenv("OTEL_LOGS_EXPORTER", "none")
+
+	var buf bytes.Buffer
+	tel := start(t, obs.Config{Service: "justabill-test", Stderr: &buf})
+
+	// No time at all: the tracer provider's shutdown fails with the deadline.
+	tel.ShutdownWithin(0)
+
+	got := lines(t, &buf)
+	if len(got) != 1 || got[0]["message"] != "flushing telemetry" || got[0]["severity"] != "WARNING" {
+		t.Errorf("stderr = %s, want one flushing telemetry warning", buf.String())
 	}
 }
 

@@ -159,6 +159,40 @@ func TestFailuresOnlyOursLinesCountButAreNotForwarded(t *testing.T) {
 	}
 }
 
+// TestFailuresMeasuredShapes replays the line shapes the week of production data showed (design
+// 473, "Measured"): a request line that holds the client's status only in proxy.statusCode, and,
+// in another batch, the function's stderr line (no status) and its invocation summary (statusCode).
+func TestFailuresMeasuredShapes(t *testing.T) {
+	h, tel, clock := setupClock(t)
+
+	drainOK(t, h, fixture(t, "failure-measured.ndjson"))
+	clock.Advance(30 * time.Second)
+	drainOK(t, h, fixture(t, "failure-measured-invocation.ndjson"))
+
+	assertCounts(t, "failures", sums(t, tel, jsemconv.VercelFunctionFailuresName), map[string]int64{
+		failureKey(jsemconv.VercelFailureKindError, 500):   1,
+		failureKey(jsemconv.VercelFailureKindTimeout, 504): 1,
+	})
+
+	census := func(typ, class, outcome string) string {
+		return strings.Join([]string{
+			string(jsemconv.VercelLineOutcomeKey) + "=" + outcome,
+			string(jsemconv.VercelLogTypeKey) + "=" + typ,
+			string(jsemconv.VercelSourceKey) + "=lambda",
+			string(jsemconv.VercelStatusClassKey) + "=" + class,
+		}, ",")
+	}
+
+	assertCounts(t, "drain.lines", sums(t, tel, jsemconv.VercelDrainLinesName), map[string]int64{
+		// Three request lines: the 500 and the 504 count, the 200 is forwarded.
+		census("_OTHER", "none", "failure"):   2,
+		census("_OTHER", "none", "forwarded"): 1,
+		// The 500's stderr line carries no status; its invocation line repeats the counted 500.
+		census("stderr", "none", "forwarded"): 1,
+		census("stdout", "5xx", "repeat"):     1,
+	})
+}
+
 func TestDrainCensus(t *testing.T) {
 	h, tel, _ := setupClock(t)
 
@@ -253,7 +287,8 @@ func TestDrainMetricsHoldNoRequestData(t *testing.T) {
 
 	for _, f := range []string{
 		"failure-timeout.ndjson", "failure-crash.ndjson", "failure-background.ndjson",
-		"failure-ours.ndjson", "drain.ndjson", "drain.json",
+		"failure-ours.ndjson", "failure-measured.ndjson", "failure-measured-invocation.ndjson",
+		"drain.ndjson", "drain.json",
 	} {
 		drainOK(t, h, fixture(t, f))
 	}

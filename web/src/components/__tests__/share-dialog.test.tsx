@@ -10,6 +10,7 @@ import { createVoteStore } from "@/lib/local/votes";
 import { localVoteBackend } from "@/lib/votes/backend";
 import { localReps, VoteBackendContext } from "@/lib/votes/hooks";
 import { axeViolations } from "@/test/axe";
+import { findAlert } from "@/test/alert";
 
 vi.mock("@vercel/analytics", () => ({ track: vi.fn() }));
 
@@ -175,8 +176,9 @@ describe("Copy link and a missing card", () => {
 
   it("offers nothing to share when the card would 404", async () => {
     imageStatus = 404;
-    await openBillDialog();
-    expect(await screen.findByText(/This card isn't available/)).toBeTruthy();
+    const dialog = await openBillDialog();
+    expect((await findAlert(dialog)).textContent).toMatch(/This card isn't available/);
+    expect(await axeViolations(dialog)).toEqual([]);
     expect(screen.getByRole("button", { name: "Copy link" })).toHaveProperty("disabled", true);
     expect(screen.queryByRole("link", { name: "X" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Download image" })).toBeNull();
@@ -184,8 +186,9 @@ describe("Copy link and a missing card", () => {
 
   it("still shares the link when the image fails to load", async () => {
     imageStatus = 500;
-    await openBillDialog();
-    expect(await screen.findByText(/didn't load/)).toBeTruthy();
+    const dialog = await openBillDialog();
+    expect((await findAlert(dialog)).textContent).toMatch(/didn't load/);
+    expect(await axeViolations(dialog)).toEqual([]);
     expect(screen.getByRole("button", { name: "Copy link" })).toHaveProperty("disabled", false);
   });
 });

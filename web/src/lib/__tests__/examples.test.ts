@@ -192,13 +192,14 @@ describe("example: member list", () => {
 describe("example: member detail", () => {
   it("has terms and recent votes", () => {
     expect(memberDetail.terms.length).toBeGreaterThan(0);
-    expect(memberDetail.recent_votes.length).toBeGreaterThan(0);
+    const recentVotes = memberDetail.recent_votes ?? [];
+    expect(recentVotes.length).toBeGreaterThan(0);
     for (const term of memberDetail.terms) {
       expect(term.chamber).toBeTruthy();
       expect(term.state.length).toBe(2);
       expect(term.party.length).toBe(1);
     }
-    for (const vote of memberDetail.recent_votes) {
+    for (const vote of recentVotes) {
       expect(vote.member_vote).toBeTruthy();
       expect(vote.chamber).toBeTruthy();
     }

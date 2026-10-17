@@ -11,6 +11,7 @@ import { localVoteBackend, type VoteBackend } from "@/lib/votes/backend";
 import { VoteBackendContext } from "@/lib/votes/hooks";
 import { axeViolations } from "@/test/axe";
 import { fakeAuthStore } from "@/test/fake-auth";
+import { findAlert } from "@/test/alert";
 
 // #797: /vote takes the /bills filters from the URL and deals every bill under them, reading the
 // list from the API in the browser past the batch the page rendered.
@@ -203,7 +204,7 @@ describe("/vote under other filters", () => {
     search = "show=all";
     vi.mocked(api.listBillsWithCards).mockRejectedValueOnce(new TypeError("Failed to fetch"));
     renderDeck();
-    const alert = await screen.findByRole("alert");
+    const alert = await findAlert();
     expect(alert.textContent).toContain("We couldn't load more bills.");
     vi.mocked(api.listBillsWithCards).mockResolvedValue(pageOf([5]));
     fireEvent.click(within(alert).getByRole("button", { name: "Try again" }));

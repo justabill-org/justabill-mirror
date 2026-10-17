@@ -21,7 +21,8 @@ import (
 )
 
 // maxMessageBytes caps a forwarded message. Vercel sends up to 256 KB; a platform error needs far
-// less, and Cloud Logging bills by the byte.
+// less, and Cloud Logging bills by the byte. The cap applies after obs.Redact, so it can't cut an
+// email or address into a part Redact no longer recognizes.
 const maxMessageBytes = 16 << 10
 
 // The range of real HTTP status codes.
@@ -164,7 +165,7 @@ func (rc *Receiver) emit(ctx context.Context, line *drainLine) {
 	rec.SetObservedTimestamp(rc.now())
 	rec.SetSeverity(severity(line.Level))
 	rec.SetSeverityText(line.Level)
-	rec.SetBody(attribute.StringValue(obs.Redact(truncate(line.Message, maxMessageBytes))))
+	rec.SetBody(attribute.StringValue(truncate(obs.Redact(line.Message), maxMessageBytes)))
 	rec.AddAttributes(lineAttributes(line)...)
 
 	rc.records.Emit(withLineTrace(ctx, line), rec)

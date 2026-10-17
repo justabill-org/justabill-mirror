@@ -8,9 +8,14 @@ import (
 	"time"
 )
 
-// DefaultPageURL is the OLRC page that links the current release point. There's no stable
-// "latest" URL for the files themselves.
-const DefaultPageURL = "https://uscode.house.gov/download/download.shtml"
+// The OLRC pages that link the current release point; there's no stable "latest" URL for the
+// files themselves. Since 2026-10-12 the site runs in a "temporary format" that links it from
+// DefaultPageURL and answers LegacyPageURL with a "Page Not Found" page (status 200); its normal
+// format linked it from LegacyPageURL. A [Loader] tries both, in that order.
+const (
+	DefaultPageURL = "https://uscode.house.gov/download.html"
+	LegacyPageURL  = "https://uscode.house.gov/download/download.shtml"
+)
 
 // The all-titles XML link, releasepoints/us/pl/119/111/xml_uscAll@119-111.zip, and the page's
 // heading, "Public Law 119-111 (09/18/2026)". Release point names can carry a suffix
@@ -27,8 +32,9 @@ var (
 var (
 	// ErrNoReleasePoint means the download page had no usable all-titles XML link.
 	ErrNoReleasePoint = errors.New("uscode: no all-titles XML link on the download page")
-	// ErrSiteUnavailable means the site served its maintenance page in place of the download page.
-	ErrSiteUnavailable = errors.New("uscode: uscode.house.gov is unavailable (a maintenance page)")
+	// ErrSiteUnavailable means uscode.house.gov is down: it served its maintenance page, answered
+	// HTTP 5xx, or didn't answer. The error wrapping it names the cause in parentheses.
+	ErrSiteUnavailable = errors.New("uscode: uscode.house.gov is unavailable")
 )
 
 // ReleasePoint is the current release point as the download page links it.
@@ -43,12 +49,12 @@ type ReleasePoint struct {
 
 // FindReleasePoint finds the current release point on the download page at pageURL. The zip
 // link must resolve to the page's own scheme and host. A page with no link whose title says
-// maintenance is [ErrSiteUnavailable]; any other page with no usable link, [ErrNoReleasePoint].
+// maintenance wraps [ErrSiteUnavailable]; any other page with no usable link, [ErrNoReleasePoint].
 func FindReleasePoint(page []byte, pageURL *url.URL) (ReleasePoint, error) {
 	m := allTitlesLinkPattern.FindSubmatch(page)
 	if m == nil {
 		if maintenanceTitlePattern.Match(page) {
-			return ReleasePoint{}, ErrSiteUnavailable
+			return ReleasePoint{}, fmt.Errorf("%w (a maintenance page)", ErrSiteUnavailable)
 		}
 		return ReleasePoint{}, ErrNoReleasePoint
 	}

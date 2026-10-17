@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BillShareButton } from "@/components/share/share-button";
@@ -114,19 +115,18 @@ export function VoteSection({ billId, billTitle }: VoteSectionProps) {
             )}
           </p>
         )}
-        {capped && (
-          <p role="alert" className="text-sm text-destructive">
-            {VOTE_CAP_REACHED}
-          </p>
-        )}
-        {failed && (
-          <div role="alert" className="flex flex-wrap items-center gap-3">
-            <p className="text-sm text-destructive">{failed === "remove" ? REMOVE_FAILED : VOTE_FAILED[failed]}</p>
-            <Button variant="outline" size="sm" onClick={() => (failed === "remove" ? handleRemove() : handleVote(failed))}>
-              Try again
-            </Button>
-          </div>
-        )}
+        {/* Always in the page, so a screen reader announces the message when it appears (#955). */}
+        <Alert variant="error">
+          {capped && VOTE_CAP_REACHED}
+          {failed && (
+            <div className="flex flex-wrap items-center gap-3">
+              <p>{failed === "remove" ? REMOVE_FAILED : VOTE_FAILED[failed]}</p>
+              <Button variant="outline" size="sm" onClick={() => (failed === "remove" ? handleRemove() : handleVote(failed))}>
+                Try again
+              </Button>
+            </div>
+          )}
+        </Alert>
       </CardContent>
     </Card>
   );

@@ -12,6 +12,7 @@ import (
 	databasepb "cloud.google.com/go/spanner/admin/database/apiv1/databasepb"
 	"google.golang.org/api/iterator"
 
+	"github.com/justabill-org/justabill/db/fixture"
 	"github.com/justabill-org/justabill/db/testdb"
 )
 
@@ -204,6 +205,81 @@ func TestSeedFixtureForSchemaCurrentSchema(t *testing.T) {
 	if n := countRows(t, client, `SELECT COUNT(*) FROM members WHERE lis_id = 'S901'`); n != 1 {
 		t.Errorf("members with LIS ID S901 = %d, want 1", n)
 	}
+}
+
+// TestSeedFixtureForSchemaFillsEveryTable checks that the migration upgrade
+// test's database holds rows in every table production keeps data in, so a
+// migration that fails only on existing rows there fails the test. user_votes
+// holds a vote from before migration 21, with no recorded_at or App Check result.
+func TestSeedFixtureForSchemaFillsEveryTable(t *testing.T) {
+	client := testdb.New(t)
+
+	testdb.SeedFixtureForSchema(t.Context(), t, client)
+
+	for _, table := range []string{
+		"users", "user_votes", "user_favorites", "bill_actions", "bill_text_diffs", "sync_state",
+		"amendments", "vote_aggregates", "rep_alignment",
+	} {
+		if n := countRows(t, client, `SELECT COUNT(*) FROM `+table); n == 0 {
+			t.Errorf("%s is empty, want at least one row", table)
+		}
+	}
+	unseeded := fixture.UnseededTables()
+	for _, table := range tableNames(t, client) {
+		if _, skip := unseeded[table]; skip {
+			continue
+		}
+		if n := countRows(t, client, `SELECT COUNT(*) FROM `+table); n == 0 {
+			t.Errorf("%s is empty and not in fixture.UnseededTables", table)
+		}
+	}
+	legacy := `SELECT COUNT(*) FROM user_votes WHERE recorded_at IS NULL AND app_check_ok IS NULL`
+	if n := countRows(t, client, legacy); n == 0 {
+		t.Error("user_votes has no vote with NULL recorded_at and app_check_ok")
+	}
+}
+
+// TestSeedFixtureForSchemaLegacyUserVotes seeds user_votes as it was before
+// migration 21 added recorded_at: both votes go in, without the column.
+func TestSeedFixtureForSchemaLegacyUserVotes(t *testing.T) {
+	client, db := testdb.NewEmpty(t)
+	updateDDL(t, db,
+		`CREATE TABLE users (
+			user_id STRING(36) NOT NULL, auth_uid STRING(128) NOT NULL, state STRING(2), district INT64,
+			created_at TIMESTAMP NOT NULL,
+		) PRIMARY KEY (user_id)`,
+		`CREATE TABLE user_votes (
+			user_id STRING(36) NOT NULL, bill_id STRING(MAX) NOT NULL, vote STRING(MAX) NOT NULL,
+			voted_at TIMESTAMP NOT NULL,
+		) PRIMARY KEY (user_id, bill_id), INTERLEAVE IN PARENT users ON DELETE CASCADE`,
+	)
+
+	testdb.SeedFixtureForSchema(t.Context(), t, client)
+
+	if n := countRows(t, client, `SELECT COUNT(*) FROM user_votes`); n < 2 {
+		t.Errorf("user_votes = %d rows, want the legacy and the current vote", n)
+	}
+}
+
+func tableNames(t *testing.T, client *spanner.Client) []string {
+	t.Helper()
+	var names []string
+	stmt := spanner.Statement{SQL: `SELECT table_name FROM information_schema.tables
+		WHERE table_catalog = '' AND table_schema = '' AND table_type = 'BASE TABLE'`}
+	if err := client.Single().Query(t.Context(), stmt).Do(func(r *spanner.Row) error {
+		var name string
+		if err := r.Columns(&name); err != nil {
+			return err
+		}
+		names = append(names, name)
+		return nil
+	}); err != nil {
+		t.Fatalf("list tables: %v", err)
+	}
+	if len(names) == 0 {
+		t.Fatal("the database has no tables")
+	}
+	return names
 }
 
 func countRows(t *testing.T, client *spanner.Client, sql string) int64 {

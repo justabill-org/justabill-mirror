@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+import { MAIN_ID } from "@/components/layout/skip-link";
 import { accountsEnabled } from "@/lib/accounts";
 import { SHARE_METHODOLOGY_PATH, type CardText } from "@/lib/share";
 import type { ShareCardData } from "@/lib/share-data";
@@ -43,7 +44,7 @@ export function SharePage({ data }: { data: ShareCardData }) {
     <div className="flex min-h-screen flex-col">
       <Navbar accounts={accountsEnabled()} />
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">
+      <main id={MAIN_ID} tabIndex={-1} className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">
         <article className="rounded-xl border border-border bg-card p-6 text-card-foreground shadow-sm sm:p-8">
           <p className="text-sm font-semibold text-muted-foreground">{copy.eyebrow}</p>
           {copy.title && <p className="mt-3 text-lg font-bold text-foreground">{copy.title}</p>}

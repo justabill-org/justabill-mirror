@@ -112,7 +112,7 @@ func benchBillRepoFull() benchBillRepo {
 		summary:    &model.BillSummary{BillID: bill.ID, ShortSummary: &short, LongSummary: &long},
 		versions:   versions,
 		sponsors:   sponsors,
-		texts:      map[string]*model.BillText{billKey(bill.ID, "v0"): benchText()},
+		texts:      map[string]*model.BillText{billKey(bill.ID, versionV1): benchText()},
 	}}
 }
 
@@ -128,7 +128,7 @@ func benchText() *model.BillText {
 			`"content":%q}`, i, i+1, i, strings.Repeat("Section 1886(d) of the Social Security Act is amended. ", 12))
 	}
 	b.WriteString("]")
-	return &model.BillText{ID: "t0", TextVersionID: "v0", Format: "xml", Content: "<bill/>",
+	return &model.BillText{ID: "t0", TextVersionID: versionV1, Format: "xml", Content: "<bill/>",
 		Sections: json.RawMessage(b.String())}
 }
 
@@ -221,7 +221,7 @@ func BenchmarkGetBill(b *testing.B) {
 // the API passes through as stored JSON without a cache.
 func BenchmarkGetBillText(b *testing.B) {
 	h := newBenchHandler(b, nil)
-	serveBench(b, "/api/v1/bills/{id}/text/{vid}", h.GetBillText, "/api/v1/bills/hr-119-1000/text/v0")
+	serveBench(b, "/api/v1/bills/{id}/text/{vid}", h.GetBillText, "/api/v1/bills/hr-119-1000/text/"+versionV1)
 }
 
 func BenchmarkListCacheKey(b *testing.B) {

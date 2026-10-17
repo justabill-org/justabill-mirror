@@ -504,10 +504,30 @@ describe("sign-in helpers", () => {
     ["/\r//evil.example", "/vote"],
     [new URLSearchParams("next=/%09/evil.example").get("next"), "/vote"],
     ["/\t\\evil.example", "/vote"],
+    // URL parsing removes dot segments after it settles the origin, so each of these keeps our
+    // origin but its path comes back as //evil.example (#928).
+    ["/.//evil.example", "/vote"],
+    ["/%2e//evil.example", "/vote"],
+    ["/x/..//evil.example", "/vote"],
+    ["/./\\evil.example", "/vote"],
     ["/bills/hr-119-1?tab=text#votes", "/bills/hr-119-1?tab=text#votes"],
     ["/bills?q=a%20b", "/bills?q=a%20b"],
+    ["/bills/./hr-119-1", "/bills/hr-119-1"],
   ])("safeNext(%j) is %j", (next, want) => {
     expect(safeNext(next)).toBe(want);
+  });
+
+  it.each([
+    "/.//evil.example",
+    "/..//evil.example",
+    "/%2E%2E//evil.example",
+    "/x/%2e%2e//evil.example/y?z#w",
+    "/./\\evil.example",
+    "/.\t//evil.example",
+    "/.///evil.example",
+  ])("safeNext(%j) stays on our origin when resolved again", (next) => {
+    const base = "https://next.invalid";
+    expect(new URL(safeNext(next), base).origin).toBe(base);
   });
 
   it("has a message for unknown errors and none for cancellations", () => {

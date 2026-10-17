@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import type { Point } from "@/lib/scorecard";
 
@@ -126,7 +127,7 @@ export function UseMyLocation<T>({
       <p className="text-xs text-muted-foreground">
         Your browser asks you first. Only the coordinates are sent, for this one lookup, and they aren&apos;t saved.
       </p>
-      <div role="alert">{error && <p className="text-sm text-destructive">{error}</p>}</div>
+      <Alert variant="error">{error}</Alert>
       <div role="status">
         {located.status === "found" &&
           children({

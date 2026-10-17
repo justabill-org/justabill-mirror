@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { getLawSection } from "@/lib/api";
 import { reportError } from "@/lib/obs/browser";
 import type { LawSectionResponse } from "@/lib/types";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 interface LawSectionTextProps {
@@ -62,11 +63,10 @@ export function LawSectionText({ title, section, citation }: LawSectionTextProps
             Loading the current text…
           </p>
         )}
-        {state.status === "error" && (
-          <p role="alert" className="text-sm text-muted-foreground">
-            The current text couldn&apos;t be loaded. Try again, or read it on uscode.house.gov.
-          </p>
-        )}
+        <Alert variant="error">
+          {state.status === "error" &&
+            "The current text couldn't be loaded. Try again, or read it on uscode.house.gov."}
+        </Alert>
         {state.status === "loaded" && (
           <div
             tabIndex={0}

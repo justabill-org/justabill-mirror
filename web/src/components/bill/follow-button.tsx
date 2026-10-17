@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/auth/provider";
 import { FOLLOW_API, isFollowing, type FollowApi } from "@/lib/follows";
@@ -92,11 +93,7 @@ export function FollowButton({ billId, api = FOLLOW_API }: FollowButtonProps) {
       >
         {following ? "Following" : "Follow"}
       </Button>
-      {error && (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
+      <Alert variant="error">{error}</Alert>
     </div>
   );
 }

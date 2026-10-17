@@ -32,6 +32,7 @@ const (
 	graphCacheTTL = time.Hour
 
 	bioguideIDLen = 7
+	uuidLen       = 36
 	// currentCongressKey stands in for the congress in collaborator cache keys when the request
 	// leaves it to the server, so cache hits don't need to look up the current congress.
 	currentCongressKey = "current"
@@ -61,6 +62,32 @@ func validBioguideID(id string) bool {
 		return false
 	}
 	return allDigits(id[1:])
+}
+
+// validUUID reports whether id is a UUID as GENERATE_UUID() writes the text version and diff IDs:
+// 36 characters, hex digits in either case with hyphens at 8, 13, 18 and 23.
+func validUUID(id string) bool {
+	if len(id) != uuidLen {
+		return false
+	}
+	for i := range len(id) {
+		c := id[i]
+		switch i {
+		case 8, 13, 18, 23: //nolint:mnd // the hyphens of the 8-4-4-4-12 layout
+			if c != '-' {
+				return false
+			}
+		default:
+			if !isHexDigit(c) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func isHexDigit(c byte) bool {
+	return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F')
 }
 
 func allDigits(s string) bool {
@@ -127,7 +154,7 @@ func (h *Handler) GetCollaborators(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := chi.URLParam(r, "id")
 	if !validBioguideID(id) {
-		writeError(w, http.StatusBadRequest, "invalid member id")
+		writeError(w, http.StatusBadRequest, msgInvalidMemberID)
 		return
 	}
 	congressKey := currentCongressKey

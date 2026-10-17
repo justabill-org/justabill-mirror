@@ -27,6 +27,7 @@ const { localVotes } = await import("../votes/backend");
 const { VoteSection } = await import("@/app/(app)/bills/[id]/vote-section");
 const { VotingSession } = await import("@/app/(app)/vote/voting-session");
 import { deckOf } from "@/test/deck";
+import { filledAlerts, findAlert } from "@/test/alert";
 const { ScorecardView } = await import("@/components/scorecard/local-scorecard");
 const { ImportLocalVotes } = await import("@/components/account/import-local-votes");
 const { Onboarding } = await import("@/app/(auth)/signup/onboarding");
@@ -192,7 +193,7 @@ describe("ImportLocalVotes", () => {
     voteOnDevice(1);
     renderImport(vi.fn(async () => Promise.reject(new Error("503"))));
     fireEvent.click(screen.getByRole("button", { name: "Add 1 vote to my account" }));
-    await screen.findByRole("alert");
+    await findAlert();
     expect(Object.keys(localVotes().getSnapshot().value)).toEqual(["hr-119-1"]);
     vi.mocked(console.error).mockRestore();
   });
@@ -321,7 +322,7 @@ describe("Your data", () => {
     const { api } = setup();
     api.exportMe.mockRejectedValueOnce(new Error("503"));
     fireEvent.click(screen.getByRole("button", { name: "Download my data" }));
-    expect((await screen.findByRole("alert")).textContent).toMatch(/couldn't download/);
+    expect((await findAlert()).textContent).toMatch(/couldn't download/);
     vi.mocked(console.error).mockRestore();
   });
 
@@ -354,7 +355,7 @@ describe("Your data", () => {
     const { fake } = setup(vi.fn(async () => Promise.reject(new ApiError(502, "Bad Gateway", "{}"))));
     fireEvent.click(screen.getByRole("button", { name: "Delete my account" }));
     fireEvent.click(within(screen.getByRole("group")).getByRole("button", { name: "Delete my account" }));
-    expect((await screen.findByRole("alert")).textContent).toMatch(/removing your sign-in failed/);
+    expect((await findAlert()).textContent).toMatch(/removing your sign-in failed/);
     expect(fake.store.signOut).not.toHaveBeenCalled();
     cleanup();
 
@@ -366,7 +367,7 @@ describe("Your data", () => {
     fireEvent.click(within(group).getByRole("button", { name: "Delete my account" }));
     await waitFor(() => expect(closed.fake.store.reauthenticate).toHaveBeenCalled());
     await act(async () => {});
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(filledAlerts()).toEqual([]);
     expect((within(group).getByRole("button", { name: "Delete my account" }) as HTMLButtonElement).disabled).toBe(false);
     vi.mocked(console.error).mockRestore();
   });

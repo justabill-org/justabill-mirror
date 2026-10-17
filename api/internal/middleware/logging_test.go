@@ -99,3 +99,31 @@ func TestRoutePattern_OutsideChi(t *testing.T) {
 		t.Errorf("RoutePattern = %q, want empty", got)
 	}
 }
+
+// A handler that writes its body without WriteHeader sends an implicit 200; a later WriteHeader,
+// such as chi Timeout's 504 after a late answer, sends nothing, so the log keeps the 200 (#930).
+func TestLogger_LogsImplicit200BeforeLateWriteHeader(t *testing.T) {
+	var buf bytes.Buffer
+	logger := slog.New(slog.NewJSONHandler(&buf, nil))
+
+	handler := mw.Logger(logger)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`{"items":[]}`))
+		w.WriteHeader(http.StatusGatewayTimeout)
+	}))
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/api/v1/bills", nil))
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("the client got %d, want 200", rr.Code)
+	}
+	var entry struct {
+		Status int `json:"status"`
+	}
+	if err := json.Unmarshal(buf.Bytes(), &entry); err != nil {
+		t.Fatalf("expected one JSON log entry, got %q: %v", buf.String(), err)
+	}
+	if entry.Status != http.StatusOK {
+		t.Errorf("access log status = %d, want 200", entry.Status)
+	}
+}

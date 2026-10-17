@@ -9,6 +9,7 @@ import {
   type Address,
 } from "@/components/reps/address-fields";
 import { LocationAccuracy, OrEnterYourAddress, UseMyLocation } from "@/components/reps/use-my-location";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { seatsLabel } from "@/lib/districts";
@@ -91,7 +92,7 @@ export function FindRepsForm() {
             Your address is used for this one lookup (through the U.S. Census Bureau&apos;s geocoder) and
             isn&apos;t saved in our database. This device keeps only your state, district and representatives.
           </p>
-          <div role="alert">{error && <p className="text-sm text-destructive">{error}</p>}</div>
+          <Alert variant="error">{error}</Alert>
         </form>
       </CardContent>
     </Card>

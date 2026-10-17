@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/layout/navbar";
+import { MAIN_ID } from "@/components/layout/skip-link";
 import { Footer } from "@/components/layout/footer";
 import { accountsEnabled } from "@/lib/accounts";
 
@@ -14,7 +15,7 @@ export default function AppLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar accounts={accountsEnabled()} />
-      <main className="flex-1">{children}</main>
+      <main id={MAIN_ID} tabIndex={-1} className="flex-1">{children}</main>
       <Footer />
     </div>
   );

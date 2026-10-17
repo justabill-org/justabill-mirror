@@ -40,6 +40,8 @@ const (
 	// maxDistrict bounds the district filter: districts are numbered 0 (at-large) to two digits, as
 	// the Census's GEOIDs number them, and no state has ever had more than 53.
 	maxDistrict = 99
+	// stateCodeLen is the length of a state filter: a USPS postal code, as member_terms.state holds.
+	stateCodeLen = 2
 
 	keyError = "error"
 )
@@ -63,13 +65,20 @@ func writeCodedError(w http.ResponseWriter, status int, code, msg string) {
 }
 
 // serverError logs err with the route and request ID and writes a 500 with
-// msg. Every 5xx from a handler goes through it, so a failing query is never
-// silent; 4xx responses aren't logged, since the access log has the status.
+// msg, or a 504 when the request's deadline (chi's Timeout in cmd/server) has
+// passed, since then the failure is the time limit's. Every 5xx from a handler
+// goes through it, so a failing query is never silent; 4xx responses aren't
+// logged, since the access log has the status.
 func (h *Handler) serverError(w http.ResponseWriter, r *http.Request, msg string, err error) {
 	ctx := r.Context()
 	attrs := []any{"route", routePattern(r), "op", msg, keyError, err}
 	if id := middleware.GetReqID(ctx); id != "" {
 		attrs = append(attrs, "request_id", id)
+	}
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		h.log.ErrorContext(ctx, "request timed out", attrs...)
+		writeError(w, http.StatusGatewayTimeout, "request timed out")
+		return
 	}
 	h.log.ErrorContext(ctx, "request failed", attrs...)
 	writeError(w, http.StatusInternalServerError, msg)
@@ -89,8 +98,12 @@ func routePattern(r *http.Request) string {
 // negative offset, an offset above maxOffset, or a malformed limit is an
 // error whose message is fit for a 400, as is a search that [checkSearch] refuses, a
 // policy_area that isn't valid UTF-8 or is over maxPolicyAreaRunes characters, a congress that
-// isn't a whole number from 1 to maxCongress and a district that isn't one from 0 to maxDistrict
-// (#881). limit is clamped to 1–100.
+// isn't a whole number from 1 to maxCongress, a district that isn't one from 0 to maxDistrict
+// (#881), and a type, chamber or state that [queryBillType], [queryChamber] or [queryState] refuses
+// (#915).
+// limit is clamped to 1–100. A sort that isn't one of the bill list's ([model.IsBillSort]) reads as
+// none and a status_mode other than past as the default, so neither mints a cache key of its own
+// for the order or filter the default gives (#943).
 func parseListParams(r *http.Request) (model.ListParams, error) {
 	q := r.URL.Query()
 	offset, limit := 0, defaultPageSize
@@ -127,13 +140,16 @@ func parseListParams(r *http.Request) (model.ListParams, error) {
 		Offset:     offset,
 		Limit:      limit,
 		Congress:   congress,
-		BillType:   queryStr(q, "type", "bill_type"),
-		Chamber:    queryStr(q, "chamber"),
 		PolicyArea: queryStr(q, "policy_area"),
 		Search:     queryStr(q, "q", "search"),
-		State:      queryStr(q, "state"),
 		District:   district,
-		Sort:       queryStr(q, "sort"),
+		Sort:       querySort(q),
+	}
+	if err = readBillFilters(q, &params); err != nil {
+		return model.ListParams{}, err
+	}
+	if params.State, err = queryState(q); err != nil {
+		return model.ListParams{}, err
 	}
 	statuses, mode, err := parseStatuses(q)
 	if err != nil {
@@ -163,7 +179,8 @@ func checkPolicyArea(a *string) error {
 // parseStatuses reads the list's status filter: status, comma-separated or repeated, and
 // status_mode (#712). The statuses come back without duplicates and sorted, so the same set always
 // builds the same cache key. An unknown status, or status_mode=past with several statuses (each
-// one more join of the audit trail, and no page needs it), is an error fit for a 400.
+// one more join of the audit trail, and no page needs it), is an error fit for a 400. Any
+// status_mode but past is the default, the bill's current status, and comes back empty (#943).
 func parseStatuses(q url.Values) ([]string, string, error) {
 	var statuses []string
 	for _, v := range q["status"] {
@@ -182,11 +199,13 @@ func parseStatuses(q url.Values) ([]string, string, error) {
 		return nil, "", nil
 	}
 	slices.Sort(statuses)
-	mode := q.Get("status_mode")
-	if mode == "past" && len(statuses) > 1 {
+	if q.Get("status_mode") != model.StatusModePast {
+		return statuses, "", nil
+	}
+	if len(statuses) > 1 {
 		return nil, "", errors.New("status_mode=past takes one status")
 	}
-	return statuses, mode, nil
+	return statuses, model.StatusModePast, nil
 }
 
 // checkSearch refuses a search Spanner can't run or that would cost more than a visitor's search
@@ -216,6 +235,76 @@ func queryStr(q interface{ Get(string) string }, keys ...string) *string {
 	return nil
 }
 
+// querySort reads the optional sort: one of the bill list's sorts ([model.IsBillSort]), or nil, the
+// default order, for anything else, so a sort the list doesn't know adds no cache key (#943).
+func querySort(q url.Values) *string {
+	if sort := q.Get("sort"); model.IsBillSort(sort) {
+		return &sort
+	}
+	return nil
+}
+
+// readBillFilters reads the type and chamber filters into p, as [queryBillType] and [queryChamber]
+// check them. The bill list and its counts both read them here, so they refuse the same input.
+func readBillFilters(q url.Values, p *model.ListParams) error {
+	var err error
+	if p.BillType, err = queryBillType(q); err != nil {
+		return err
+	}
+	p.Chamber, err = queryChamber(q)
+	return err
+}
+
+// queryBillType reads the optional type (or bill_type) filter: nil when absent, else a bill type
+// in any case, lower-cased as bill IDs spell it (and bills.bill_type holds it), so each type has one
+// cache key. Anything else, invalid UTF-8 among it (which Spanner fails as Internal), is an error
+// fit for a 400 (#915).
+func queryBillType(q url.Values) (*string, error) {
+	billType := queryStr(q, "type", "bill_type")
+	if billType == nil {
+		return nil, nil //nolint:nilnil // an absent filter is no filter, not an error
+	}
+	*billType = strings.ToLower(*billType)
+	if !isBillType(*billType) {
+		return nil, errors.New("type must be a bill type: hr, s, hjres, sjres, hconres, sconres, hres, sres")
+	}
+	return billType, nil
+}
+
+// queryChamber reads the optional chamber filter: nil when absent, else house or senate in any
+// case, lower-cased, or an error fit for a 400 (#915). The repositories map it to Congress.gov's
+// spelling.
+func queryChamber(q url.Values) (*string, error) {
+	chamber := queryStr(q, "chamber")
+	if chamber == nil {
+		return nil, nil //nolint:nilnil // an absent filter is no filter, not an error
+	}
+	*chamber = strings.ToLower(*chamber)
+	if *chamber != "house" && *chamber != "senate" {
+		return nil, errors.New("chamber must be house or senate")
+	}
+	return chamber, nil
+}
+
+// queryState reads the optional state filter: nil when absent, else two ASCII letters, upper-cased
+// as member_terms.state holds postal codes, or an error fit for a 400 (#915). A pair that's no
+// state matches no member, as before.
+func queryState(q url.Values) (*string, error) {
+	state := queryStr(q, "state")
+	if state == nil {
+		return nil, nil //nolint:nilnil // an absent filter is no filter, not an error
+	}
+	if len(*state) != stateCodeLen || !isASCIILetter((*state)[0]) || !isASCIILetter((*state)[1]) {
+		return nil, errors.New("state must be a two-letter postal code")
+	}
+	*state = strings.ToUpper(*state)
+	return state, nil
+}
+
+func isASCIILetter(c byte) bool {
+	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
+}
+
 // queryCongress reads the optional congress filter: nil when it's absent, and an error fit for a
 // 400 when it isn't a whole number from 1 to maxCongress. Silently dropping it would list every
 // congress (#881).
@@ -238,9 +327,31 @@ func queryWhole(q url.Values, key string, lo, hi int) (*int, error) {
 	return &n, nil
 }
 
+// billListParams is p with only the fields the bill list reads (BillRepo.List): a
+// state or district, which it ignores, neither reaches the query nor mints a cache key (#943).
+func billListParams(p model.ListParams) model.ListParams {
+	return model.ListParams{
+		Offset: p.Offset, Limit: p.Limit, Congress: p.Congress, BillType: p.BillType,
+		Statuses: p.Statuses, StatusMode: p.StatusMode, Chamber: p.Chamber, PolicyArea: p.PolicyArea,
+		Search: p.Search, UnvotedBy: p.UnvotedBy, Sort: p.Sort,
+	}
+}
+
+// memberListParams is p with only the fields the member list reads (MemberRepo.List):
+// paging, congress, chamber, state and district. A search, type, policy area, sort or status,
+// which it ignores, neither reaches the query nor mints a cache key (#943).
+func memberListParams(p model.ListParams) model.ListParams {
+	return model.ListParams{
+		Offset: p.Offset, Limit: p.Limit, Congress: p.Congress, Chamber: p.Chamber,
+		State: p.State, District: p.District,
+	}
+}
+
 // listCacheKey is the cache key of a list request: prefix, then the parsed
 // params in a fixed order. Equivalent queries (?a=1&b=2 and ?b=2&a=1) share a
-// key, and query params the API doesn't recognize can't mint new ones.
+// key, and query params the API doesn't recognize can't mint new ones. A route
+// passes only the params it reads ([billListParams], [memberListParams]), so
+// one it ignores can't either (#943).
 // UnvotedBy is left out on purpose: a personal list must never be cached.
 func listCacheKey(prefix string, p model.ListParams) string {
 	v := url.Values{}

@@ -14,6 +14,12 @@ func ListCacheKey(prefix string, p model.ListParams) string { return listCacheKe
 // ParseListParams exposes parseListParams to the handler_test package.
 func ParseListParams(r *http.Request) (model.ListParams, error) { return parseListParams(r) }
 
+// BillListParams exposes billListParams to the handler_test package.
+func BillListParams(p model.ListParams) model.ListParams { return billListParams(p) }
+
+// MemberListParams exposes memberListParams to the handler_test package.
+func MemberListParams(p model.ListParams) model.ListParams { return memberListParams(p) }
+
 // CacheJSON exposes cacheJSON to the handler_test package.
 func (h *Handler) CacheJSON(ctx context.Context, key string, v any, ttl time.Duration) {
 	h.cacheJSON(ctx, key, v, ttl)

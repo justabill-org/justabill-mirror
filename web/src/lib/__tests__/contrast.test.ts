@@ -82,6 +82,12 @@ const TEXT_ON_OWN_TINT = [
   "party-i",
 ];
 const TINT = 0.1;
+// [text, tint]: other text on a token's 10% tint. An error or success `Alert` (#955) writes
+// --foreground on the variant's tint; its icon is the variant's own color (TEXT_ON_OWN_TINT).
+const TEXT_ON_TINTS: [string, string][] = [
+  ["foreground", "destructive"],
+  ["foreground", "success"],
+];
 // [text, fill]: text drawn on a filled token. Only neutral text sits on --muted (inactive
 // filter chips, the tab list, secondary buttons).
 const TEXT_ON_FILLS: [string, string][] = [
@@ -104,6 +110,9 @@ const AA_NORMAL_TEXT = 4.5;
 // scorecard's "Voted with you" bar is the match green on --muted (#844).
 const GRAPHICS_ON_TRACKS: [string, string][] = [["success", "muted"]];
 const AA_NON_TEXT = 3;
+// Focus outlines (`*:focus-visible`, `ring-ring`) on the surfaces, WCAG 1.4.11's 3:1. The skip link
+// (#955) draws its outline on --background, its text --foreground on --background (above).
+const FOCUS_RINGS = ["ring"];
 
 it("matches known ratios", () => {
   expect(contrastRatio("#000000", "#ffffff")).toBeCloseTo(21, 5);
@@ -119,7 +128,7 @@ describe.each([
   const color = (name: string) => tokens[name];
 
   it("reads the palette", () => {
-    for (const name of [...SURFACES, ...TEXT_ON_SURFACES, ...TEXT_ON_FILLS.flat()]) {
+    for (const name of [...SURFACES, ...TEXT_ON_SURFACES, ...TEXT_ON_FILLS.flat(), ...FOCUS_RINGS]) {
       expect(tokens[name], `--${name}`).toMatch(/^#[0-9a-f]{6}$/);
     }
   });
@@ -137,6 +146,23 @@ describe.each([
       it(`--${text} on its ${TINT * 100}% tint over --${surface}`, () => {
         const tint = over(color(text), TINT, color(surface));
         expect(contrastRatio(color(text), tint)).toBeGreaterThanOrEqual(AA_NORMAL_TEXT);
+      });
+    }
+  }
+
+  for (const [text, tinted] of TEXT_ON_TINTS) {
+    for (const surface of SURFACES) {
+      it(`--${text} on the --${tinted} ${TINT * 100}% tint over --${surface}`, () => {
+        const tint = over(color(tinted), TINT, color(surface));
+        expect(contrastRatio(color(text), tint)).toBeGreaterThanOrEqual(AA_NORMAL_TEXT);
+      });
+    }
+  }
+
+  for (const ring of FOCUS_RINGS) {
+    for (const surface of SURFACES) {
+      it(`--${ring} focus outline on --${surface}`, () => {
+        expect(contrastRatio(color(ring), color(surface))).toBeGreaterThanOrEqual(AA_NON_TEXT);
       });
     }
   }

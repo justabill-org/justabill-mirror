@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { axeViolations } from "@/test/axe";
 import type { BillLawChangesResponse, LawSectionResponse } from "@/lib/types";
+import { findAlert } from "@/test/alert";
 
 vi.mock("@/lib/api", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/api")>()),
@@ -91,7 +92,7 @@ describe("LawChanges accessibility and current text", () => {
     vi.mocked(api.getLawSection).mockRejectedValueOnce(new Error("down")).mockResolvedValueOnce(section);
     render(<LawChanges data={data} />);
     fireEvent.click(screen.getByRole("button", { name: /^Show current text/ }));
-    expect((await screen.findByRole("alert")).textContent).toContain("couldn't be loaded");
+    expect((await findAlert()).textContent).toContain("couldn't be loaded");
 
     fireEvent.click(screen.getByRole("button", { name: /^Hide current text/ }));
     fireEvent.click(screen.getByRole("button", { name: /^Show current text/ }));

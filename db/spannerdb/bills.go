@@ -181,7 +181,7 @@ func billStatusFilter(params model.ListParams, p map[string]any) string {
 		match = "IN UNNEST(@statuses)"
 		p["statuses"] = statuses
 	}
-	if params.StatusMode == "past" {
+	if params.StatusMode == model.StatusModePast {
 		return " AND bills.bill_id IN (SELECT h.bill_id FROM bill_status_history h WHERE h.status " + match + ")"
 	}
 	return " AND current_status " + match
@@ -194,8 +194,6 @@ const (
 	latestActionFirst = "ORDER BY latest_action_date DESC, bill_id"
 	// updatedFirst is sort=updated_at's order: the bill's last update on Congress.gov, newest first.
 	updatedFirst = "ORDER BY updated_at DESC, bill_id"
-	// sortLatestAction is the sort key for the latest action's date, newest first (#712).
-	sortLatestAction = "latest_action"
 )
 
 // The bill list's indexes, as FROM sources: each is keyed on congress first and stores every column
@@ -214,7 +212,7 @@ const (
 // scan, a search starts from the search indexes, and a past-status filter starts from
 // bill_status_history.
 func billListIndexed(params model.ListParams) bool {
-	return params.Congress != nil && params.Search == nil && params.StatusMode != "past"
+	return params.Congress != nil && params.Search == nil && params.StatusMode != model.StatusModePast
 }
 
 // billListSource returns the FROM source and the ORDER BY clause of [BillRepository.List]'s page.
@@ -263,11 +261,11 @@ func billListOrder(sort *string) string {
 		return newestFirst
 	}
 	switch *sort {
-	case "updated_at":
+	case model.SortUpdatedAt:
 		return updatedFirst
-	case "number":
+	case model.SortNumber:
 		return "ORDER BY congress DESC, number DESC, bill_type, bill_id"
-	case sortLatestAction:
+	case model.SortLatestAction:
 		// latest_action_date is JSON_VALUE(latest_action, '$.actionDate'), stored (#760).
 		// Congress.gov's actionDate is YYYY-MM-DD, so the strings sort as dates. GoogleSQL orders
 		// NULL lowest, so DESC puts bills with no latest action (or no date in it) last (#712).

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -149,11 +150,7 @@ export function FollowedBills({ user, api = FOLLOW_API }: FollowedBillsProps) {
           </nav>
         )}
 
-        {error && (
-          <p role="alert" className="text-sm text-destructive">
-            {error}
-          </p>
-        )}
+        <Alert variant="error">{error}</Alert>
       </CardContent>
     </Card>
   );

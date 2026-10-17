@@ -25,7 +25,7 @@ func TestJSONBodiesOverTheCapGet413(t *testing.T) {
 		handle                http.HandlerFunc
 	}{
 		{http.MethodPatch, "/api/v1/me", "/api/v1/me", h.UpdateMe},
-		{http.MethodPost, "/api/v1/bills/{id}/vote", "/api/v1/bills/119-hr-1/vote", h.CastVote},
+		{http.MethodPost, "/api/v1/bills/{id}/vote", "/api/v1/bills/hr-119-1/vote", h.CastVote},
 	}
 	huge := `{"vote":"` + strings.Repeat("x", mw.DefaultMaxBody) + `"}`
 	for _, rt := range routes {

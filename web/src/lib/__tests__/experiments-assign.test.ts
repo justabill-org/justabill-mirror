@@ -157,6 +157,9 @@ describe("experimentResponse", () => {
   it("sets no cookie for a returning visitor or with no live experiment", () => {
     const back = experimentResponse(req(undefined, { cookie: "jab_exp=vote-deck-layout.control" }), [EXP], LIVE, PROD);
     expect(back.headers.get("set-cookie")).toBeNull();
-    expect(experimentResponse(req()).headers.get("set-cookie")).toBeNull();
+    // Pinned list and clock: the defaults read the real registry and today, so vote-aa going live failed it (#921).
+    expect(experimentResponse(req(), [], LIVE, PROD).headers.get("set-cookie")).toBeNull();
+    const ended = new Date("2026-10-27T12:00:00Z");
+    expect(experimentResponse(req(), [EXP], ended, PROD).headers.get("set-cookie")).toBeNull();
   });
 });

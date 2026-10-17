@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { buttonClasses } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
+import { SkipLink } from "@/components/layout/skip-link";
 import { useUser } from "@/lib/auth/provider";
 
 const navLinks = [
@@ -38,6 +39,8 @@ export function Navbar({ accounts = false, cta }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* First, so one Tab from the top of any page reaches it (#955). */}
+      <SkipLink />
       <nav aria-label="Main" className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Logo />
 

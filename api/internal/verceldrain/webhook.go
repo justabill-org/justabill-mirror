@@ -179,7 +179,7 @@ func (rc *Receiver) event(
 	rec.SetTimestamp(at)
 	rec.SetObservedTimestamp(time.Now())
 	rec.SetSeverity(sev)
-	rec.SetBody(attribute.StringValue(obs.Redact(truncate(body, maxMessageBytes))))
+	rec.SetBody(attribute.StringValue(truncate(obs.Redact(body), maxMessageBytes)))
 	rec.AddAttributes(attrs...)
 
 	rc.records.Emit(ctx, rec)

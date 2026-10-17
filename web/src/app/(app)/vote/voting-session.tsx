@@ -4,6 +4,8 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import type { PaginatedResult, UserVoteChoice } from "@/lib/types";
 import { SwipeCard } from "@/components/vote/swipe-card";
+import { VotesUnavailable } from "@/components/votes/votes-unavailable";
+import { Alert } from "@/components/ui/alert";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/lib/auth/provider";
@@ -40,24 +42,20 @@ interface VotingSessionProps {
  * and starts over when the user signs in or out.
  */
 export function VotingSession(props: VotingSessionProps) {
-  const backend = useVoteBackend();
   const { storage } = useVotes();
 
-  if (storage === "unavailable") {
-    return (
-      <div role="alert" className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-destructive">We couldn&apos;t load your votes from your account.</p>
-        {backend.refresh && (
-          <Button variant="outline" className="mt-4" onClick={backend.refresh}>
-            Try again
-          </Button>
-        )}
-      </div>
-    );
-  }
-  if (storage === "server") return <LoadingDeck />;
   const signedIn = storage === "account";
-  return <DeckSession key={signedIn ? "account" : "device"} signedIn={signedIn} {...props} />;
+  return (
+    <>
+      {/* First in every state, so it's the same live region when the votes fail to load (#955). */}
+      <VotesUnavailable storage={storage} />
+      {storage === "unavailable" ? null : storage === "server" ? (
+        <LoadingDeck />
+      ) : (
+        <DeckSession key={signedIn ? "account" : "device"} signedIn={signedIn} {...props} />
+      )}
+    </>
+  );
 }
 
 function DeckSession({
@@ -132,6 +130,18 @@ function DeckSession({
         <DeckProgress deck={deck} label={parseBillView(filters.view).label} voted={votedCount} listHref={listHref} />
       )}
 
+      {/* In the page while the deck loads, so a screen reader announces a failed read (#955). */}
+      <Alert variant="error" className="mx-auto w-fit">
+        {deck.status === "failed" && (
+          <>
+            <p>We couldn&apos;t load more bills. Check your connection and try again.</p>
+            <Button variant="outline" size="sm" className="mt-2" onClick={deck.retry}>
+              Try again
+            </Button>
+          </>
+        )}
+      </Alert>
+
       <DeckBody
         deck={deck}
         voted={votedCount}
@@ -151,20 +161,18 @@ function DeckSession({
             isAnimating={isAnimating}
           />
 
-          {capped && (
-            <p role="alert" className="text-center text-sm text-destructive">
-              {VOTE_CAP_REACHED}
-            </p>
-          )}
-
-          {failed && (
-            <div role="alert" className="flex flex-wrap items-center justify-center gap-3">
-              <p className="text-sm text-destructive">{VOTE_FAILED[failed]}</p>
-              <Button variant="outline" size="sm" onClick={() => handleVote(failed)}>
-                Try again
-              </Button>
-            </div>
-          )}
+          {/* Always in the page, so a screen reader announces the message when it appears (#955). */}
+          <Alert variant="error" className="mx-auto w-fit">
+            {capped && VOTE_CAP_REACHED}
+            {failed && (
+              <div className="flex flex-wrap items-center gap-3">
+                <p>{VOTE_FAILED[failed]}</p>
+                <Button variant="outline" size="sm" onClick={() => handleVote(failed)}>
+                  Try again
+                </Button>
+              </div>
+            )}
+          </Alert>
 
           <p className={`text-center text-sm ${storage === "memory" ? "text-destructive" : "text-muted-foreground"}`}>
             {STORAGE_LINES[storage] ?? STORAGE_LINES.device}
@@ -235,14 +243,8 @@ function DeckBody({
     case "loading":
       return <LoadingDeck />;
     case "failed":
-      return (
-        <div role="alert" className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center">
-          <p className="max-w-xs text-foreground">We couldn&apos;t load more bills. Check your connection and try again.</p>
-          <Button variant="outline" className="mt-4" onClick={deck.retry}>
-            Try again
-          </Button>
-        </div>
-      );
+      // DeckSession's alert above says so, with Try again.
+      return null;
     case "empty":
       return (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
