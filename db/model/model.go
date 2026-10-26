@@ -146,6 +146,15 @@ type BillAction struct {
 	SortOrder     int             `json:"sort_order"`
 }
 
+// RecordedVote is the roll call a bill action records, as bill_actions.recorded_vote stores it
+// and the web's action timeline links it: the clerk's roll number, its URL (the House or Senate
+// clerk's vote XML) and the chamber ("House" or "Senate").
+type RecordedVote struct {
+	RollNumber int    `json:"roll_number"`
+	URL        string `json:"url"`
+	Chamber    string `json:"chamber"`
+}
+
 // BillSummary holds AI-generated summaries for a bill. WhoItAffects is stored in the
 // bill_summaries.why_it_matters column (docs/design/199-who-it-affects-rename.md).
 type BillSummary struct {

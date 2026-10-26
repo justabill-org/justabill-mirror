@@ -408,22 +408,30 @@ func newService(
 	up.LogBudgets(ctx, logger)
 	api := congress.NewClient(up.Client)
 	svc := psync.New(spannerdb.NewPipelineStore(sc), api, up.Client)
-	if err = configureOptionalClients(ctx, logger, svc, upCfg.GovInfoAPIKey, up.Client); err != nil {
+	if err = configureOptionalClients(ctx, logger, svc, upCfg.GovInfoAPIKey, up.Client, viper.GetString); err != nil {
 		up.CloseWithin(ctx, logger, archiveFlushWait)
 		return nil, nil, nil, err
 	}
 	return svc, api, up, nil
 }
 
-// configureOptionalClients gives the service the Federal Register client, and an AI summarizer, a
-// GovInfo client and the web revalidation hook when their settings are present. httpClient is the pipeline's upstream client.
+// configureOptionalClients gives the service the summary job's settings (the AI_* variables, as
+// pipeline-serve reads them), the Federal Register client, and an AI summarizer, a GovInfo client
+// and the web revalidation hook when their settings are present. A bad AI or job setting is an
+// error. httpClient is the pipeline's upstream client; get reads the configuration (viper.GetString).
 func configureOptionalClients(
 	ctx context.Context, logger *slog.Logger, svc *psync.Service, govInfoAPIKey string, httpClient *http.Client,
+	get func(key string) string,
 ) error {
-	aiCfg, err := ai.ConfigFrom(viper.GetString)
+	aiCfg, err := ai.ConfigFrom(get)
 	if err != nil {
 		return err
 	}
+	jobCfg, err := psync.SummaryJobConfigFrom(get)
+	if err != nil {
+		return err
+	}
+	svc.SetSummaryJob(jobCfg)
 	if aiCfg.Project != "" {
 		summarizer, aiErr := ai.NewSummarizer(ctx, aiCfg)
 		if aiErr != nil {
@@ -440,7 +448,7 @@ func configureOptionalClients(
 		svc.SetGovInfo(govinfo.NewClient(httpClient))
 		logger.InfoContext(ctx, "GovInfo client enabled")
 	}
-	return enableRevalidation(ctx, logger, svc, viper.GetString)
+	return enableRevalidation(ctx, logger, svc, get)
 }
 
 // enableRevalidation turns on the web revalidation hook when WEB_REVALIDATE_URL and its secret

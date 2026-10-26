@@ -15,9 +15,12 @@ import (
 	"strings"
 	gosync "sync"
 	"testing"
+	"time"
 
 	"github.com/justabill-org/justabill/db/repository"
+	"github.com/justabill-org/justabill/obs"
 	"github.com/justabill-org/justabill/pipeline/internal/rollcall"
+	"github.com/justabill-org/justabill/pipeline/internal/upstream"
 )
 
 // voteStore records what the vote sync and the Senate LIS ID sync write. Any other
@@ -179,11 +182,16 @@ type voteFeedServer struct {
 
 	mu      gosync.Mutex
 	fetched []string
+	agents  map[string]bool // every User-Agent a request carried
 }
 
 func (f *voteFeedServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	f.mu.Lock()
 	f.fetched = append(f.fetched, r.URL.Path)
+	if f.agents == nil {
+		f.agents = map[string]bool{}
+	}
+	f.agents[r.UserAgent()] = true
 	f.mu.Unlock()
 
 	var year, roll, dir, congress, session, number int
@@ -593,5 +601,176 @@ func TestSyncVotes_LISLookupFailureFailsTheStep(t *testing.T) {
 	}
 	if len(store.votes) != 0 || len(store.failures) != 1 {
 		t.Errorf("stored %v with failures %+v; want nothing stored and one failure", store.voteIDs(), store.failures)
+	}
+}
+
+// overUpstream points s's vote feeds at a server that answers with handler, through the real
+// upstream client, so an HTTP error comes back as an *upstream.StatusError, as in production.
+func overUpstream(t *testing.T, s *Service, handler http.HandlerFunc) {
+	t.Helper()
+	srv := pointFeeds(t, s, handler)
+	budget, err := upstream.NewBudget("votes", 1000, 100, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s.http, err = upstream.NewClient(slog.New(slog.DiscardHandler), map[string]upstream.Host{
+		srv.Listener.Addr().String(): {Budget: budget, AttemptTimeout: 5 * time.Second, MaxBodyBytes: 1 << 20},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+// pointFeeds points s's vote feeds at a new server that answers with handler, through a plain
+// client, and returns the server.
+func pointFeeds(t *testing.T, s *Service, handler http.HandlerFunc) *httptest.Server {
+	t.Helper()
+	srv := httptest.NewServer(handler)
+	t.Cleanup(srv.Close)
+	s.http = srv.Client()
+	s.feeds = voteFeeds{
+		houseIndexURL:    srv.URL + "/evs/%d/index.asp",
+		houseVoteURL:     srv.URL + "/evs/%d/roll%03d.xml",
+		senateIndexURL:   srv.URL + "/menu/vote_menu_%d_%d.xml",
+		senateVoteURL:    srv.URL + "/votes/vote%d%d/vote_%d_%d_%05d.xml",
+		senateMembersURL: srv.URL + senateMembersPath,
+	}
+	return srv
+}
+
+// senateBlocked answers 403 for the Senate's vote menus and member feed, as senate.gov's edge
+// has since 2026-10-23 (#1032); with redirect, the menus first redirect to the refusal. Every
+// other request goes to feeds.
+func senateBlocked(feeds *voteFeedServer, redirect bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case redirect && strings.HasPrefix(r.URL.Path, "/menu/"):
+			http.Redirect(w, r, "/blocked", http.StatusFound)
+		case r.URL.Path == "/blocked", strings.HasPrefix(r.URL.Path, "/menu/"), r.URL.Path == senateMembersPath:
+			http.Error(w, "Access Denied", http.StatusForbidden)
+		default:
+			feeds.ServeHTTP(w, r)
+		}
+	}
+}
+
+// When senate.gov refuses the vote menus and nothing else fails, the run is unavailable, not
+// failed (#1032): the House votes of every session are stored, the step's success isn't
+// recorded, and the warning names senate.gov and the status. A plain client's 403 response
+// counts as the upstream client's *upstream.StatusError does.
+func TestSyncVotes_SenateRefusalIsUnavailable(t *testing.T) {
+	plain := func(t *testing.T, s *Service, handler http.HandlerFunc) { pointFeeds(t, s, handler) }
+	for _, tc := range []struct {
+		name     string
+		redirect bool
+		serve    func(t *testing.T, s *Service, handler http.HandlerFunc)
+	}{
+		{name: "403", serve: overUpstream},
+		{name: "403 after a redirect", redirect: true, serve: overUpstream},
+		{name: "403 to a plain client", serve: plain},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			store := newVoteStore()
+			feeds := the119th()
+			s, warnings := voteService(t, store, feeds)
+			tc.serve(t, s, senateBlocked(feeds, tc.redirect))
+
+			err := s.SyncVotes(t.Context(), 119, []int{1, 2})
+			if !errors.Is(err, obs.ErrUnavailable) {
+				t.Fatalf("SyncVotes = %v, want it to wrap obs.ErrUnavailable", err)
+			}
+			want := []string{
+				rollcall.HouseID(119, 1, 1), rollcall.HouseID(119, 1, 2), rollcall.HouseID(119, 1, 3),
+				rollcall.HouseID(119, 2, 1), rollcall.HouseID(119, 2, 2), rollcall.HouseID(119, 2, 3),
+			}
+			slices.Sort(want)
+			if got := store.voteIDs(); !slices.Equal(got, want) {
+				t.Errorf("stored %v, want both sessions' House votes %v", got, want)
+			}
+			if store.success != nil || len(store.failures) != 1 {
+				t.Errorf("success %+v, failures %+v; want no success and one failure", store.success, store.failures)
+			}
+			for _, want := range []string{"www.senate.gov", "status=403"} {
+				if !strings.Contains(warnings.String(), want) {
+					t.Errorf("warnings lack %q:\n%s", want, warnings)
+				}
+			}
+		})
+	}
+}
+
+// Only a run whose every error is the Senate's refusal is unavailable: a refusal beside a House
+// failure, or a Senate answering 5xx, fails the run.
+func TestSyncVotes_OtherErrorsStillFail(t *testing.T) {
+	for _, tc := range []struct {
+		name      string
+		status    func(path string) int // the status for path, or 0 to serve it
+		wantInErr string
+	}{
+		{
+			name: "house fails beside a senate refusal",
+			status: func(path string) int {
+				switch {
+				case strings.HasPrefix(path, "/menu/"):
+					return http.StatusForbidden
+				case strings.HasPrefix(path, "/evs/2026/"):
+					return http.StatusBadGateway
+				}
+				return 0
+			},
+			wantInErr: "session 2: house: discover house rolls",
+		},
+		{
+			name: "senate 5xx",
+			status: func(path string) int {
+				if strings.HasPrefix(path, "/menu/") {
+					return http.StatusServiceUnavailable
+				}
+				return 0
+			},
+			wantInErr: "HTTP 503 after 5 attempt(s)",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			store := newVoteStore()
+			feeds := the119th()
+			s, _ := voteService(t, store, feeds)
+			overUpstream(t, s, func(w http.ResponseWriter, r *http.Request) {
+				if code := tc.status(r.URL.Path); code != 0 {
+					w.Header().Set("Retry-After", "0") // upstream retries a 5xx at once
+					w.WriteHeader(code)
+					return
+				}
+				feeds.ServeHTTP(w, r)
+			})
+
+			err := s.SyncVotes(t.Context(), 119, []int{1, 2})
+			if err == nil || errors.Is(err, obs.ErrUnavailable) {
+				t.Fatalf("SyncVotes = %v, want a failure that doesn't wrap obs.ErrUnavailable", err)
+			}
+			if !strings.Contains(err.Error(), tc.wantInErr) {
+				t.Errorf("error %q doesn't include %q", err, tc.wantInErr)
+			}
+		})
+	}
+}
+
+// Every vote feed request names the pipeline (#1032): Go's default "Go-http-client/1.1" is
+// what bot filters refuse, and an identifying agent is what a webmaster can allowlist.
+func TestSyncVotes_SendsTheUserAgent(t *testing.T) {
+	feeds := the119th()
+	s, _ := voteService(t, newVoteStore(), feeds)
+
+	if err := s.SyncVotes(t.Context(), 119, []int{1}); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"/evs/", "/menu/", "/votes/", senateMembersPath} {
+		if len(feeds.paths(want)) == 0 {
+			t.Fatalf("no %s request was sent", want)
+		}
+	}
+	want := map[string]bool{"justabill-pipeline/1.0 (+https://justabill.io)": true}
+	if !maps.Equal(feeds.agents, want) {
+		t.Errorf("requests' User-Agents = %v, want only %v", slices.Collect(maps.Keys(feeds.agents)), want)
 	}
 }

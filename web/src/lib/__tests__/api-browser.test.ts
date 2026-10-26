@@ -68,3 +68,30 @@ describe("browser calls to the API (#970)", () => {
     await expect(call).rejects.toMatchObject({ name: "TimeoutError" });
   });
 });
+
+// #1010: a partial bill or member is read once in the browser. The server's second read carries
+// X-Partial-Retry, a custom header the API's CORS preflight doesn't allow, so in the browser that
+// read would throw and hide what the first one loaded.
+describe("a partial bill or member in the browser (#1010)", () => {
+  it("returns a partial bill from one request, with no X-Partial-Retry header", async () => {
+    const partial = { bill: { id: "hr-119-1" }, actions: [], votes: null };
+    mockFetch.mockResolvedValueOnce(ok(partial)).mockResolvedValueOnce(ok({ ...partial, votes: [] }));
+
+    await expect(api.getBill("hr-119-1")).resolves.toEqual(partial);
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    const headers = (mockFetch.mock.calls[0][1] as RequestInit).headers as Record<string, string>;
+    expect(Object.keys(headers).map((h) => h.toLowerCase())).not.toContain("x-partial-retry");
+  });
+
+  it("returns a member whose recent votes failed from one request", async () => {
+    const partial = { bioguide_id: "A000001", terms: [], recent_votes: null };
+    mockFetch.mockResolvedValueOnce(ok(partial)).mockResolvedValueOnce(ok({ ...partial, recent_votes: [] }));
+
+    await expect(api.getMember("A000001")).resolves.toEqual(partial);
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    const headers = (mockFetch.mock.calls[0][1] as RequestInit).headers as Record<string, string>;
+    expect(Object.keys(headers).map((h) => h.toLowerCase())).not.toContain("x-partial-retry");
+  });
+});

@@ -42,27 +42,8 @@ export interface Experiment {
   electionWeekApproved?: boolean;
 }
 
-/** The A/A run on /vote (#695): both arms are the same page. Its end PR removes this with its entry. */
-export const VOTE_AA = "vote-aa";
-
 /** The experiments in this deployment. Empty when nothing is being tested, and then there's no src/proxy.ts. */
-export const EXPERIMENTS: readonly Experiment[] = [
-  {
-    id: VOTE_AA,
-    issue: 695,
-    path: "/vote",
-    hypothesis:
-      "Both arms are the same page, so about half of visitors land in each and their rates don't differ. " +
-      "It checks the assignment, the counting and the readout, and measures /vote's baseline.",
-    goal: "casts a first vote on /vote",
-    // A guess until this run measures it; the readout reports the real rate for later experiments.
-    baseline: 0.1,
-    target: 0.12,
-    samplePerArm: 3841,
-    start: "2026-10-12",
-    end: "2026-10-26",
-  },
-];
+export const EXPERIMENTS: readonly Experiment[] = [];
 
 /** The cookie that holds the visitor's arm, as `<experiment id>.<variant>`. */
 export const COOKIE_NAME = "jab_exp";

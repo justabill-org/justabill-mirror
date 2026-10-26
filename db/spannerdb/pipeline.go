@@ -10,6 +10,7 @@ import (
 	"cloud.google.com/go/spanner"
 	"google.golang.org/api/iterator"
 
+	"github.com/justabill-org/justabill/db/model"
 	"github.com/justabill-org/justabill/db/repository"
 )
 
@@ -179,13 +180,15 @@ func (s *PipelineStoreImpl) ReplaceBillActions(
 		for _, a := range actions {
 			if _, insErr := txn.Update(ctx, spanner.Statement{
 				SQL: `INSERT INTO bill_actions
-				 (bill_id, action_date, action_text, action_type, action_code, source_system, sort_order)
-				 VALUES (@billID, @actionDate, @actionText, @actionType, @actionCode, @sourceSystem, @sortOrder)`,
+				 (bill_id, action_date, action_text, action_type, action_code, source_system, recorded_vote,
+				  sort_order)
+				 VALUES (@billID, @actionDate, @actionText, @actionType, @actionCode, @sourceSystem, @recordedVote,
+				  @sortOrder)`,
 				Params: map[string]any{
 					paramBillID: billID, "actionDate": timeToCivilDate(a.ActionDate),
 					"actionText": a.ActionText, "actionType": ptrToNullString(a.ActionType),
 					"actionCode": ptrToNullString(a.ActionCode), "sourceSystem": ptrToNullString(a.SourceSystem),
-					"sortOrder": int64(a.SortOrder),
+					"recordedVote": recordedVoteJSON(a.RecordedVote), "sortOrder": int64(a.SortOrder),
 				},
 			}); insErr != nil {
 				return insErr
@@ -194,6 +197,14 @@ func (s *PipelineStoreImpl) ReplaceBillActions(
 		return nil
 	})
 	return err
+}
+
+// recordedVoteJSON is an action's recorded_vote value: SQL NULL for no roll call.
+func recordedVoteJSON(v *model.RecordedVote) spanner.NullJSON {
+	if v == nil {
+		return spanner.NullJSON{}
+	}
+	return spanner.NullJSON{Value: v, Valid: true}
 }
 
 // UpdateBillJSON sets one of a bill's relationship JSON columns: cosponsors, committees,

@@ -43,3 +43,23 @@ func TestHouseRollNumbersWithoutTheIndex(t *testing.T) {
 		t.Errorf("a year with no rolls: rollNumbers = %v, %v; want none", got, err)
 	}
 }
+
+// Every request to the clerks names spotcheck (#1032), not Go's default "Go-http-client/1.1",
+// which bot filters refuse.
+func TestSourcesSendTheUserAgent(t *testing.T) {
+	var agents []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		agents = append(agents, r.UserAgent())
+		_, _ = w.Write([]byte(
+			"<vote_summary><votes><vote><vote_number>00001</vote_number></vote></votes></vote_summary>"))
+	}))
+	t.Cleanup(srv.Close)
+	s := sources{senateMenuURL: srv.URL + "/menu/vote_menu_%d_%d.xml", client: srv.Client()}
+
+	if _, err := s.rollNumbers(t.Context(), chamberSenate, 119, 1); err != nil {
+		t.Fatal(err)
+	}
+	if want := []string{"justabill-spotcheck/1.0 (+https://justabill.io)"}; !slices.Equal(agents, want) {
+		t.Errorf("User-Agents = %q, want %q", agents, want)
+	}
+}

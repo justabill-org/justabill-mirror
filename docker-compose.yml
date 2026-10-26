@@ -1,12 +1,12 @@
 services:
   spanner-emulator:
-    image: gcr.io/cloud-spanner-emulator/emulator:1.5.58@sha256:c6f3402f2599684f295a0fdefb6fbbbfb18a0e43e309ff5456ccb452a4570a79
+    image: gcr.io/cloud-spanner-emulator/emulator:1.5.59@sha256:5f71fecd6330211789b75065ade9587d67b3a6b4678e7e5408e42c22f778c63e
     ports:
       - "9010:9010"
       - "9020:9020"
 
   spanner-init:
-    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:587.0.0-slim@sha256:be4876b4311056bf3ce236a14a7dea1288e70b7cfea2454ea15e4165c819921f
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:590.0.1-slim@sha256:2a5368c4f3e25f7e202ccbd7b63e4128380d8fd683266f7f015c5d0afcc8f3be
     depends_on:
       - spanner-emulator
     environment:
@@ -182,7 +182,7 @@ services:
   # which checks it.
   playwright:
     profiles: [dev]
-    image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+    image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea
     init: true
     ipc: host
     user: "${JAB_UID:-0}:${JAB_GID:-0}"

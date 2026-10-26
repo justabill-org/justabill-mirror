@@ -3,10 +3,13 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"slices"
 	"testing"
 	"time"
+
+	"github.com/justabill-org/justabill/obs"
 )
 
 // fakeCongresses records the tracker's writes. promoteOK is PromoteCongress's answer.
@@ -166,6 +169,46 @@ func TestTrackerForEach(t *testing.T) {
 		return nil
 	}); !errors.Is(err, boom) {
 		t.Errorf("forEach with a failing store = %v, want %v", err, boom)
+	}
+}
+
+// A run is unavailable only when every congress's error is (#1032): an unavailable congress
+// beside a failed one fails the run, and its error still shows.
+func TestTrackerForEachUnavailable(t *testing.T) {
+	refused := fmt.Errorf("%w: senate.gov refused the vote feed", obs.ErrUnavailable)
+	boom := errors.New("boom")
+	for _, tc := range []struct {
+		name            string
+		errs            map[int]error
+		wantUnavailable bool
+		wantErr         string
+	}{
+		{
+			name:            "every congress unavailable",
+			errs:            map[int]error{120: refused, 119: refused},
+			wantUnavailable: true,
+			wantErr: "congress 120: upstream source unavailable: senate.gov refused the vote feed\n" +
+				"congress 119: upstream source unavailable: senate.gov refused the vote feed",
+		},
+		{
+			name:    "one unavailable, one failed",
+			errs:    map[int]error{120: refused, 119: boom},
+			wantErr: "congress 120: upstream source unavailable: senate.gov refused the vote feed\ncongress 119: boom",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			tr := trackerAt(&fakeCongresses{}, 0, utc(2027, time.January, 10, 0))
+			err := tr.forEach(t.Context(), func(_ context.Context, c int) error { return tc.errs[c] })
+			if errors.Is(err, obs.ErrUnavailable) != tc.wantUnavailable {
+				t.Errorf("forEach = %v: unavailable %v, want %v", err, !tc.wantUnavailable, tc.wantUnavailable)
+			}
+			if err == nil || err.Error() != tc.wantErr {
+				t.Errorf("forEach = %q, want %q", err, tc.wantErr)
+			}
+			if !tc.wantUnavailable && !errors.Is(err, boom) {
+				t.Errorf("forEach = %v, want it to wrap the failure", err)
+			}
+		})
 	}
 }
 

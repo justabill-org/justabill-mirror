@@ -48,6 +48,9 @@ func (s *Service) now() time.Time {
 // SetSummaryJob sets the summary job's batch size, workers, daily cap and queue settings.
 func (s *Service) SetSummaryJob(cfg SummaryJobConfig) { s.summaryJob = cfg }
 
+// SummaryJob returns the summary job's settings: [DefaultSummaryJobConfig] until SetSummaryJob.
+func (s *Service) SummaryJob() SummaryJobConfig { return s.summaryJob }
+
 // SyncSummaries runs one pass of the summary job for a congress
 // (docs/design/68-ai-summaries-gemini-3.md, "Job"). It logs the day's budget and the backlog, then
 // summarizes up to min(batch, cap − attempts today) due bills from the queue, in priority order,

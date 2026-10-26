@@ -176,7 +176,8 @@ type MemberDetailResponse struct {
 	Member MemberDetail `json:"member"`
 }
 
-// Action is a bill action from the Congress API.
+// Action is a bill action from the Congress API. RecordedVotes lists the roll calls the action
+// records (a floor vote by the yeas and nays); most actions have none.
 type Action struct {
 	ActionDate   string `json:"actionDate"`
 	Text         string `json:"text"`
@@ -186,6 +187,18 @@ type Action struct {
 		Code *int   `json:"code"`
 		Name string `json:"name"`
 	} `json:"sourceSystem"`
+	RecordedVotes []RecordedVote `json:"recordedVotes"`
+}
+
+// RecordedVote is one roll call on a bill action. Chamber is "House" or "Senate", Date the vote's
+// time in UTC (RFC 3339), and URL the clerk's vote XML (clerk.house.gov or senate.gov).
+type RecordedVote struct {
+	Chamber       string `json:"chamber"`
+	Congress      int    `json:"congress"`
+	Date          string `json:"date"`
+	RollNumber    int    `json:"rollNumber"`
+	SessionNumber int    `json:"sessionNumber"`
+	URL           string `json:"url"`
 }
 
 // ActionsResponse is the response from GET /bill/{congress}/{type}/{number}/actions.

@@ -15,6 +15,7 @@ import (
 
 	"github.com/justabill-org/justabill/db/model"
 	"github.com/justabill-org/justabill/db/repository"
+	"github.com/justabill-org/justabill/obs"
 	"github.com/justabill-org/justabill/pipeline/internal/rollcall"
 	"github.com/justabill-org/justabill/pipeline/internal/upstream"
 	"github.com/justabill-org/justabill/pipeline/internal/xmlparse"
@@ -25,6 +26,10 @@ const (
 
 	houseDateFormat  = "2-Jan-2006"
 	senateDateFormat = "January 2, 2006, 03:04 PM"
+
+	// userAgent names the pipeline on every vote feed and bill text request (httpGet). It
+	// identifies us honestly, so a site's webmaster can allowlist it: never a browser's.
+	userAgent = "justabill-pipeline/1.0 (+https://justabill.io)"
 )
 
 // voteFeeds holds the House Clerk and Senate LIS URL templates. Tests point them at an
@@ -51,6 +56,11 @@ var (
 	// errNotFound is an HTTP 404 from a vote feed. For a session's index or menu it means the
 	// session has no roll calls yet.
 	errNotFound = errors.New("not found")
+	// errRefused is an HTTP 403 from a vote feed: its server refused the request.
+	errRefused = errors.New("refused")
+	// errSenateRefused marks a session's Senate error caused by senate.gov refusing the vote
+	// menu (errRefused), a block on its side that code can't fix (#1032).
+	errSenateRefused = errors.New("senate.gov refused the vote feed")
 	// errSessionMismatch means a vote document names a different congress or session than the
 	// one requested, e.g. a wrong year folder. Nothing from it is written.
 	errSessionMismatch = errors.New("vote XML is for a different congress or session")
@@ -69,7 +79,10 @@ var rollNumberRe = regexp.MustCompile(`rollnumber=(\d+)`)
 // SyncVotes fetches the House and Senate roll call votes of the given sessions of a congress
 // and upserts them into the database. Callers pass rollcall.Sessions for every session that has
 // started. A chamber whose roll-call list can't be read fails the step after the other chamber
-// and the other sessions have synced; a single roll call that fails is logged.
+// and the other sessions have synced; a single roll call that fails is logged. When every
+// error is senate.gov refusing the Senate's list (HTTP 403), the error wraps
+// [obs.ErrUnavailable], so the run is reported unavailable, not failed: the House votes are
+// stored, the step's success isn't recorded, and the Pipeline stale alert tracks the block.
 //
 // Senators are placed by the LIS IDs the Senate's member feed maps to bioguide IDs (refreshed
 // at the start of the run), then by a strict name match. Senators neither places are logged,
@@ -106,14 +119,14 @@ func (s *Service) syncVotes(ctx context.Context, congressNum int, sessions []int
 	total := 0
 	var errs []error
 	for _, session := range sessions {
-		counts, sessionErr := s.syncSessionVotes(ctx, congressNum, session, senators)
+		counts, sessionErrs := s.syncSessionVotes(ctx, congressNum, session, senators)
 		s.logger.InfoContext(ctx, "votes synced", "congress", congressNum, "session", session,
 			"house", counts.house, "senate", counts.senate, "senate_linked", counts.senateLinked,
 			"unmatched_senators", counts.unmatchedSenators)
 		s.tally.addVotes(session, counts.house, counts.senate)
 		total += counts.house + counts.senate
-		if sessionErr != nil {
-			errs = append(errs, fmt.Errorf("session %d: %w", session, sessionErr))
+		for _, err := range sessionErrs {
+			errs = append(errs, fmt.Errorf("session %d: %w", session, err))
 		}
 	}
 
@@ -127,14 +140,33 @@ func (s *Service) syncVotes(ctx context.Context, congressNum int, sessions []int
 	}
 	s.logger.InfoContext(ctx, "vote sync finished", "congress", congressNum, "stored", total,
 		"unmatched_senators", len(unmatched))
-	return out, errors.Join(errs...)
+	err = errors.Join(errs...)
+	if err != nil && onlySenateRefusals(errs) {
+		s.logger.WarnContext(ctx, "senate.gov refused the senate vote feed; the run is unavailable",
+			"congress", congressNum, "host", upstream.SenateHost, "status", http.StatusForbidden, "error", err)
+		return out, fmt.Errorf("%w: %w", obs.ErrUnavailable, err)
+	}
+	return out, err
+}
+
+// onlySenateRefusals reports whether every error in errs is senate.gov refusing the Senate's
+// list (errSenateRefused). It checks each error on its own: [errors.Is] on a join is true if any
+// part matches, and a House failure beside a refusal must still fail the run.
+func onlySenateRefusals(errs []error) bool {
+	for _, err := range errs {
+		if !errors.Is(err, errSenateRefused) {
+			return false
+		}
+	}
+	return len(errs) > 0
 }
 
 // syncSessionVotes syncs one session, House and Senate in parallel, and returns what it stored
-// and the chambers' errors, joined.
+// and each failed chamber's error. A Senate error from senate.gov refusing the list wraps
+// errSenateRefused.
 func (s *Service) syncSessionVotes(
 	ctx context.Context, congressNum, session int, senators *senatorResolver,
-) (sessionVotes, error) {
+) (sessionVotes, []error) {
 	year := rollcall.Year(congressNum, session)
 	s.logger.InfoContext(ctx, "syncing votes", "congress", congressNum, "session", session, "year", year)
 
@@ -159,13 +191,17 @@ func (s *Service) syncSessionVotes(
 
 	wg.Wait()
 
+	var errs []error
 	if houseErr != nil {
-		houseErr = fmt.Errorf("house: %w", houseErr)
+		errs = append(errs, fmt.Errorf("house: %w", houseErr))
 	}
-	if senateErr != nil {
-		senateErr = fmt.Errorf("senate: %w", senateErr)
+	switch {
+	case errors.Is(senateErr, errRefused):
+		errs = append(errs, fmt.Errorf("senate: %w: %w", errSenateRefused, senateErr))
+	case senateErr != nil:
+		errs = append(errs, fmt.Errorf("senate: %w", senateErr))
 	}
-	return counts, errors.Join(houseErr, senateErr)
+	return counts, errs
 }
 
 const houseVoteWorkers = 5
@@ -671,8 +707,8 @@ func checkSession(wantCongress, wantSession, gotCongress, gotSession int) error 
 	return nil
 }
 
-// httpGet fetches a vote XML or bill text URL with the upstream client and returns the body
-// bytes. A 404 wraps errNotFound. The upstream client returns final HTTP errors as
+// httpGet fetches a vote XML or bill text URL with the upstream client, as userAgent, and
+// returns the body bytes. A 404 wraps errNotFound and a 403 errRefused. The upstream client returns final HTTP errors as
 // *upstream.StatusError; the status checks below cover a plain client too.
 func (s *Service) httpGet(ctx context.Context, url string) ([]byte, error) {
 	return s.httpGetMax(ctx, url, 0)
@@ -685,18 +721,27 @@ func (s *Service) httpGetMax(ctx context.Context, url string, maxBytes int64) ([
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("User-Agent", userAgent)
 
 	resp, err := s.http.Do(req)
-	if se, ok := errors.AsType[*upstream.StatusError](err); ok && se.Status == http.StatusNotFound {
-		return nil, fmt.Errorf("%w: %w", errNotFound, se)
+	if se, ok := errors.AsType[*upstream.StatusError](err); ok {
+		switch se.Status {
+		case http.StatusNotFound:
+			return nil, fmt.Errorf("%w: %w", errNotFound, se)
+		case http.StatusForbidden:
+			return nil, fmt.Errorf("%w: %w", errRefused, se)
+		}
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusNotFound {
+	switch resp.StatusCode {
+	case http.StatusNotFound:
 		return nil, fmt.Errorf("%w: HTTP 404 for %s", errNotFound, url)
+	case http.StatusForbidden:
+		return nil, fmt.Errorf("%w: HTTP 403 for %s", errRefused, url)
 	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("HTTP %d for %s", resp.StatusCode, url)

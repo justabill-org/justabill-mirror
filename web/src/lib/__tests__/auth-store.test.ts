@@ -83,7 +83,7 @@ function setup(
   const fake = fakeBackend();
   const backend: AuthBackend = { ...fake.backend, ...extra };
   const load = vi.fn(async () => backend);
-  const store = createAuthStore(load, api, () => ua, browser.hint);
+  const store = createAuthStore(load, api, () => ua, browser.hint, () => ({ storage: browser.local, events: null }));
   return { ...fake, store, api, load, browser };
 }
 
@@ -334,6 +334,79 @@ describe("createAuthStore", () => {
     await flush();
     emit(fakeUser());
     await flush();
+    await store.signOut();
+    expect(backend.signOut).toHaveBeenCalled();
+    expect(store.getState().status).toBe("signed-out");
+  });
+});
+
+describe("forgetting this device's notes when the session ends (#1039)", () => {
+  // The onboarding note holds the account's random ID; on a shared device it would name the account.
+  function signedInHere(extra: Partial<AuthBackend> = {}) {
+    const browser = fakeBrowser(true);
+    browser.local.setItem("jab.onboarded", "u-1");
+    return setup(undefined, "Desktop", extra, browser);
+  }
+
+  it("removes the onboarding note and the signed-in note on sign-out", async () => {
+    const { store, emit, browser } = signedInHere();
+    store.start();
+    await flush();
+    emit(fakeUser());
+    await flush();
+    expect(browser.local.items.get("jab.onboarded")).toBe("u-1");
+
+    await store.signOut();
+    expect(browser.local.items.has("jab.onboarded")).toBe(false);
+    expect(browser.local.items.has("jab.signed-in.v1")).toBe(false);
+  });
+
+  it("removes it when Firebase reports the session gone, e.g. a revoked token", async () => {
+    const { store, emit, browser } = signedInHere();
+    store.start();
+    await flush();
+    emit(fakeUser());
+    await flush();
+
+    emit(null);
+    expect(browser.local.items.has("jab.onboarded")).toBe(false);
+  });
+
+  it("keeps it while the same account's token refreshes", async () => {
+    const { store, emit, browser } = signedInHere();
+    store.start();
+    await flush();
+    const user = fakeUser();
+    emit(user);
+    await flush();
+    emit(user);
+    await flush();
+    expect(browser.local.items.get("jab.onboarded")).toBe("u-1");
+  });
+
+  it("removes it even when Firebase's sign-out fails, and still reports the failure", async () => {
+    const offline = new Error("auth/network-request-failed");
+    const { store, emit, browser } = signedInHere({ signOut: vi.fn(async () => Promise.reject(offline)) });
+    store.start();
+    await flush();
+    emit(fakeUser());
+    await flush();
+
+    await expect(store.signOut()).rejects.toBe(offline);
+    expect(browser.local.items.has("jab.onboarded")).toBe(false);
+  });
+
+  it("signs out when storage throws", async () => {
+    const browser = fakeBrowser(true);
+    browser.local.removeItem = () => {
+      throw new Error("blocked");
+    };
+    const { store, emit, backend } = setup(undefined, "Desktop", {}, browser);
+    store.start();
+    await flush();
+    emit(fakeUser());
+    await flush();
+
     await store.signOut();
     expect(backend.signOut).toHaveBeenCalled();
     expect(store.getState().status).toBe("signed-out");

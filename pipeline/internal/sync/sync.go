@@ -527,25 +527,7 @@ func (s *Service) syncBillActions(
 		return fetchError("actions", err)
 	}
 
-	actions := make([]repository.BillActionRow, 0, len(resp.Actions))
-	for i, a := range resp.Actions {
-		actionDate, _ := time.Parse("2006-01-02", a.ActionDate)
-		var sourceSystem *string
-		if a.SourceSystem != nil && a.SourceSystem.Name != "" {
-			sourceSystem = &a.SourceSystem.Name
-		}
-
-		actions = append(actions, repository.BillActionRow{
-			ActionDate:   actionDate,
-			ActionText:   a.Text,
-			ActionType:   nilIfEmpty(a.Type),
-			ActionCode:   nilIfEmpty(a.ActionCode),
-			SourceSystem: sourceSystem,
-			SortOrder:    i + 1,
-		})
-	}
-
-	if err = s.store.ReplaceBillActions(ctx, billID, actions); err != nil {
+	if err = s.store.ReplaceBillActions(ctx, billID, BillActionRows(resp.Actions)); err != nil {
 		return fmt.Errorf("replace bill actions: %w", err)
 	}
 

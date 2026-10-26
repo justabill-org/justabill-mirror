@@ -10,17 +10,22 @@ import { BillListControls } from "../bill/bill-list-controls";
 // The /bills cards and controls (#666): quick views with counts, the sort, a card's one-line
 // description, progress and sponsor.
 
-const nav = vi.hoisted(() => ({ query: "", push: vi.fn() }));
+// One router for every render, as Next's useRouter gives.
+const nav = vi.hoisted(() => {
+  const push = vi.fn();
+  return { query: "", push, router: { push } };
+});
 const auth = vi.hoisted(() => ({ status: "signed-out" }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: nav.push }),
+  useRouter: () => nav.router,
   useSearchParams: () => new URLSearchParams(nav.query),
 }));
 vi.mock("@/lib/auth/provider", () => ({ useUser: () => ({ status: auth.status }) }));
 
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   nav.query = "";
   nav.push.mockReset();
   auth.status = "signed-out";
@@ -189,6 +194,96 @@ describe("BillListControls", () => {
     vi.advanceTimersByTime(300);
     expect(nav.push).toHaveBeenCalledWith("/bills?show=passed&q=veterans");
     vi.useRealTimers();
+  });
+
+  it("searches nothing once the controls unmount, as when a bill is clicked right after typing (#1012)", () => {
+    vi.useFakeTimers();
+    const { unmount } = render(<BillListControls congresses={congresses} counts={counts} />);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search bills" }), { target: { value: "veterans" } });
+    unmount();
+    vi.advanceTimersByTime(300);
+    expect(nav.push).not.toHaveBeenCalled();
+  });
+
+  it("keeps a filter chosen right after typing, with the typed search, in one navigation (#1012)", () => {
+    vi.useFakeTimers();
+    nav.query = "show=passed";
+    render(<BillListControls congresses={congresses} counts={counts} />);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search bills" }), { target: { value: "veterans" } });
+    fireEvent.click(screen.getByRole("button", { name: /Filters/ }));
+    fireEvent.change(screen.getByLabelText("Chamber of origin"), { target: { value: "senate" } });
+    vi.advanceTimersByTime(300);
+    expect(nav.push.mock.calls).toEqual([["/bills?show=passed&chamber=senate&q=veterans"]]);
+  });
+
+  it("clears the search when a filter is chosen right after emptying the box (#1012)", () => {
+    vi.useFakeTimers();
+    nav.query = "q=tax";
+    render(<BillListControls congresses={congresses} counts={counts} />);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search bills" }), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: /Filters/ }));
+    fireEvent.change(screen.getByLabelText("Chamber of origin"), { target: { value: "house" } });
+    vi.advanceTimersByTime(300);
+    expect(nav.push.mock.calls).toEqual([["/bills?chamber=house"]]);
+  });
+
+  it("goes to a view clicked right after typing, with the typed search, in one navigation (#1012)", () => {
+    vi.useFakeTimers();
+    render(<BillListControls congresses={congresses} counts={counts} />);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search bills" }), { target: { value: "veterans" } });
+    const views = within(screen.getByRole("navigation", { name: "Bill views" })).getAllByRole("link");
+    // fireEvent returns false when a handler prevented the link's own navigation.
+    expect(fireEvent.click(views[1])).toBe(false);
+    vi.advanceTimersByTime(300);
+    expect(nav.push.mock.calls).toEqual([["/bills?show=passed&q=veterans"]]);
+  });
+
+  it("leaves a view's link to the browser when no search is waiting", () => {
+    render(<BillListControls congresses={congresses} counts={counts} />);
+    const views = within(screen.getByRole("navigation", { name: "Bill views" })).getAllByRole("link");
+    expect(fireEvent.click(views[1])).toBe(true);
+    expect(nav.push).not.toHaveBeenCalled();
+  });
+
+  it("searches within the URL's latest filters, not the ones there when the key was pressed (#1012)", () => {
+    vi.useFakeTimers();
+    const { rerender } = render(<BillListControls congresses={congresses} counts={counts} />);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search bills" }), { target: { value: "veterans" } });
+    nav.query = "show=committee&chamber=house";
+    rerender(<BillListControls congresses={congresses} counts={counts} />);
+    vi.advanceTimersByTime(300);
+    expect(nav.push.mock.calls).toEqual([["/bills?show=committee&chamber=house&q=veterans"]]);
+  });
+
+  it("keeps typing that ran ahead of a search still landing (#1012)", () => {
+    vi.useFakeTimers();
+    const { rerender } = render(<BillListControls congresses={congresses} counts={counts} />);
+    const search = screen.getByRole("searchbox", { name: "Search bills" }) as HTMLInputElement;
+    fireEvent.change(search, { target: { value: "vet" } });
+    vi.advanceTimersByTime(300);
+    fireEvent.change(search, { target: { value: "veterans" } });
+    nav.query = "q=vet";
+    rerender(<BillListControls congresses={congresses} counts={counts} />);
+    expect(search.value).toBe("veterans");
+    vi.advanceTimersByTime(300);
+    expect(nav.push.mock.calls).toEqual([["/bills?q=vet"], ["/bills?q=veterans"]]);
+  });
+
+  it("shows the URL's search again after Back, without disturbing the box as its own search lands (#1012)", () => {
+    vi.useFakeTimers();
+    const { rerender } = render(<BillListControls congresses={congresses} counts={counts} />);
+    const search = screen.getByRole("searchbox", { name: "Search bills" }) as HTMLInputElement;
+    search.focus();
+    fireEvent.change(search, { target: { value: "veterans" } });
+    vi.advanceTimersByTime(300);
+    nav.query = "q=veterans";
+    rerender(<BillListControls congresses={congresses} counts={counts} />);
+    expect(screen.getByRole("searchbox", { name: "Search bills" })).toBe(search);
+    expect(document.activeElement).toBe(search);
+    expect(search.value).toBe("veterans");
+    nav.query = "";
+    rerender(<BillListControls congresses={congresses} counts={counts} />);
+    expect(search.value).toBe("");
   });
 
   it("keeps congress, bill type and chamber behind Filters", () => {

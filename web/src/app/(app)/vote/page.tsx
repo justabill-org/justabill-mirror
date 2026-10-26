@@ -10,8 +10,6 @@ import {
   billsBecameLaw as exampleLaws,
   congresses as exampleCongresses,
 } from "@/lib/examples";
-import { ExperimentExposure } from "@/lib/experiments/client";
-import { VOTE_AA } from "@/lib/experiments/registry";
 import { isBuildPhase, orDevFixture } from "@/lib/fallback";
 import type { Congress, PaginatedResult } from "@/lib/types";
 import { DECK_BATCH, deckListParams, type DeckItem } from "@/lib/vote-deck";
@@ -74,8 +72,6 @@ export default async function VotePage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-b from-muted/30 to-background">
-      {/* The A/A run (#695): both arms render this page, /vote/v/treatment through it. */}
-      <ExperimentExposure id={VOTE_AA} />
       <div className="mx-auto max-w-2xl px-4 pb-8 pt-2 sm:pt-3">
         {/* Voting area */}
         {deck === null ? (

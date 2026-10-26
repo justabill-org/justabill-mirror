@@ -189,7 +189,7 @@ func runServe(_ *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
-	jobs, overridden, err := withTimeoutOverrides(jobs, os.Environ())
+	jobs, overridden, err := scheduledJobs(ctx, logger, jobs, viper.GetString("pipeline_cra_rules"), os.Environ())
 	if err != nil {
 		return err
 	}
@@ -393,8 +393,9 @@ func leadJobs(sigCtx context.Context, logger *slog.Logger, s *scheduler.Schedule
 	}
 }
 
-// jobTable returns serve's jobs: the sync jobs, with AI_SUMMARY_INTERVAL applied and without
-// sync-cra-rules when PIPELINE_CRA_RULES is false, and the aggregate-votes job with its AGG_* rules.
+// jobTable returns serve's jobs: the sync jobs, with AI_SUMMARY_INTERVAL applied, and the
+// aggregate-votes job with its AGG_* rules. It still holds sync-cra-rules: [scheduledJobs] leaves it
+// out when PIPELINE_CRA_RULES is false, after the timeout overrides.
 func jobTable(
 	svc *psync.Service,
 	store *spannerdb.PipelineStoreImpl,
@@ -405,9 +406,6 @@ func jobTable(
 		syncJobs(svc, newCongressTracker(svc, pinned, logger), uscode.NewLoader(store, logger)),
 		viper.GetString("ai_summary_interval"))
 	if err != nil {
-		return nil, err
-	}
-	if jobs, err = withCRARules(jobs, viper.GetString("pipeline_cra_rules")); err != nil {
 		return nil, err
 	}
 	agg, err := aggregateJob(store, viper.GetString, logger)

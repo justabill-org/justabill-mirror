@@ -32,7 +32,7 @@ RUN cd pipeline && CGO_ENABLED=0 go build -trimpath -o /out/pipeline-load-uscode
 RUN cd pipeline && CGO_ENABLED=0 go build -trimpath -o /out/pipeline-summarize-batch ./cmd/summarize-batch
 RUN cd pipeline && CGO_ENABLED=0 go build -trimpath -o /out/pipeline-aggregates ./cmd/aggregates
 
-FROM gcr.io/distroless/static-debian13:nonroot@sha256:e2e927ec666bae08560abb3c55d0659eceabb657f56b6782ab500a9fc7f555e3
+FROM gcr.io/distroless/static-debian13:nonroot@sha256:18f4cc26c9ffa7f20a359298be7deadac5c607c8e03a02b8119f1a5fc2f82c99
 
 COPY --from=builder /out/pipeline-serve /usr/local/bin/pipeline-serve
 COPY --from=builder /out/pipeline-backfill /usr/local/bin/pipeline-backfill

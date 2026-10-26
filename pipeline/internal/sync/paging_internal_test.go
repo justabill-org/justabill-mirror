@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/justabill-org/justabill/db/model"
 	"github.com/justabill-org/justabill/db/repository"
 	"github.com/justabill-org/justabill/pipeline/internal/congress"
 )
@@ -121,6 +122,66 @@ func TestSyncBillActions_UsesEveryAction(t *testing.T) {
 	) {
 		t.Errorf("the first %d actions give %d stages; the full list should give more than that, got %d",
 			oldPageSize, len(firstPage), len(store.history))
+	}
+}
+
+func TestSyncBillActions_StoresRecordedVote(t *testing.T) {
+	const (
+		house190 = "https://clerk.house.gov/evs/2025/roll190.xml"
+		house191 = "https://clerk.house.gov/evs/2025/roll191.xml"
+	)
+	// Newest first, as Congress.gov lists them; each vote mirrors its recordedVotes entries.
+	body := `{"actions": [
+	 {"actionDate": "2025-07-03", "text": "Two roll calls", "recordedVotes": [
+	  {"chamber": "House", "congress": 119, "date": "2025-07-03T18:00:00Z", "rollNumber": 190,
+	   "sessionNumber": 1, "url": "` + house190 + `"},
+	  {"chamber": "House", "congress": 119, "date": "2025-07-03T18:31:38Z", "rollNumber": 191,
+	   "sessionNumber": 1, "url": "` + house191 + `"}]},
+	 {"actionDate": "2025-07-02", "text": "A bad last entry", "recordedVotes": [
+	  {"chamber": "House", "congress": 119, "date": "2025-07-02T10:00:00Z", "rollNumber": 189,
+	   "sessionNumber": 1, "url": "https://clerk.house.gov/evs/2025/roll189.xml"},
+	  {"chamber": "House", "congress": 119, "date": "2025-07-02T11:00:00Z", "rollNumber": 0,
+	   "sessionNumber": 1, "url": "https://clerk.house.gov/evs/2025/roll0.xml"}]},
+	 {"actionDate": "2025-07-01", "text": "Not a web link", "recordedVotes": [
+	  {"chamber": "Senate", "congress": 119, "date": "2025-07-01T16:03:40Z", "rollNumber": 372,
+	   "sessionNumber": 1, "url": "javascript:alert(1)"}]},
+	 {"actionDate": "2025-06-30", "text": "No such chamber", "recordedVotes": [
+	  {"chamber": "Joint", "congress": 119, "date": "2025-06-30T16:00:00Z", "rollNumber": 5,
+	   "sessionNumber": 1, "url": "https://www.senate.gov/x.xml"}]},
+	 {"actionDate": "2025-05-22", "text": "Passed House", "recordedVotes": [
+	  {"chamber": "House", "congress": 119, "date": "2025-05-22T10:00:00Z", "rollNumber": 145,
+	   "sessionNumber": 1, "url": "https://clerk.house.gov/evs/2025/roll145.xml"}]},
+	 {"actionDate": "2025-05-16", "text": "Reported"}
+	]}`
+	store := &actionsStore{}
+	s := serviceWithAPI(t, store, func(w http.ResponseWriter, _ *http.Request) { fmt.Fprint(w, body) })
+
+	if err := s.syncBillActions(t.Context(), testBillID, 119, "hr", 1); err != nil {
+		t.Fatalf("syncBillActions: %v", err)
+	}
+
+	want := map[string]*model.RecordedVote{
+		"Two roll calls":   {RollNumber: 191, URL: house191, Chamber: "House"},
+		"A bad last entry": {RollNumber: 189, URL: "https://clerk.house.gov/evs/2025/roll189.xml", Chamber: "House"},
+		"Not a web link":   nil,
+		"No such chamber":  nil,
+		"Passed House":     {RollNumber: 145, URL: "https://clerk.house.gov/evs/2025/roll145.xml", Chamber: "House"},
+		"Reported":         nil,
+	}
+	if len(store.actions) != len(want) {
+		t.Fatalf("stored %d actions, want %d", len(store.actions), len(want))
+	}
+	for _, a := range store.actions {
+		w, ok := want[a.ActionText]
+		if !ok {
+			t.Fatalf("stored an unexpected action %q", a.ActionText)
+		}
+		switch {
+		case w == nil && a.RecordedVote != nil:
+			t.Errorf("%q: RecordedVote = %+v, want nil", a.ActionText, *a.RecordedVote)
+		case w != nil && (a.RecordedVote == nil || *a.RecordedVote != *w):
+			t.Errorf("%q: RecordedVote = %v, want %+v", a.ActionText, a.RecordedVote, *w)
+		}
 	}
 }
 

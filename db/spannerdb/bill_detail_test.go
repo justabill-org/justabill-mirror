@@ -80,9 +80,10 @@ func TestBillGetActions(t *testing.T) {
 	ctx := t.Context()
 
 	committee := "Committee"
+	vote := &model.RecordedVote{RollNumber: 123, URL: "https://clerk.house.gov/evs/2025/roll123.xml", Chamber: "House"}
 	// Written out of order: the reader orders by sort_order.
 	actions := []repository.BillActionRow{
-		{ActionDate: utcDate(2025, time.February, 1), ActionText: "Passed House", SortOrder: 2},
+		{ActionDate: utcDate(2025, time.February, 1), ActionText: "Passed House", RecordedVote: vote, SortOrder: 2},
 		{ActionDate: utcDate(2025, time.January, 3), ActionText: "Introduced", ActionType: &committee, SortOrder: 1},
 	}
 	if err := store.ReplaceBillActions(ctx, testdb.FixtureHouseBill, actions); err != nil {
@@ -97,8 +98,17 @@ func TestBillGetActions(t *testing.T) {
 	}
 	first := got[0]
 	if first.ID == "" || first.BillID != testdb.FixtureHouseBill || !first.ActionDate.Equal(actions[1].ActionDate) ||
-		deref(first.ActionType) != committee || first.ActionCode != nil {
-		t.Errorf("GetActions[0] = %+v, want the introduced action with a generated ID and no code", first)
+		deref(first.ActionType) != committee || first.ActionCode != nil || first.RecordedVote != nil {
+		t.Errorf("GetActions[0] = %+v, want the introduced action with a generated ID, no code and no vote", first)
+	}
+	// The roll call reads back in the shape the web links (#1023); Spanner reorders JSON keys.
+	var gotVote model.RecordedVote
+	if err = json.Unmarshal(got[1].RecordedVote, &gotVote); err != nil || gotVote != *vote {
+		t.Errorf("GetActions[1].RecordedVote = %s (%v), want %+v", got[1].RecordedVote, err, *vote)
+	}
+	var keys map[string]any
+	if err = json.Unmarshal(got[1].RecordedVote, &keys); err != nil || len(keys) != 3 {
+		t.Errorf("GetActions[1].RecordedVote = %s, want only roll_number, url and chamber", got[1].RecordedVote)
 	}
 
 	// A sync replaces the whole list.

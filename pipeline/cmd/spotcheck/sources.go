@@ -17,6 +17,9 @@ const (
 	httpTimeout = 30 * time.Second
 	// maxBody caps one download; the largest roll-call XML is well under 1 MB.
 	maxBody = 16 << 20
+	// userAgent names spotcheck to the clerks, as the vote sync names itself (#1032): an honest,
+	// identifying agent a webmaster can allowlist, never a browser's.
+	userAgent = "justabill-spotcheck/1.0 (+https://justabill.io)"
 )
 
 // errNotFound is an HTTP 404. For a session's roll-call list it means the session has none yet.
@@ -180,6 +183,7 @@ func (s sources) get(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("User-Agent", userAgent)
 	resp, err := s.client.Do(req)
 	if err != nil {
 		return nil, err

@@ -167,3 +167,109 @@ func TestWithSummaryInterval(t *testing.T) {
 		}
 	}
 }
+
+// PIPELINE_CRA_RULES=false with sync-cra-rules' timeout override starts without the job and logs
+// the paused override instead of failing serve (#1022).
+func TestScheduledJobs(t *testing.T) {
+	for name, tc := range map[string]struct {
+		craRules    string
+		env         []string
+		wantCRA     bool
+		wantChanged []string
+		wantPaused  []string
+	}{
+		"paused job's override": {
+			craRules:   "false",
+			env:        []string{"PIPELINE_JOB_TIMEOUT_SYNC_CRA_RULES=5m"},
+			wantPaused: []string{"sync-cra-rules PIPELINE_JOB_TIMEOUT_SYNC_CRA_RULES"},
+		},
+		"paused job's override beside another": {
+			craRules:    "0",
+			env:         []string{"PIPELINE_JOB_TIMEOUT_SYNC_CRA_RULES=5m", "PIPELINE_JOB_TIMEOUT_SYNC_BILLS=210m"},
+			wantChanged: []string{"sync-bills"},
+			wantPaused:  []string{"sync-cra-rules PIPELINE_JOB_TIMEOUT_SYNC_CRA_RULES"},
+		},
+		"running job's override": {
+			craRules:    "true",
+			env:         []string{"PIPELINE_JOB_TIMEOUT_SYNC_CRA_RULES=5m"},
+			wantCRA:     true,
+			wantChanged: []string{"sync-cra-rules"},
+		},
+		"unset switch": {
+			env:         []string{"PIPELINE_JOB_TIMEOUT_SYNC_CRA_RULES=5m"},
+			wantCRA:     true,
+			wantChanged: []string{"sync-cra-rules"},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			var buf strings.Builder
+			logger := slog.New(slog.NewJSONHandler(&buf, nil))
+			got, changed, err := scheduledJobs(t.Context(), logger, testSyncJobs(), tc.craRules, tc.env)
+			if err != nil {
+				t.Fatalf("err = %v", err)
+			}
+			cra := slices.IndexFunc(got, func(j scheduler.Job) bool { return j.Name == "sync-cra-rules" })
+			if (cra >= 0) != tc.wantCRA {
+				t.Errorf("sync-cra-rules scheduled = %v, want %v", cra >= 0, tc.wantCRA)
+			}
+			if tc.wantCRA && got[cra].Timeout != 5*time.Minute {
+				t.Errorf("sync-cra-rules timeout = %v, want 5m", got[cra].Timeout)
+			}
+			if !slices.Equal(changed, tc.wantChanged) {
+				t.Errorf("changed = %v, want %v", changed, tc.wantChanged)
+			}
+			if paused := pausedOverrides(t, buf.String()); !slices.Equal(paused, tc.wantPaused) {
+				t.Errorf("paused overrides logged = %v, want %v", paused, tc.wantPaused)
+			}
+		})
+	}
+}
+
+// pausedOverrides returns the "job variable" of each paused-override line in a JSON log.
+func pausedOverrides(t *testing.T, log string) []string {
+	t.Helper()
+	var paused []string
+	for line := range strings.Lines(log) {
+		var rec struct {
+			Msg      string `json:"msg"`
+			Job      string `json:"job"`
+			Variable string `json:"variable"`
+		}
+		if err := json.Unmarshal([]byte(line), &rec); err != nil {
+			t.Fatalf("unmarshal %q: %v", line, err)
+		}
+		if rec.Msg == "timeout override applies to a paused job" {
+			paused = append(paused, rec.Job+" "+rec.Variable)
+		}
+	}
+	return paused
+}
+
+// A paused job's override is still checked, an override naming no job still fails, and so does a
+// bad PIPELINE_CRA_RULES.
+func TestScheduledJobs_Rejects(t *testing.T) {
+	for name, tc := range map[string]struct {
+		craRules string
+		env      []string
+		wantErr  string
+	}{
+		"paused job's override over its interval": {
+			"false", []string{"PIPELINE_JOB_TIMEOUT_SYNC_CRA_RULES=7h"}, "sync-cra-rules interval of 6h0m0s",
+		},
+		"no such job": {
+			"false", []string{"PIPELINE_JOB_TIMEOUT_NO_SUCH_JOB=5m"}, "PIPELINE_JOB_TIMEOUT_NO_SUCH_JOB names no job",
+		},
+		"bad switch": {"off", nil, "PIPELINE_CRA_RULES"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			logger := slog.New(slog.DiscardHandler)
+			got, _, err := scheduledJobs(t.Context(), logger, testSyncJobs(), tc.craRules, tc.env)
+			if err == nil || !strings.Contains(err.Error(), tc.wantErr) {
+				t.Fatalf("err = %v, want it to contain %q", err, tc.wantErr)
+			}
+			if got != nil {
+				t.Errorf("got jobs %v with an error", got)
+			}
+		})
+	}
+}

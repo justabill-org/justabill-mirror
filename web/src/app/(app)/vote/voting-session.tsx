@@ -11,8 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/lib/auth/provider";
 import { billFiltersQuery, type BillFilters } from "@/lib/bill-filters";
 import { parseBillView } from "@/lib/bill-views";
-import { trackConversion } from "@/lib/experiments/client";
-import { VOTE_AA } from "@/lib/experiments/registry";
 import { SPAN_VOTE_CAST, traceAction } from "@/lib/obs/browser";
 import { isVoteCapReached, VOTE_CAP_REACHED, VOTE_FAILED, type VoteStorage } from "@/lib/votes/backend";
 import { useVoteBackend, useVotes } from "@/lib/votes/hooks";
@@ -119,11 +117,7 @@ function DeckSession({
         return;
       }
 
-      if (vote !== "skip") {
-        setVotedCount((prev) => prev + 1);
-        // The A/A run's goal (#695): a first vote cast here, sent once, without the choice.
-        trackConversion(VOTE_AA);
-      }
+      if (vote !== "skip") setVotedCount((prev) => prev + 1);
 
       // Wait for animation
       setTimeout(() => {

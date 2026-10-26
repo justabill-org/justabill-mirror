@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"slices"
@@ -53,6 +54,33 @@ func withTimeoutOverrides(jobs []scheduler.Job, environ []string) ([]scheduler.J
 		changed = append(changed, out[i].Name)
 	}
 	return out, changed, nil
+}
+
+// scheduledJobs applies environ's timeout overrides ([withTimeoutOverrides]) to the full job table,
+// then leaves out sync-cra-rules when craRules (PIPELINE_CRA_RULES) is false ([withCRARules]). It
+// returns the jobs to schedule and the names of those whose timeout changed. Overriding first means
+// a paused job's override is still checked, so it holds once the job is back on, but pausing the
+// job doesn't make the override name no job and stop serve (#1022): it is logged instead.
+func scheduledJobs(
+	ctx context.Context, logger *slog.Logger, jobs []scheduler.Job, craRules string, environ []string,
+) ([]scheduler.Job, []string, error) {
+	jobs, changed, err := withTimeoutOverrides(jobs, environ)
+	if err != nil {
+		return nil, nil, err
+	}
+	if jobs, err = withCRARules(jobs, craRules); err != nil {
+		return nil, nil, err
+	}
+	scheduled := make([]string, 0, len(changed))
+	for _, name := range changed {
+		if !slices.ContainsFunc(jobs, func(j scheduler.Job) bool { return j.Name == name }) {
+			logger.InfoContext(ctx, "timeout override applies to a paused job",
+				"job", name, "variable", timeoutEnv(name))
+			continue
+		}
+		scheduled = append(scheduled, name)
+	}
+	return jobs, scheduled, nil
 }
 
 // summaryJobName is the summary job, whose interval AI_SUMMARY_INTERVAL sets.

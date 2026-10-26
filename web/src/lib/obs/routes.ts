@@ -23,7 +23,6 @@ export const ROUTE_PATTERNS = [
   "/signup",
   "/terms",
   "/vote",
-  "/vote/v/[variant]",
 ] as const;
 
 /**

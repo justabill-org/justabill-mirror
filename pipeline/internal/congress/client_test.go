@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -189,6 +190,45 @@ func TestClient_NotFoundIsPermanent(t *testing.T) {
 	}
 	if err != nil && strings.Contains(err.Error(), "?") {
 		t.Errorf("error leaks the query: %q", err)
+	}
+}
+
+// recordedVoteActions is two of H.R. 1's (119th) actions as Congress.gov sent them on 2026-10-26:
+// the Senate passage, with its roll call (text shortened), and an action with none.
+const recordedVoteActions = `{"actions": [
+ {"actionCode": "17000", "actionDate": "2025-07-01", "recordedVotes": [{"chamber": "Senate",
+  "congress": 119, "date": "2025-07-01T16:03:40Z", "rollNumber": 372, "sessionNumber": 1,
+  "url": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00372.xml"}],
+  "sourceSystem": {"code": 9, "name": "Library of Congress"},
+  "text": "Passed/agreed to in Senate: Passed Senate with an amendment by Yea-Nay Vote. 51 - 50.",
+  "type": "Floor"},
+ {"actionDate": "2025-05-16", "sourceSystem": {"code": 2, "name": "House floor actions"},
+  "text": "Reported (Amended) by the Committee on Budget.", "type": "Committee"}
+]}`
+
+func TestClient_GetBillActions_RecordedVotes(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		fmt.Fprint(w, recordedVoteActions)
+	}))
+	defer srv.Close()
+
+	client := congress.NewClientWithBaseURL(srv.Client(), srv.URL)
+	resp, err := client.GetBillActions(context.Background(), 119, "hr", 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(resp.Actions) != 2 {
+		t.Fatalf("got %d actions, want 2", len(resp.Actions))
+	}
+	want := []congress.RecordedVote{{
+		Chamber: "Senate", Congress: 119, Date: "2025-07-01T16:03:40Z", RollNumber: 372, SessionNumber: 1,
+		URL: "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00372.xml",
+	}}
+	if got := resp.Actions[0].RecordedVotes; !slices.Equal(got, want) {
+		t.Errorf("RecordedVotes = %+v, want %+v", got, want)
+	}
+	if got := resp.Actions[1].RecordedVotes; got != nil {
+		t.Errorf("an action without a vote decoded RecordedVotes %+v, want nil", got)
 	}
 }
 

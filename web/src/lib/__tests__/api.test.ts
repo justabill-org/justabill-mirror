@@ -135,7 +135,7 @@ describe("caching (#74)", () => {
     expect(opts.headers.Authorization).toBeUndefined();
   });
 
-  it("reads a partial bill again under its own cache key for REVALIDATE.partialBill (#454)", async () => {
+  it("on the server, reads a partial bill again under its own key for REVALIDATE.partialBill (#454)", async () => {
     const partial = { bill: { id: "hr-119-1" }, actions: [], votes: null };
     const whole = { bill: { id: "hr-119-1" }, actions: [], votes: [] };
     mockFetch.mockResolvedValueOnce(mockResponse(partial)).mockResolvedValueOnce(mockResponse(whole));
@@ -186,7 +186,7 @@ describe("caching (#74)", () => {
     expect(mockFetch.mock.calls[1][1].next).toEqual({ revalidate: REVALIDATE.member, tags: ["congresses"] });
   });
 
-  it("reads a member whose recent votes failed again for REVALIDATE.partialMember (#929)", async () => {
+  it("on the server, reads a member whose recent votes failed again for REVALIDATE.partialMember", async () => {
     const partial = { bioguide_id: "A000001", terms: [], recent_votes: null };
     const whole = { bioguide_id: "A000001", terms: [], recent_votes: [] };
     mockFetch.mockResolvedValueOnce(mockResponse(partial)).mockResolvedValueOnce(mockResponse(whole));

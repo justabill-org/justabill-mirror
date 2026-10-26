@@ -366,7 +366,8 @@ export function isPartialBillDetail(detail: BillDetailResponse): boolean {
 
 /**
  * Sent on the second read of a partial bill detail or member, only so the fetch cache files it
- * apart from the first (the cache key includes the headers). The API ignores it.
+ * apart from the first (the cache key includes the headers). The API ignores it, and its CORS
+ * preflight doesn't allow it, so only server renders send it (#1010).
  */
 export const PARTIAL_RETRY_HEADER = "X-Partial-Retry";
 
@@ -377,12 +378,16 @@ export const PARTIAL_RETRY_HEADER = "X-Partial-Retry";
  * now, and since a page's ISR lifetime is its shortest fetch's, the page is rendered again within
  * a minute rather than cached as it is. Once the first entry expires and comes back whole, the
  * second read stops.
+ *
+ * The browser (a `/vote` card's Details) keeps the first answer: it has no fetch cache for the
+ * second read to fix, and `PARTIAL_RETRY_HEADER` would need a CORS preflight the API refuses, so
+ * the read would throw and hide what loaded (#1010).
  */
 export async function getBill(id: string): Promise<BillDetailResponse> {
   const path = `/bills/${id}`;
   const tags = [CACHE_TAGS.bills, CACHE_TAGS.bill(id)];
   const detail = await cachedGet<BillDetailResponse>(path, { revalidate: REVALIDATE.bill, tags });
-  if (!isPartialBillDetail(detail)) return detail;
+  if (!isPartialBillDetail(detail) || typeof window !== "undefined") return detail;
   return request<BillDetailResponse>(path, {
     next: { revalidate: REVALIDATE.partialBill, tags },
     headers: { [PARTIAL_RETRY_HEADER]: "1" },
@@ -528,13 +533,14 @@ export function isPartialMember(member: MemberDetail): boolean {
 /**
  * GET /members/{id}, cached for REVALIDATE.member. A response whose recent votes failed is read
  * again for REVALIDATE.partialMember under its own cache key, as `getBill` does for a partial
- * bill, so the page doesn't say they couldn't be loaded for an hour.
+ * bill, so the page doesn't say they couldn't be loaded for an hour. The browser (the scorecard's
+ * rep cards) keeps the first answer, as `getBill` explains (#1010).
  */
 export async function getMember(id: string): Promise<MemberDetail> {
   const path = `/members/${id}`;
   const tags = [CACHE_TAGS.members, CACHE_TAGS.member(id)];
   const member = await cachedGet<MemberDetail>(path, { revalidate: REVALIDATE.member, tags });
-  if (!isPartialMember(member)) return member;
+  if (!isPartialMember(member) || typeof window !== "undefined") return member;
   return request<MemberDetail>(path, {
     next: { revalidate: REVALIDATE.partialMember, tags },
     headers: { [PARTIAL_RETRY_HEADER]: "1" },

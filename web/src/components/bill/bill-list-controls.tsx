@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { type MouseEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { type BillFilterChange, BillFilterFields } from "@/components/bill/bill-filter-fields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { accountsEnabled } from "@/lib/accounts";
 import { useUser } from "@/lib/auth/provider";
 import { billFiltersSearchParams, parseBillFilters } from "@/lib/bill-filters";
+import { clampSearch } from "@/lib/paging";
 import { BILL_VIEWS, type BillViewKey } from "@/lib/bill-views";
 import { currentCongress } from "@/lib/congress";
 import type { Congress } from "@/lib/types";
@@ -16,6 +17,9 @@ import type { Congress } from "@/lib/types";
 // The controls on /bills (#666), as one bar with the page's title (#717): the quick views with
 // their counts, a search box, and the sort and the less used filters (policy area, congress, type,
 // chamber) behind "Filters". The filters come from the URL through lib/bill-filters, as on /vote (#785).
+
+/** How long the search box waits after a keystroke before it searches. */
+const SEARCH_DELAY_MS = 300;
 
 interface BillListControlsProps {
   congresses: Congress[];
@@ -32,10 +36,11 @@ export function BillListControls({ congresses, counts, policyAreas = null }: Bil
   const searchId = useId();
   const panelId = useId();
   const [showMore, setShowMore] = useState(false);
-  const searchTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const viewsRow = useRef<HTMLUListElement>(null);
+  // The URL's query as a string, which stays the same between renders until the URL changes.
+  const query = searchParams.toString();
 
-  const filters = parseBillFilters(new URLSearchParams(searchParams.toString()));
+  const filters = parseBillFilters(new URLSearchParams(query));
   const view = filters.view;
   // The list shows the current congress unless `?congress=` names another, or `all` (#717).
   const current = currentCongress(congresses)?.number;
@@ -53,17 +58,51 @@ export function BillListControls({ congresses, counts, policyAreas = null }: Bil
   const href = useCallback(
     (change: BillFilterChange) => {
       const { unvoted: nextUnvoted, ...rest } = change;
-      const now = parseBillFilters(new URLSearchParams(searchParams.toString()));
-      const params = billFiltersSearchParams({ ...now, ...rest });
-      const limit = searchParams.get("limit");
+      const url = new URLSearchParams(query);
+      const params = billFiltersSearchParams({ ...parseBillFilters(url), ...rest });
+      const limit = url.get("limit");
       if (limit) params.set("limit", limit);
-      if (nextUnvoted ?? searchParams.get("unvoted") === "true") params.set("unvoted", "true");
-      const query = params.toString();
-      return query ? `/bills?${query}` : "/bills";
+      if (nextUnvoted ?? url.get("unvoted") === "true") params.set("unvoted", "true");
+      const next = params.toString();
+      return next ? `/bills?${next}` : "/bills";
     },
-    [searchParams],
+    [query],
   );
-  const update = (change: BillFilterChange) => router.push(href(change));
+
+  // What's in the search box, and the search it waits to run (#1012). A new URL (Back) puts its
+  // search back in the box (#870's pattern, as on /vote), unless the box already says it or is
+  // waiting to search: then it's ahead of the URL, as when its last search lands after more typing.
+  const [text, setText] = useState(filters.q ?? "");
+  const [urlQ, setUrlQ] = useState(filters.q);
+  const [pending, setPending] = useState<{ q: string | undefined } | null>(null);
+  if (filters.q !== urlQ) {
+    setUrlQ(filters.q);
+    if (!pending && clampSearch(text) !== filters.q) setText(filters.q ?? "");
+  }
+  // The waiting search runs from an effect, so it builds its URL from the URL of the moment (a view
+  // chosen meanwhile stays chosen), and leaving the page cancels it.
+  useEffect(() => {
+    if (!pending) return;
+    const timer = setTimeout(() => {
+      setPending(null);
+      router.push(href(pending));
+    }, SEARCH_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [pending, href, router]);
+
+  // Any other change takes the waiting search with it, in one navigation, instead of the search
+  // running after it and undoing it.
+  const update = (change: BillFilterChange) => {
+    setPending(null);
+    router.push(href({ ...pending, ...change }));
+  };
+  // A view's link is a plain link, unless a search is waiting: then a plain click goes through
+  // `update`. A click to open it elsewhere (a new tab) is left to the browser.
+  const pickView = (e: MouseEvent<HTMLAnchorElement>, view: BillViewKey) => {
+    if (!pending || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    update({ view });
+  };
 
   // On a phone the chosen view can be past the edge of its row: scroll the row (not the page) to it.
   useEffect(() => {
@@ -94,11 +133,11 @@ export function BillListControls({ congresses, counts, policyAreas = null }: Bil
               type="search"
               placeholder="Search bills"
               className="h-10 pl-9"
-              defaultValue={searchParams.get("q") ?? ""}
+              value={text}
               onChange={(e) => {
                 const value = e.target.value;
-                clearTimeout(searchTimer.current);
-                searchTimer.current = setTimeout(() => update({ q: value || undefined }), 300);
+                setText(value);
+                setPending({ q: value || undefined });
               }}
             />
           </div>
@@ -133,6 +172,7 @@ export function BillListControls({ congresses, counts, policyAreas = null }: Bil
                   <li key={v.key} className="shrink-0 snap-start">
                     <Link
                       href={href({ view: v.key })}
+                      onClick={(e) => pickView(e, v.key)}
                       aria-current={active ? "true" : undefined}
                       className={`flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
                         active

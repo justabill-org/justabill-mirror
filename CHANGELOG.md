@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.13.0 (2026-10-26)
+
+
+### Features
+
+* **autopipeline:** run Pipeline on the full-duplex connectio… (9162003)
+* **web:** end the A/A run on /vote and record its void readout (#1026) (c996093)
+
+
+### Bug Fixes
+
+* **pipeline:** apply the AI_* summary-job settings in pipeline-backfill (#1035) (41948b4)
+* **pipeline:** let serve start when a paused CRA job keeps its timeout override (#1045) (d76aa3f)
+* **pipeline:** report a senate.gov refusal in sync-votes as unavailable (#1048) (0a79c41)
+* **pipeline:** store each bill action's roll call so timelines link it (#1047) (d6b2a06)
+* **web:** cancel the /bills search when the page is left or another filter is chosen (#1044) (d6aa9af)
+* **web:** forget the onboarding note when the session ends on this device (#1042) (62215e5)
+* **web:** read a partial bill or member once in the browser, without the CORS-blocked retry (#1033) (192fbcf)
+
 ## 0.12.1 (2026-10-22)
 
 

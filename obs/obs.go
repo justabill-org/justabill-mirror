@@ -18,7 +18,6 @@ import (
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/contrib/detectors/gcp"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/log/global"
 	"go.opentelemetry.io/otel/propagation"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
@@ -106,7 +105,7 @@ func Start(ctx context.Context, cfg Config) (*Telemetry, error) {
 	}
 
 	if sigs.logs {
-		bridge := otelslog.NewHandler(scope, otelslog.WithLoggerProvider(global.GetLoggerProvider()))
+		bridge := otelslog.NewHandler(scope, otelslog.WithLoggerProvider(otel.GetLoggerProvider()))
 		tel.logger = slog.New(slog.NewMultiHandler(
 			leveled(bridge, cfg.Level),
 			leveled(stderr, maxLevel(cfg.Level, slog.LevelWarn)),
@@ -178,7 +177,7 @@ func (t *Telemetry) startProviders(ctx context.Context, sigs signals, res *resou
 
 		lp := sdklog.NewLoggerProvider(sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)),
 			sdklog.WithResource(res))
-		global.SetLoggerProvider(lp)
+		otel.SetLoggerProvider(lp)
 		t.shutdowns = append(t.shutdowns, lp.Shutdown)
 	}
 

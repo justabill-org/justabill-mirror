@@ -280,25 +280,7 @@ func (s *seeder) seedBillActions(
 		return
 	}
 
-	actions := make([]repository.BillActionRow, 0, len(resp.Actions))
-	for i, a := range resp.Actions {
-		actionDate, _ := time.Parse(time.DateOnly, a.ActionDate)
-		var sourceSystem *string
-		if a.SourceSystem != nil && a.SourceSystem.Name != "" {
-			sourceSystem = &a.SourceSystem.Name
-		}
-
-		actions = append(actions, repository.BillActionRow{
-			ActionDate:   actionDate,
-			ActionText:   a.Text,
-			ActionType:   nilIfEmpty(a.Type),
-			ActionCode:   nilIfEmpty(a.ActionCode),
-			SourceSystem: sourceSystem,
-			SortOrder:    i + 1,
-		})
-	}
-
-	if replaceErr := s.store.ReplaceBillActions(ctx, billID, actions); replaceErr != nil {
+	if replaceErr := s.store.ReplaceBillActions(ctx, billID, sync.BillActionRows(resp.Actions)); replaceErr != nil {
 		s.logger.WarnContext(ctx, "replace actions failed", "bill_id", billID, "error", replaceErr)
 	}
 }
@@ -316,13 +298,6 @@ func (s *seeder) seedBillTextVersions(
 	if _, upsertErr := s.store.UpsertBillTextVersions(ctx, billID, versions); upsertErr != nil {
 		s.logger.WarnContext(ctx, "upsert text versions failed", "bill_id", billID, "error", upsertErr)
 	}
-}
-
-func nilIfEmpty(s string) *string {
-	if s == "" {
-		return nil
-	}
-	return &s
 }
 
 //nolint:gochecknoglobals // lookup table used by stateAbbrev

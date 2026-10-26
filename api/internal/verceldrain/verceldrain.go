@@ -23,8 +23,8 @@ import (
 	"net/http"
 	"time"
 
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/log"
-	"go.opentelemetry.io/otel/log/global"
 )
 
 const (
@@ -81,7 +81,7 @@ func New(cfg Config) (*Receiver, error) {
 	}
 
 	if cfg.Records == nil {
-		cfg.Records = global.GetLoggerProvider().Logger(scope)
+		cfg.Records = otel.GetLoggerProvider().Logger(scope)
 	}
 
 	if cfg.Now == nil {

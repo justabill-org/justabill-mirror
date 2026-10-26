@@ -56,13 +56,15 @@ type BillRow struct {
 	Laws           []model.BillLaw
 }
 
-// BillActionRow holds data for inserting a bill action.
+// BillActionRow holds data for inserting a bill action. RecordedVote is the roll call the
+// action records, nil for none (stored as NULL); ListStoredBillActions doesn't read it back.
 type BillActionRow struct {
 	ActionDate   time.Time
 	ActionText   string
 	ActionType   *string
 	ActionCode   *string
 	SourceSystem *string
+	RecordedVote *model.RecordedVote
 	SortOrder    int
 }
 

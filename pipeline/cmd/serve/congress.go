@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/justabill-org/justabill/obs"
 	"github.com/justabill-org/justabill/pipeline/internal/rollcall"
 )
 
@@ -96,7 +97,8 @@ func (t *congressTracker) MembersSynced(ctx context.Context, congress int) error
 	return nil
 }
 
-// forEach runs sync for every target congress, even after one fails, and joins the errors.
+// forEach runs sync for every target congress, even after one fails, and joins the errors
+// (joinCongressErrors).
 func (t *congressTracker) forEach(ctx context.Context, sync func(ctx context.Context, congress int) error) error {
 	targets, err := t.Targets(ctx)
 	if err != nil {
@@ -108,5 +110,29 @@ func (t *congressTracker) forEach(ctx context.Context, sync func(ctx context.Con
 			errs = append(errs, fmt.Errorf("congress %d: %w", c, err))
 		}
 	}
-	return errors.Join(errs...)
+	return joinCongressErrors(errs)
+}
+
+// joinCongressErrors joins the congresses' errors. The run is unavailable only when every
+// congress's error wraps [obs.ErrUnavailable]: [errors.Is] on a join is true if any part matches, so
+// when another congress failed, an unavailable congress's error keeps its text but not its
+// chain, and the run fails (#1032).
+func joinCongressErrors(errs []error) error {
+	unavailable := 0
+	for _, err := range errs {
+		if errors.Is(err, obs.ErrUnavailable) {
+			unavailable++
+		}
+	}
+	if unavailable == 0 || unavailable == len(errs) {
+		return errors.Join(errs...)
+	}
+	out := make([]error, 0, len(errs))
+	for _, err := range errs {
+		if errors.Is(err, obs.ErrUnavailable) {
+			err = fmt.Errorf("%s", err.Error())
+		}
+		out = append(out, err)
+	}
+	return errors.Join(out...)
 }

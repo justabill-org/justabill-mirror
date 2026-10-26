@@ -1,5 +1,7 @@
 import { ApiError } from "@/lib/api";
+import { browserEnv, type LocalEnv } from "@/lib/local/storage";
 import type { User } from "@/lib/types";
+import { setOnboarded } from "./onboarding";
 import { prefersRedirect, signInErrorMessage, type ProviderId } from "./providers";
 import { browserSessionHint, type SessionHint } from "./session-hint";
 
@@ -113,13 +115,15 @@ export function errorCode(err: unknown): string | undefined {
 /**
  * Follows the Firebase session and makes sure the signed-in user has an API account: GET /me,
  * and POST /me only when the API answers 403 no_account, so page views never write. `hint` says
- * whether anyone signed in on this device, so Firebase loads only for them (#757).
+ * whether anyone signed in on this device, so Firebase loads only for them (#757). When a session
+ * ends here, it also forgets which account finished onboarding on this device (#1039).
  */
 export function createAuthStore(
   loadBackend: () => Promise<AuthBackend>,
   api: AccountApi,
   userAgent: () => string = () => (typeof navigator === "undefined" ? "" : navigator.userAgent),
-  hint: SessionHint = browserSessionHint()
+  hint: SessionHint = browserSessionHint(),
+  localEnv: () => LocalEnv | null = browserEnv
 ): AuthStore {
   let state: AuthState = { status: "loading", account: null, signInError: null };
   const listeners = new Set<() => void>();
@@ -207,6 +211,8 @@ export function createAuthStore(
   function onUser(user: TokenUser | null) {
     hint.setSignedIn(user !== null);
     if (!user) {
+      // The note holds the account's ID: on a shared device it would name who used it (#1039).
+      setOnboarded(null, localEnv);
       generation++;
       accountUid = null;
       set({ status: "signed-out", account: null });
@@ -281,7 +287,12 @@ export function createAuthStore(
       await withMode((mode) => b.reauthenticate(mode));
     },
     async signOut() {
-      await backend?.signOut();
+      try {
+        await backend?.signOut();
+      } finally {
+        // A failed sign-out (offline) never reports the session gone, so forget the note here too.
+        setOnboarded(null, localEnv);
+      }
     },
     retry() {
       const user = backend?.currentUser();
