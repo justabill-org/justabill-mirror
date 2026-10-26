@@ -64,23 +64,34 @@ export function Tabs({
   children,
   ...props
 }: TabsProps) {
-  // A clicked tab, with the linked tab it was clicked under: a fragment that names another tab
-  // later (a #votes link on the page, Back) takes over again.
-  const [picked, setPicked] = useState<{ tab: string; linked: string | null } | null>(null);
+  // The fragment last seen, the tab it last linked and a tab clicked since. A fragment naming another
+  // tab later (a #votes link on the page, Back) takes over again; one naming no tab (the skip
+  // link's #main, an in-page anchor) leaves both as they were (#966).
+  const [seen, setSeen] = useState<{ hash: string; linked: string | null; picked: string | null }>({
+    hash: "",
+    linked: null,
+    picked: null,
+  });
   const idPrefix = useId();
   const hash = useHash();
-  const linked = linkable.includes(hash) ? hash : null;
-  const pickedTab = picked?.linked === linked ? picked.tab : null;
-  const activeTab = value ?? pickedTab ?? linked ?? defaultValue;
+  let current = seen;
+  if (hash !== seen.hash) {
+    const names = hash === "" || linkable.includes(hash);
+    current = names ? { hash, linked: hash || null, picked: null } : { ...seen, hash };
+    setSeen(current);
+  }
+  const linked = current.linked !== null && linkable.includes(current.linked) ? current.linked : null;
+  const activeTab = value ?? current.picked ?? linked ?? defaultValue;
   const container = useRef<HTMLDivElement>(null);
 
   // A tab opened by the fragment is scrolled to, as the browser would scroll to an anchor.
+  const opened = hash === linked ? linked : null;
   useEffect(() => {
-    if (linked) container.current?.scrollIntoView({ block: "start" });
-  }, [linked]);
+    if (opened) container.current?.scrollIntoView({ block: "start" });
+  }, [opened]);
 
   const setActiveTab = (newValue: string) => {
-    setPicked({ tab: newValue, linked });
+    setSeen((prev) => ({ ...prev, picked: newValue }));
     onValueChange?.(newValue);
   };
 

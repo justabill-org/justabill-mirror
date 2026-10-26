@@ -162,3 +162,75 @@ describe("Tabs picked by a click, then linked by the fragment", () => {
     expect(screen.getByRole("tabpanel").textContent).toBe("Text list");
   });
 });
+
+// The skip link sets #main (#955), and other in-page anchors set fragments too: none names a tab,
+// so none may undo the tab a #votes link opened or a tab clicked under it (#966).
+describe("Tabs under a fragment that names no tab", () => {
+  const scrollIntoView = vi.fn();
+
+  function at(hash: string) {
+    window.history.replaceState(null, "", `/bills/hr-119-1${hash}`);
+    Element.prototype.scrollIntoView = scrollIntoView;
+    scrollIntoView.mockClear();
+  }
+
+  function changeHash(hash: string) {
+    act(() => {
+      window.history.replaceState(null, "", `/bills/hr-119-1${hash}`);
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+  }
+
+  const panel = () => screen.getByRole("tabpanel").textContent;
+
+  afterEach(() => {
+    delete (Element.prototype as Partial<Element>).scrollIntoView;
+  });
+
+  it("keeps the tab a fragment opened, without scrolling again", () => {
+    at("#votes");
+    renderTabs(["votes"]);
+    scrollIntoView.mockClear();
+    changeHash("#main");
+    expect(panel()).toBe("Vote list");
+    expect(tab("Votes").getAttribute("aria-selected")).toBe("true");
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it("keeps a tab clicked after a fragment opened another", () => {
+    at("#votes");
+    renderTabs(["votes"]);
+    fireEvent.click(tab("Text"));
+    changeHash("#main");
+    expect(panel()).toBe("Text list");
+  });
+
+  it("lets a fragment naming a tab take over again afterwards, and scrolls to it", () => {
+    at("#votes");
+    renderTabs(["votes"]);
+    fireEvent.click(tab("Text"));
+    changeHash("#main");
+    scrollIntoView.mockClear();
+    changeHash("#votes");
+    expect(panel()).toBe("Vote list");
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "start" });
+  });
+
+  it("still follows a fragment naming another tab, and Back to none", () => {
+    at("#votes");
+    renderTabs(["votes", "text"]);
+    changeHash("#text");
+    expect(panel()).toBe("Text list");
+    changeHash("#main");
+    expect(panel()).toBe("Text list");
+    changeHash("");
+    expect(panel()).toBe("Action list");
+  });
+
+  it("opens the default when the page opens at such a fragment", () => {
+    at("#main");
+    renderTabs(["votes"]);
+    expect(panel()).toBe("Action list");
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+});

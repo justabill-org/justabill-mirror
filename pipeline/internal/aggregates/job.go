@@ -28,8 +28,6 @@ const (
 	// transaction. A bill has at most about 500 cells (national, 56 states and territories, 441
 	// districts) of 12 columns, so 10 bills stay under Spanner's 80,000 mutations per commit.
 	billBatch = 10
-	// writeBatch is how many rep_alignment rows go in one commit.
-	writeBatch = 2000
 )
 
 // Store is the part of [repository.PipelineStore] the job uses.
@@ -40,7 +38,7 @@ type Store interface {
 		ctx context.Context, billIDs []string, revise func(stored []model.VoteAggregate) ([]model.VoteAggregate, error),
 	) error
 	BillSeatPositions(ctx context.Context, billIDs []string) ([]repository.SeatPosition, error)
-	UpsertRepAlignments(ctx context.Context, rows []model.RepAlignment) error
+	ReplaceRepAlignments(ctx context.Context, rows []model.RepAlignment) (int, error)
 }
 
 // Job is the aggregate-votes job.
@@ -98,14 +96,16 @@ type Result struct {
 	// Eligible counts the eligible votes, and Ineligible the rest by reason.
 	Eligible   int
 	Ineligible map[string]int
-	// Alignments counts the rep_alignment rows written.
-	Alignments int
+	// Alignments counts the rep_alignment rows written, and AlignmentsRemoved the stored rows
+	// deleted because no shown cell compares their member any more ([Job.Report] deletes none).
+	Alignments        int
+	AlignmentsRemoved int
 	// Decided lists every cell's outcome, in bill and scope order. Only [Job.Report] fills it.
 	Decided []Outcome
 }
 
 // Run takes a snapshot, decides and writes every cell, then recomputes rep_alignment from the
-// shown cells. Cells are written a batch of bills at a time, so a failed run leaves earlier
+// shown cells, replacing every stored row. Cells are written a batch of bills at a time, so a failed run leaves earlier
 // batches written; the next run decides again from what's stored, so rerunning is safe.
 func (j *Job) Run(ctx context.Context) error {
 	_, err := j.RunOnce(ctx)
@@ -157,7 +157,7 @@ func (j *Job) run(ctx context.Context, dryRun bool) (*Result, error) {
 			return nil, err
 		}
 	}
-	if res.Alignments, err = j.writeAlignments(ctx, shown, asOf, dryRun); err != nil {
+	if res.Alignments, res.AlignmentsRemoved, err = j.writeAlignments(ctx, shown, asOf, dryRun); err != nil {
 		return nil, err
 	}
 	if !dryRun {
@@ -267,44 +267,43 @@ func decideCells(
 	return out
 }
 
-// writeAlignments recomputes rep_alignment for the members whose constituency has a shown cell,
-// and writes it unless dryRun.
+// writeAlignments recomputes rep_alignment for the members whose constituency has a shown cell
+// and, unless dryRun, replaces the stored rows with them: a member no shown cell compares any
+// more loses their row, so it never repeats a majority the cells have withdrawn. A run decides
+// every stored and counted cell, so shown is complete. It returns the rows written and removed.
 func (j *Job) writeAlignments(
 	ctx context.Context,
 	shown map[CellKey]model.VoteAggregate,
 	asOf time.Time,
 	dryRun bool,
-) (int, error) {
+) (int, int, error) {
 	billSet := map[string]bool{}
 	for k := range shown {
 		billSet[k.BillID] = true
 	}
-	if len(billSet) == 0 {
-		return 0, nil
-	}
-	positions, err := j.store.BillSeatPositions(ctx, slices.Sorted(maps.Keys(billSet)))
-	if err != nil {
-		return 0, fmt.Errorf("aggregate votes: rep alignment: %w", err)
-	}
-	byKey := alignments(shown, positions)
-	rows := make([]model.RepAlignment, 0, len(byKey))
-	for _, r := range byKey {
-		r.ComputedAt = asOf
-		rows = append(rows, *r)
-	}
-	slices.SortFunc(rows, func(a, b model.RepAlignment) int {
-		return cmp.Or(cmp.Compare(a.MemberID, b.MemberID), cmp.Compare(a.Congress, b.Congress),
-			cmp.Compare(a.ScopeKey, b.ScopeKey))
-	})
-	if dryRun {
-		return len(rows), nil
-	}
-	for chunk := range slices.Chunk(rows, writeBatch) {
-		if err = j.store.UpsertRepAlignments(ctx, chunk); err != nil {
-			return 0, fmt.Errorf("aggregate votes: rep alignment: %w", err)
+	var rows []model.RepAlignment
+	if len(billSet) > 0 {
+		positions, err := j.store.BillSeatPositions(ctx, slices.Sorted(maps.Keys(billSet)))
+		if err != nil {
+			return 0, 0, fmt.Errorf("aggregate votes: rep alignment: %w", err)
 		}
+		for _, r := range alignments(shown, positions) {
+			r.ComputedAt = asOf
+			rows = append(rows, *r)
+		}
+		slices.SortFunc(rows, func(a, b model.RepAlignment) int {
+			return cmp.Or(cmp.Compare(a.MemberID, b.MemberID), cmp.Compare(a.Congress, b.Congress),
+				cmp.Compare(a.ScopeKey, b.ScopeKey))
+		})
 	}
-	return len(rows), nil
+	if dryRun {
+		return len(rows), 0, nil
+	}
+	removed, err := j.store.ReplaceRepAlignments(ctx, rows)
+	if err != nil {
+		return 0, 0, fmt.Errorf("aggregate votes: rep alignment: %w", err)
+	}
+	return len(rows), removed, nil
 }
 
 // record emits the run's metrics and a summary log line.
@@ -329,7 +328,8 @@ func (j *Job) record(ctx context.Context, res *Result) {
 	j.log.InfoContext(ctx, "aggregate votes done",
 		"published", res.Cells[statusPublished], "suppressed", res.Cells[statusSuppressed],
 		"held", res.Cells[statusHeld], "new_holds", sum(res.Holds), "eligible_votes", res.Eligible,
-		"ineligible_votes", sum(res.Ineligible), "alignments", res.Alignments)
+		"ineligible_votes", sum(res.Ineligible), "alignments", res.Alignments,
+		"alignments_removed", res.AlignmentsRemoved)
 }
 
 func sum(m map[string]int) int {

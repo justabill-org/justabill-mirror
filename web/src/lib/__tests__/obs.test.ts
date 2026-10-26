@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
+import { metrics, SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
 import { SeverityNumber } from "@opentelemetry/api-logs";
-import { FetchInstrumentation } from "@vercel/otel";
+import { AggregationTemporality, InMemoryMetricExporter, PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
+import { ATTR_SERVICE_INSTANCE_ID } from "@opentelemetry/semantic-conventions";
+import { FetchInstrumentation, registerOTel, type Configuration } from "@vercel/otel";
 
 import { logException, withSpan } from "../obs";
 import { tracedFetch } from "../obs/http";
@@ -155,6 +157,24 @@ describe("tracedFetch", () => {
     expect(point.attributes["error.type"]).toBe("TypeError");
   });
 
+  it("records a timeout as a failed call with error.type TimeoutError (#970)", async () => {
+    vi.useFakeTimers();
+    try {
+      mockFetch.mockReturnValueOnce(new Promise(() => {}));
+      const call = tracedFetch(`${API}/api/v1/bills`, {}, 10_000);
+      const failed = expect(call).rejects.toMatchObject({ name: "TimeoutError" });
+      await vi.advanceTimersByTimeAsync(10_000);
+      await failed;
+    } finally {
+      vi.useRealTimers();
+    }
+    const [span] = tel.spans();
+    expect(span.status.code).toBe(SpanStatusCode.ERROR);
+    expect(span.attributes["error.type"]).toBe("TimeoutError");
+    const [point] = await tel.points(DURATION);
+    expect(point.attributes["error.type"]).toBe("TimeoutError");
+  });
+
   it("uses the scheme's default port", async () => {
     mockFetch.mockResolvedValueOnce(response(200));
     await tracedFetch("https://api.justabill.io/api/v1/bills");
@@ -263,6 +283,46 @@ describe("server setup", () => {
     expect(logsOnly?.spanProcessors).toEqual([]);
     expect(logsOnly?.metricReaders).toBeUndefined();
     expect(logsOnly?.logRecordProcessors).toHaveLength(1);
+  });
+
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+  it("gives each server instance its own service.instance.id", () => {
+    const first = otelConfig(endpoint)?.attributes?.[ATTR_SERVICE_INSTANCE_ID];
+    const second = otelConfig(endpoint)?.attributes?.[ATTR_SERVICE_INSTANCE_ID];
+    expect(first).toMatch(uuid);
+    expect(second).toMatch(uuid);
+    expect(second).not.toBe(first);
+  });
+
+  // Exports one metric through the SDK @vercel/otel registers from `config`, and returns the
+  // resource it carried. Only the reader is swapped for an in-memory one; no instrumentation or
+  // span processor is registered, and the next test's setup replaces the global providers.
+  async function exportedResource(config: Configuration) {
+    await tel.shutdown();
+    const exporter = new InMemoryMetricExporter(AggregationTemporality.CUMULATIVE);
+    const reader = new PeriodicExportingMetricReader({ exporter, exportIntervalMillis: 60_000 });
+    registerOTel({ ...config, spanProcessors: [], instrumentations: [], metricReaders: [reader] });
+    metrics.getMeter("t").createCounter("c").add(1);
+    await reader.forceFlush();
+    await reader.shutdown();
+    tel = setupTestTelemetry();
+    return exporter.getMetrics()[0]?.resource.attributes;
+  }
+
+  it("exports the instance ID on the resource, under OTEL_RESOURCE_ATTRIBUTES", async () => {
+    const config = otelConfig(endpoint);
+    if (!config) throw new Error("no config");
+    vi.stubEnv("OTEL_RESOURCE_ATTRIBUTES", "deployment.environment.name=preview");
+    const attrs = await exportedResource(config);
+    expect(attrs?.[ATTR_SERVICE_INSTANCE_ID]).toMatch(uuid);
+    expect(attrs?.[ATTR_SERVICE_INSTANCE_ID]).toBe(config.attributes?.[ATTR_SERVICE_INSTANCE_ID]);
+    expect(attrs?.["deployment.environment.name"]).toBe("preview");
+    expect(attrs?.["service.name"]).toBe(SERVICE_NAME);
+
+    // An instance ID set in OTEL_RESOURCE_ATTRIBUTES wins over the random one.
+    vi.stubEnv("OTEL_RESOURCE_ATTRIBUTES", "service.instance.id=pinned");
+    expect((await exportedResource(config))?.[ATTR_SERVICE_INSTANCE_ID]).toBe("pinned");
   });
 
   it("samples 10% of new traces in production and all of them elsewhere", () => {

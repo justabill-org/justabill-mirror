@@ -2,6 +2,7 @@ package spannerdb_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -239,7 +240,7 @@ func TestVoteAggregateJSONOmitsBookkeeping(t *testing.T) {
 	}
 }
 
-func TestRepAlignmentRoundTrip(t *testing.T) {
+func TestRepAlignmentReplace(t *testing.T) {
 	reader, store := newAggregateRepos(t)
 	ctx := t.Context()
 	at := time.Date(2026, time.October, 20, 15, 0, 0, 0, time.UTC)
@@ -251,33 +252,80 @@ func TestRepAlignmentRoundTrip(t *testing.T) {
 		{MemberID: testdb.FixtureSenatorRep, Congress: testdb.FixtureCongress, ScopeKey: "OH",
 			BillsCompared: 3, BillsAgreed: 3, ComputedAt: at},
 	}
-	if err := store.UpsertRepAlignments(ctx, rows); err != nil {
-		t.Fatalf("upsert: %v", err)
+	replace := func(rows []model.RepAlignment, wantRemoved int) {
+		t.Helper()
+		removed, err := store.ReplaceRepAlignments(ctx, rows)
+		if err != nil || removed != wantRemoved {
+			t.Fatalf("ReplaceRepAlignments = %d, %v; want %d removed", removed, err, wantRemoved)
+		}
 	}
-	rows[1].BillsCompared, rows[1].BillsAgreed = 23, 15
-	if err := store.UpsertRepAlignments(ctx, rows[1:2]); err != nil {
-		t.Fatalf("update: %v", err)
-	}
-
-	got, err := reader.MemberAlignment(ctx, testdb.FixtureHouseDem)
-	if err != nil {
-		t.Fatalf("MemberAlignment: %v", err)
-	}
-	if len(got) != 2 || !reflect.DeepEqual(got[0], rows[1]) || !reflect.DeepEqual(got[1], rows[0]) {
-		t.Errorf("MemberAlignment = %+v, want the 119th row (23/15) then the 118th", got)
-	}
-	if none, getErr := reader.MemberAlignment(ctx, testdb.FixtureHouseRep); getErr != nil || none != nil {
-		t.Errorf("MemberAlignment(no rows) = %v, %v; want nil, nil", none, getErr)
+	alignment := func(memberID string) []model.RepAlignment {
+		t.Helper()
+		got, err := reader.MemberAlignment(ctx, memberID)
+		if err != nil {
+			t.Fatalf("MemberAlignment(%s): %v", memberID, err)
+		}
+		return got
 	}
 
-	bad := rows[2]
+	replace(rows, 0)
+	if got := alignment(testdb.FixtureHouseDem); !reflect.DeepEqual(got, []model.RepAlignment{rows[1], rows[0]}) {
+		t.Errorf("MemberAlignment = %+v, want the 119th row then the 118th", got)
+	}
+	if none := alignment(testdb.FixtureHouseRep); none != nil {
+		t.Errorf("MemberAlignment(no rows) = %v, want nil", none)
+	}
+
+	// The next run compares the House member in the 119th only, on one more bill.
+	later := at.Add(time.Hour)
+	next := []model.RepAlignment{rows[1], rows[2]}
+	next[0].BillsCompared, next[0].BillsAgreed, next[0].ComputedAt = 23, 15, later
+	next[1].ComputedAt = later
+	replace(next, 1)
+	if got := alignment(testdb.FixtureHouseDem); !reflect.DeepEqual(got, next[:1]) {
+		t.Errorf("MemberAlignment = %+v, want only the 119th row at 23/15", got)
+	}
+
+	bad := next[1]
 	bad.BillsAgreed = 4
-	if err = store.UpsertRepAlignments(ctx, []model.RepAlignment{bad}); err == nil ||
+	if _, err := store.ReplaceRepAlignments(ctx, []model.RepAlignment{bad}); err == nil ||
 		!strings.Contains(err.Error(), "agreed on 4 of 3") {
-		t.Errorf("upsert with agreed > compared = %v, want an error", err)
+		t.Errorf("replace with agreed > compared = %v, want an error", err)
 	}
-	if err = store.UpsertRepAlignments(ctx, nil); err != nil {
-		t.Errorf("upsert(nil) = %v, want nil", err)
+	if got := alignment(testdb.FixtureSenatorRep); !reflect.DeepEqual(got, next[1:]) {
+		t.Errorf("after a rejected replace MemberAlignment = %+v, want %+v unchanged", got, next[1:])
+	}
+
+	replace(nil, 2)
+	for _, id := range []string{testdb.FixtureHouseDem, testdb.FixtureSenatorRep} {
+		if got := alignment(id); got != nil {
+			t.Errorf("after replacing with no rows MemberAlignment(%s) = %+v, want nil", id, got)
+		}
+	}
+}
+
+// TestRepAlignmentReplaceManyCommits replaces more rows than one commit takes, both ways.
+func TestRepAlignmentReplaceManyCommits(t *testing.T) {
+	reader, store := newAggregateRepos(t)
+	ctx := t.Context()
+	at := time.Date(2026, time.October, 20, 15, 0, 0, 0, time.UTC)
+	const n = 2500
+	rows := make([]model.RepAlignment, n)
+	for i := range rows {
+		rows[i] = model.RepAlignment{MemberID: fmt.Sprintf("Z%06d", i), Congress: testdb.FixtureCongress,
+			ScopeKey: "CA-12", BillsCompared: 1, BillsAgreed: 1, ComputedAt: at}
+	}
+	if removed, err := store.ReplaceRepAlignments(ctx, rows); err != nil || removed != 0 {
+		t.Fatalf("write %d rows = %d, %v; want 0 removed", n, removed, err)
+	}
+	if got, err := reader.MemberAlignment(ctx, rows[n-1].MemberID); err != nil || len(got) != 1 {
+		t.Fatalf("last row = %+v, %v; want it written", got, err)
+	}
+	if removed, err := store.ReplaceRepAlignments(ctx, nil); err != nil || removed != n {
+		t.Fatalf("replace with none = %d, %v; want %d removed", removed, err, n)
+	}
+	if got, err := reader.MemberAlignment(ctx, rows[n-1].MemberID); err != nil || got != nil {
+		t.Errorf("last row = %+v, %v; want it deleted", got, err)
 	}
 }
 

@@ -21,7 +21,8 @@ import (
 	"github.com/justabill-org/justabill/pipeline/internal/aggregates"
 )
 
-// fakeStore serves a fixed snapshot and keeps the cells and alignment rows written to it.
+// fakeStore serves a fixed snapshot and keeps the cells and alignment rows written to it, as
+// Spanner would: alignments is the rep_alignment table, in key order (nil when empty).
 type fakeStore struct {
 	snap       *repository.AggregateSnapshot
 	cells      map[aggregates.CellKey]model.VoteAggregate
@@ -85,9 +86,30 @@ func (f *fakeStore) BillSeatPositions(_ context.Context, billIDs []string) ([]re
 	return out, nil
 }
 
-func (f *fakeStore) UpsertRepAlignments(_ context.Context, rows []model.RepAlignment) error {
-	f.alignments = append(f.alignments, rows...)
-	return nil
+// ReplaceRepAlignments makes alignments hold exactly rows, and counts the stored keys it drops.
+func (f *fakeStore) ReplaceRepAlignments(_ context.Context, rows []model.RepAlignment) (int, error) {
+	keep := map[string]bool{}
+	for _, r := range rows {
+		keep[alignKeyOf(r)] = true
+	}
+	removed := 0
+	for _, a := range f.alignments {
+		if !keep[alignKeyOf(a)] {
+			removed++
+		}
+	}
+	f.alignments = nil
+	if len(rows) > 0 {
+		f.alignments = slices.Clone(rows)
+		slices.SortFunc(f.alignments, func(a, b model.RepAlignment) int {
+			return strings.Compare(alignKeyOf(a), alignKeyOf(b))
+		})
+	}
+	return removed, nil
+}
+
+func alignKeyOf(a model.RepAlignment) string {
+	return fmt.Sprintf("%s|%d|%s", a.MemberID, a.Congress, a.ScopeKey)
 }
 
 func group(bill, state string, district *int, yea, nay, young int) repository.AggregateVoteGroup {
@@ -244,6 +266,101 @@ func TestRunHidesOneVote(t *testing.T) {
 	if !cell.PublishedAt.Equal(t0()) || !cell.ComputedAt.Equal(now) {
 		t.Errorf("CA-12 published %v, computed %v; want published %v, computed %v", cell.PublishedAt,
 			cell.ComputedAt, t0(), now)
+	}
+}
+
+// TestRunRemovesStaleAlignment checks that a member no shown cell compares any more loses their
+// rep_alignment row, so the API never repeats a majority the published cells have withdrawn
+// (#956).
+func TestRunRemovesStaleAlignment(t *testing.T) {
+	tests := []struct {
+		name string
+		// change edits the second run's snapshot.
+		change      func(snap *repository.AggregateSnapshot)
+		want        []model.RepAlignment
+		wantRemoved int
+	}{
+		{
+			// CA-12's voters leave: its district cell, and the CA state cell left with 10 votes,
+			// are suppressed. TX-7 is still shown.
+			name: "some cells suppressed",
+			change: func(snap *repository.AggregateSnapshot) {
+				snap.Groups = slices.Delete(snap.Groups, 0, 1)
+			},
+			want: []model.RepAlignment{
+				{MemberID: "B000002", Congress: 119, ScopeKey: "TX-7", BillsCompared: 1, BillsAgreed: 0,
+					ComputedAt: t0().Add(48 * time.Hour)},
+			},
+			wantRemoved: 2,
+		},
+		{
+			// Every H.R. 1 voter leaves, so no state or district cell is shown at all.
+			name: "no cell shown",
+			change: func(snap *repository.AggregateSnapshot) {
+				snap.Groups = nil
+				snap.CellBills = append(snap.CellBills, "hr-119-1")
+			},
+			want:        nil,
+			wantRemoved: 3,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			store := newFakeStore()
+			now := t0()
+			job, err := aggregates.New(store, aggregates.DefaultConfig(), slog.New(slog.DiscardHandler),
+				aggregates.WithClock(func() time.Time { return now }))
+			if err != nil {
+				t.Fatalf("New: %v", err)
+			}
+			if _, err = job.RunOnce(t.Context()); err != nil {
+				t.Fatalf("first run: %v", err)
+			}
+			if len(store.alignments) != 3 {
+				t.Fatalf("first run wrote %+v, want A000001, B000002 and C000003", store.alignments)
+			}
+
+			tt.change(store.snap)
+			now = t0().Add(48 * time.Hour)
+			res, err := job.RunOnce(t.Context())
+			if err != nil {
+				t.Fatalf("second run: %v", err)
+			}
+			if !reflect.DeepEqual(store.alignments, tt.want) {
+				t.Errorf("rep_alignment after the second run = %+v, want %+v", store.alignments, tt.want)
+			}
+			if res.Alignments != len(tt.want) || res.AlignmentsRemoved != tt.wantRemoved {
+				t.Errorf("Alignments = %d, AlignmentsRemoved = %d; want %d, %d", res.Alignments,
+					res.AlignmentsRemoved, len(tt.want), tt.wantRemoved)
+			}
+		})
+	}
+}
+
+// TestReportKeepsStaleAlignment checks that a dry run deletes nothing, even rows a real run would.
+func TestReportKeepsStaleAlignment(t *testing.T) {
+	store := newFakeStore()
+	job, err := aggregates.New(store, aggregates.DefaultConfig(), slog.New(slog.DiscardHandler),
+		aggregates.WithClock(t0))
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	if _, err = job.RunOnce(t.Context()); err != nil {
+		t.Fatalf("run: %v", err)
+	}
+	before := slices.Clone(store.alignments)
+
+	store.snap.Groups = nil
+	store.snap.CellBills = append(store.snap.CellBills, "hr-119-1")
+	res, err := job.Report(t.Context())
+	if err != nil {
+		t.Fatalf("Report: %v", err)
+	}
+	if !reflect.DeepEqual(store.alignments, before) {
+		t.Errorf("report changed rep_alignment from %+v to %+v", before, store.alignments)
+	}
+	if res.Alignments != 0 {
+		t.Errorf("Alignments = %d, want 0 (no row would be written)", res.Alignments)
 	}
 }
 

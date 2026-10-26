@@ -39,7 +39,11 @@ export function BillListControls({ congresses, counts, policyAreas = null }: Bil
   const view = filters.view;
   // The list shows the current congress unless `?congress=` names another, or `all` (#717).
   const current = currentCongress(congresses)?.number;
-  const otherCongress = filters.congress !== undefined && filters.congress !== current && current !== undefined;
+  // Without the congresses (#968) every congress is the default, so only a numbered one is a filter.
+  const otherCongress =
+    current === undefined
+      ? typeof filters.congress === "number"
+      : filters.congress !== undefined && filters.congress !== current;
   const showUnvoted = accountsEnabled() && status === "signed-in";
   const unvoted = showUnvoted && searchParams.get("unvoted") === "true";
   const moreCount = [otherCongress, filters.type, filters.chamber, filters.area, unvoted].filter(Boolean).length;

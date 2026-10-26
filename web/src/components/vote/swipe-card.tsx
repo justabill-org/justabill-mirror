@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type Ref } from "react";
 import type { Bill, BillCardFacts, BillSummary, UserVoteChoice } from "@/lib/types";
 import { BILL_TYPE_LABELS } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
@@ -22,9 +22,11 @@ interface SwipeCardProps {
   card?: BillCardFacts | null;
   onVote: (vote: UserVoteChoice) => void;
   isAnimating?: boolean;
+  /** The title, which /vote focuses when the card is dealt after a vote (#967). */
+  titleRef?: Ref<HTMLHeadingElement>;
 }
 
-export function SwipeCard({ bill, summary, card, onVote, isAnimating }: SwipeCardProps) {
+export function SwipeCard({ bill, summary, card, onVote, isAnimating, titleRef }: SwipeCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   // The bill's Share sheet (#811): while it's open the card neither drags nor votes.
   const [sharing, setSharing] = useState(false);
@@ -209,7 +211,11 @@ export function SwipeCard({ bill, summary, card, onVote, isAnimating }: SwipeCar
             </div>
 
             {/* Title */}
-            <h2 className="text-base font-semibold leading-snug text-foreground line-clamp-2 sm:text-lg">
+            <h2
+              ref={titleRef}
+              tabIndex={-1}
+              className="text-base font-semibold leading-snug text-foreground line-clamp-2 sm:text-lg"
+            >
               {bill.title}
             </h2>
 

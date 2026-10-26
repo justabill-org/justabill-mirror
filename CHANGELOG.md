@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.12.1 (2026-10-22)
+
+
+### Bug Fixes
+
+* **ci:** cap nested CLAUDE.md guides in guide-check.sh (#965) (0e4fb73)
+* **pipeline:** replace rep_alignment each run so members no shown cell compares lose their row (#963) (74a14e6)
+* **pipeline:** retry HTTP 520-524 and 530 from upstreams (#1005) (dc168d2)
+* restore main CI (Go 1.27.3 for GO-2026-6809) (#994) (23fd928)
+* restore main CI (next 16.4.2 for GHSA-2464-fhr4-w9xw) (#1015) (a6c55da)
+* **web:** count only matching votes in My votes' filtered count (#978) (db48b05)
+* **web:** give each server instance its own service.instance.id (#997) (f16b7d3)
+* **web:** keep /bills listing when the congress list fails to load (#979) (fcf08fb)
+* **web:** keep the open tab when the URL fragment names no tab (#976) (1c3ea21)
+* **web:** move focus to the next /vote card after each vote (#977) (6e8f01c)
+
+
+### Performance Improvements
+
+* **web:** time out API calls and send Content-Type only with a body (#975) (5ef99b6)
+
 ## 0.12.0 (2026-10-14)
 
 

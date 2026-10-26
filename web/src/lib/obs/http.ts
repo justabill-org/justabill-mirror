@@ -37,8 +37,11 @@ function durationHistogram(): Histogram {
  * to the API because only lib/api.ts calls this, on the server. A response that isn't ok sets the
  * span's status to error and `error.type` to the status code; a network failure sets it to the
  * error's class and is rethrown. The query string is never recorded: it can hold an address.
+ *
+ * With `timeoutMs`, a call the API hasn't answered by then rejects with a `TimeoutError` (#970),
+ * recorded like a network failure. See `withTimeout` for why the fetch itself isn't aborted.
  */
-export async function tracedFetch(url: string, init: RequestInit = {}): Promise<Response> {
+export async function tracedFetch(url: string, init: RequestInit = {}, timeoutMs?: number): Promise<Response> {
   const method = (init.method ?? "GET").toUpperCase();
   const target = new URL(url);
   const port = target.port ? Number(target.port) : DEFAULT_PORTS[target.protocol];
@@ -67,7 +70,7 @@ export async function tracedFetch(url: string, init: RequestInit = {}): Promise<
       headers,
       opentelemetry: { ignore: true },
     };
-    res = await fetch(url, opts);
+    res = await withTimeout(fetch(url, opts), timeoutMs);
   } catch (err) {
     failSpan(span, err);
     span.setAttribute(ATTR_ERROR_TYPE, errorType(err));
@@ -94,4 +97,20 @@ export async function tracedFetch(url: string, init: RequestInit = {}): Promise<
 function headerRecord(init: HeadersInit | undefined): Record<string, string> {
   if (init instanceof Headers || Array.isArray(init)) return Object.fromEntries(new Headers(init));
   return { ...init };
+}
+
+/**
+ * Resolves or rejects as `request` does, or rejects with a `TimeoutError` (the DOMException
+ * `AbortSignal.timeout` aborts with) once `ms` pass first. The fetch isn't aborted: Next dedupes a
+ * render's identical fetches (getBill in generateMetadata and in the page) only when they pass no
+ * signal (next/dist/server/lib/dedupe-fetch.js), so a timeout signal would double those calls on a
+ * cold cache. The abandoned fetch runs on until it settles, and a late 200 still fills the data cache.
+ */
+function withTimeout<T>(request: Promise<T>, ms: number | undefined): Promise<T> {
+  if (ms === undefined) return request;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new DOMException(`API call timed out after ${ms} ms`, "TimeoutError")), ms);
+  });
+  return Promise.race([request, timeout]).finally(() => clearTimeout(timer));
 }

@@ -200,6 +200,28 @@ describe("BillsPage view counts", () => {
     expect(got).toEqual({ laws: 6, passed: 15, committee: 3, all: 30 });
   });
 
+  it("renders the controls with no congresses when they can't be read, not the error page (#968)", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    mockFetch.mockImplementation(async (url: string) =>
+      String(url).includes("/congresses")
+        ? { ok: false, status: 500, statusText: "boom", text: async () => "" }
+        : ok(String(url).includes("/counts") ? counts : []),
+    );
+    const el = await controls({});
+    const rendered = (await (el.type as (p: Record<string, unknown>) => Promise<ReactElement<Record<string, unknown>>>)(
+      el.props,
+    )) as ReactElement<{ congresses: unknown[]; counts: Record<string, number> }>;
+    expect(rendered.props.congresses).toEqual([]);
+    expect(rendered.props.counts).toEqual({ laws: 6, passed: 15, committee: 3, all: 30 });
+  });
+
+  it("reads the congresses once for the list and the controls", async () => {
+    mockFetch.mockImplementation(async (url: string) => ok(String(url).includes("/counts") ? counts : []));
+    const el = await controls({});
+    await (el.type as (p: Record<string, unknown>) => Promise<unknown>)(el.props);
+    expect(mockFetch.mock.calls.filter(([url]) => String(url).includes("/congresses"))).toHaveLength(1);
+  });
+
   it("shows no counts when they can't be read", async () => {
     vi.stubEnv("NODE_ENV", "production");
     mockFetch.mockImplementation(async (url: string) =>

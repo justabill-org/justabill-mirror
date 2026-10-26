@@ -16,6 +16,7 @@ import {
   type Sampler,
   type SpanProcessor,
 } from "@opentelemetry/sdk-trace-base";
+import { ATTR_SERVICE_INSTANCE_ID } from "@opentelemetry/semantic-conventions";
 import { registerOTel, type Configuration } from "@vercel/otel";
 
 import { SCOPE } from "./index";
@@ -206,6 +207,10 @@ export function otelConfig(env: Env): Configuration | undefined {
 
   return {
     serviceName: SERVICE_NAME,
+    // A fresh ID per server instance (#984), so each Vercel instance exports its own cumulative
+    // metric series rather than interleaving with its siblings' under one identity. @vercel/otel
+    // merges its resource detectors (OTEL_RESOURCE_ATTRIBUTES) over these attributes.
+    attributes: { [ATTR_SERVICE_INSTANCE_ID]: crypto.randomUUID() },
     traceSampler: sampler,
     // "auto" is Vercel's own trace export plus OTLP from the OTEL_* variables. Without a traces
     // endpoint there are none: "auto" would otherwise post to localhost:4318.

@@ -454,6 +454,98 @@ describe("account calls (#137)", () => {
   });
 });
 
+// A Content-Type on a GET makes the browser preflight it (#970); the server render takes the same
+// request() path, so these run here and api-browser.test.ts checks the browser's own fetch.
+describe("Content-Type only with a body (#970)", () => {
+  it("sends no Content-Type on a GET", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ items: [], total: 0, offset: 0, limit: 20 }));
+    await listBills();
+    const headers = mockFetch.mock.calls[0][1].headers as Record<string, string>;
+    expect(Object.keys(headers).map((h) => h.toLowerCase())).not.toContain("content-type");
+  });
+
+  it("sends no Content-Type on a DELETE without a body", async () => {
+    mockFetch.mockResolvedValueOnce({ ok: true, status: 204, statusText: "No Content" });
+    await deleteMe("id-token-123");
+    const headers = mockFetch.mock.calls[0][1].headers as Record<string, string>;
+    expect(headers).not.toHaveProperty("Content-Type");
+    expect(headers.Authorization).toBe("Bearer id-token-123");
+  });
+
+  it("still sends application/json with a JSON body", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ id: "u1" }));
+    await updateMe("id-token-123", { state: "TX", district: 37 });
+    const init = mockFetch.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PATCH");
+    expect((init.headers as Record<string, string>)["Content-Type"]).toBe("application/json");
+  });
+});
+
+describe("timeouts on server renders (#970)", () => {
+  // A fetch the API never answers: it settles only if something aborts it through its signal.
+  const hang = (_url: string, init?: RequestInit) =>
+    new Promise<never>((_, reject) => init?.signal?.addEventListener("abort", () => reject(init.signal?.reason)));
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("gives up on a read the API doesn't answer after 10 s, with a TimeoutError", async () => {
+    mockFetch.mockImplementationOnce(hang);
+    const call = getBill("hr-119-1");
+    const settled = vi.fn();
+    call.then(settled, settled);
+
+    await vi.advanceTimersByTimeAsync(9_999);
+    expect(settled).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    await expect(call).rejects.toMatchObject({ name: "TimeoutError" });
+  });
+
+  it("gives a write the API's own 25 s deadline before giving up, at 30 s", async () => {
+    mockFetch.mockImplementationOnce(hang);
+    const call = getReps("1100 Congress Ave, Austin, TX 78701");
+    const settled = vi.fn();
+    call.then(settled, settled);
+
+    await vi.advanceTimersByTimeAsync(29_999);
+    expect(settled).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    await expect(call).rejects.toMatchObject({ name: "TimeoutError" });
+  });
+
+  it("returns an answer that comes in time, and leaves no timer behind", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ bill: { id: "hr-119-1" } }));
+    await expect(getBill("hr-119-1")).resolves.toEqual({ bill: { id: "hr-119-1" } });
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  // Next dedupes a render's identical fetches (getBill in generateMetadata and the page) only when
+  // the call passes no signal (next/dist/server/lib/dedupe-fetch.js), so the server call has none.
+  it("sends the server's fetch no signal, so Next still dedupes it", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ items: [], total: 0, offset: 0, limit: 20 }));
+    await listBills();
+    expect((mockFetch.mock.calls[0][1] as RequestInit).signal).toBeUndefined();
+  });
+
+  it("is an error orDevFixture falls back on under next dev, and rethrows in production", async () => {
+    const { orDevFixture } = await import("../fallback");
+    const fixture = { bill: { id: "example" } };
+    mockFetch.mockImplementation(hang);
+
+    const dev = orDevFixture(getBill("hr-119-1"), fixture, { NODE_ENV: "development" });
+    const prod = orDevFixture(getBill("hr-119-1"), fixture, { NODE_ENV: "production" });
+    const prodSettled = expect(prod).rejects.toMatchObject({ name: "TimeoutError" });
+    await vi.advanceTimersByTimeAsync(10_000);
+    await expect(dev).resolves.toBe(fixture);
+    await prodSettled;
+  });
+});
+
 describe("error handling", () => {
   it("throws ApiError on non-200 response", async () => {
     mockFetch.mockResolvedValue({
@@ -633,7 +725,6 @@ describe("the web server's key (#270)", () => {
     for (const [, init] of mockFetch.mock.calls as [string, RequestInit][]) {
       const headers = init.headers as Record<string, string>;
       expect(headers["X-Server-Key"]).toBe(key);
-      expect(headers["Content-Type"]).toBe("application/json");
     }
     expect((mockFetch.mock.calls[1][1].headers as Record<string, string>).Authorization).toBe("Bearer id-token-123");
   });

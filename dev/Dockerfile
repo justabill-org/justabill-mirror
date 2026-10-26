@@ -6,13 +6,13 @@
 # Versions follow the repo's sources of truth: Go from the go.mod files, Node's major from
 # web/.nvmrc, golangci-lint from ci.yml. Every image is pinned by digest (design #85), and Dependabot's
 # docker ecosystem bumps them. Nothing is copied from the checkout, so the build context is dev/.
-FROM node:24.21.0-trixie@sha256:be40f6a87b9b22215ddb20da0a2320a5c6d583fe3ee3b0024d9fa4f05b40c8fd AS node
+FROM node:24.22.1-trixie@sha256:016f604a11c4c725f0a4c62e29ff11adab153d297bf97046c9bf2ddb9f1011d3 AS node
 
 # The official binary, built with Go 1.27.1 (golangci-lint's docs don't guarantee `go install`).
 FROM golangci/golangci-lint:v2.14.0@sha256:ad862ba6b3798cbe0fd9fd7408d498fd74fbd2623a92406b2fd3898faf0bf98f AS golangci-lint
 
 # Debian, not Alpine: glibc and gcc for `go test -race`, plus git, curl and Bash 5.
-FROM golang:1.27.2-trixie@sha256:e58d6f83b3416618d8bcac2b3dde1b7f7e3c4a77d25e88637f8bbae81536c48d
+FROM golang:1.27.3-trixie@sha256:604106102d33b1084e37ca08adf98ac0813624ae8595bd0d7f3965ecebded09c
 
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules

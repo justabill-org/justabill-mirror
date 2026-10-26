@@ -32,7 +32,7 @@ import {
 import { currentCongress } from "@/lib/congress";
 import { orDevFixture } from "@/lib/fallback";
 import { maxOffsetFor, parseLimit, parseOffset } from "@/lib/paging";
-import type { Bill, BillCounts, PaginatedResult } from "@/lib/types";
+import type { Bill, BillCounts, Congress, PaginatedResult } from "@/lib/types";
 
 const PAGE_SIZE = 12;
 
@@ -57,11 +57,12 @@ export default async function BillsPage({ searchParams }: BillsPageProps) {
   const limit = parseLimit(query.get("limit") ?? undefined, PAGE_SIZE);
   const offset = parseOffset(query.get("offset") ?? undefined, limit, maxOffsetFor(filters.q));
   // The current congress unless the URL names another, or `all` (#717). If the congresses can't
-  // be read the list still renders, across every congress.
-  const current = await orDevFixture(listCongresses(), exampleCongresses).then(
-    (all) => (Array.isArray(all) ? currentCongress(all)?.number : undefined),
-    () => undefined,
+  // be read the list still renders, across every congress, and the controls offer no other (#968).
+  const congresses = await orDevFixture(listCongresses(), exampleCongresses).then(
+    (all) => (Array.isArray(all) ? all : []),
+    () => [],
   );
+  const current = currentCongress(congresses)?.number;
   const base = billListParams(filters, current);
   // "Unvoted only" needs the signed-in user's votes, which only the browser knows: the server
   // renders the whole list, and UnvotedBills swaps in the user's own list once they're signed in.
@@ -81,7 +82,7 @@ export default async function BillsPage({ searchParams }: BillsPageProps) {
   return (
     <div className="mx-auto max-w-7xl px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8">
       <Suspense fallback={<ControlsSkeleton />}>
-        <Controls base={base} />
+        <Controls base={base} congresses={congresses} />
       </Suspense>
 
       <Suspense key={`${view.key}-${sort}-${offset}`} fallback={<ResultsSkeleton />}>
@@ -113,9 +114,8 @@ function isFiltered(
   return [type, chamber, policy_area, q].some((value) => value !== undefined && value !== "");
 }
 
-async function Controls({ base }: { base: BillFilterParams }) {
-  const [congresses, counts, policyAreas] = await Promise.all([
-    orDevFixture(listCongresses(), exampleCongresses),
+async function Controls({ base, congresses }: { base: BillFilterParams; congresses: Congress[] }) {
+  const [counts, policyAreas] = await Promise.all([
     countViews(base),
     // Optional: without the areas, the panel leaves out their select and the rest works.
     listPolicyAreas().then(

@@ -135,6 +135,20 @@ class ApiError extends Error {
 }
 
 /**
+ * How long a call to the API may take before the web gives up on it, in milliseconds (#970). A
+ * read gets 10 s: a stalled API then costs a server render an error page (or ISR's last good page)
+ * rather than the function's own limit. A write gets 30 s, past the API's 25 s request deadline
+ * (api/cmd/server/main.go `requestTimeout`), so the web never gives up on a vote the API may still
+ * commit.
+ */
+export const API_TIMEOUT_MS = { read: 10_000, write: 30_000 } as const;
+
+function apiTimeoutMs(method: string | undefined): number {
+  const m = (method ?? "GET").toUpperCase();
+  return m === "GET" || m === "HEAD" ? API_TIMEOUT_MS.read : API_TIMEOUT_MS.write;
+}
+
+/**
  * fetch, traced on the server: a client span and http.client.request.duration per API call, with
  * the trace context sent along (lib/obs/http.ts). The browser gets plain fetch, so the OTel API
  * stays out of the client bundle; browser tracing is loaded lazily on its own (#292).
@@ -144,14 +158,20 @@ class ApiError extends Error {
  * Vercel's egress IPs (#270). `#server-key` resolves to the server-only lib/server-key.ts under
  * the `react-server` condition and to lib/no-server-key.ts everywhere else (package.json
  * "imports"), so client components never see the key.
+ *
+ * Every call times out (`API_TIMEOUT_MS`). The browser aborts its fetch with
+ * `AbortSignal.timeout`, unless the caller passed a signal of its own (`AbortSignal.any` would join
+ * them, but Safari before 17.4 lacks it). On the server the call stops waiting without aborting
+ * the fetch, which keeps Next's per-render dedupe (`withTimeout` in lib/obs/http.ts).
  */
 async function apiFetch(url: string, init?: RequestInit): Promise<Response> {
   const keyed = withServerKey(init);
+  const timeoutMs = apiTimeoutMs(keyed.method);
   if (typeof window === "undefined") {
     const { tracedFetch } = await import("./obs/http");
-    return tracedFetch(url, keyed);
+    return tracedFetch(url, keyed, timeoutMs);
   }
-  return fetch(url, keyed);
+  return fetch(url, { ...keyed, signal: keyed.signal ?? AbortSignal.timeout(timeoutMs) });
 }
 
 /**
@@ -164,9 +184,10 @@ async function request<T>(
   options: RequestInit & { token?: string } = {}
 ): Promise<T> {
   const { token, ...init } = options;
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+  const headers: Record<string, string> = {};
+  // Only a request with a body says what it is: application/json isn't a CORS-safelisted type, so
+  // on a GET it would make the browser send an OPTIONS preflight first (#970).
+  if (init.body) headers["Content-Type"] = "application/json";
   if (token) {
     headers.Authorization = `Bearer ${token}`;
     // The vote and import routes also check that the request comes from our app (#122).

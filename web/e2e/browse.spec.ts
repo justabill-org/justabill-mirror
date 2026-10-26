@@ -38,6 +38,21 @@ test("a link to a bill's #votes opens its Votes tab (#843, from My votes)", asyn
   await expect(page.getByRole("tabpanel")).toBeInViewport();
 });
 
+// #966: the skip link sets #main, which names no tab, so the Votes tab a #votes link opened stays.
+test("the skip link keeps the Votes tab a #votes link opened (#966)", async ({ page }) => {
+  await page.goto(`/bills/${HOUSE_BILL.id}#votes`);
+  const votes = page.getByRole("tab", { name: `Votes (${HOUSE_BILL.rollCalls})` });
+  await expect(votes).toHaveAttribute("aria-selected", "true");
+
+  // Focused directly: opened at a fragment, the first Tab needn't start at the top (a11y.spec.ts
+  // checks that it does on a page without one).
+  await page.getByRole("link", { name: "Skip to main content" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(new RegExp("#main$"));
+  await expect(page.getByRole("main")).toBeFocused();
+  await expect(votes).toHaveAttribute("aria-selected", "true");
+});
+
 test("share a bill: its page previews as itself, and Share links to that page (#810)", async ({ page }) => {
   // What a site's preview crawler reads: the tags in the page's <head> (Next.js streams metadata
   // into the body for browsers, but not for bots like this one).

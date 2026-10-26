@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -27,6 +28,9 @@ const (
 	// aggregateBasisColumns are the aggregation job's bookkeeping, read only by the pipeline.
 	aggregateBasisColumns = "basis_yea, basis_nay, hold_reason"
 	repAlignmentColumns   = "member_id, congress, scope_key, bills_compared, bills_agreed, computed_at"
+	// repAlignmentBatch is how many rep_alignment mutations go in one commit: 2,000 rows of 6
+	// columns stay well under Spanner's 80,000 mutations per commit.
+	repAlignmentBatch = 2000
 
 	// aggregateScopeOrder sorts national cells first, then states, then districts.
 	aggregateScopeOrder = "CASE scope WHEN 'national' THEN 0 WHEN 'state' THEN 1 ELSE 2 END, scope_key"
@@ -257,26 +261,59 @@ func (s *PipelineStoreImpl) ExcludeAggregateCohort(
 	return n, nil
 }
 
-// UpsertRepAlignments writes the rows in one commit.
-func (s *PipelineStoreImpl) UpsertRepAlignments(ctx context.Context, rows []model.RepAlignment) error {
-	if len(rows) == 0 {
-		return nil
-	}
+// ReplaceRepAlignments makes rep_alignment hold exactly rows: it writes them, then deletes every
+// stored row whose key isn't among them, and returns how many it deleted. Mutations go in commits
+// of repAlignmentBatch, so a failure can leave a stale row (never a missing current one) for the
+// next call to delete. It writes nothing if any row agrees on more bills than it compares.
+func (s *PipelineStoreImpl) ReplaceRepAlignments(ctx context.Context, rows []model.RepAlignment) (int, error) {
+	keep := make(map[repAlignmentKey]bool, len(rows))
 	cols := strings.Split(repAlignmentColumns, ", ")
 	mutations := make([]*spanner.Mutation, 0, len(rows))
 	for _, a := range rows {
 		if a.BillsAgreed > a.BillsCompared {
-			return fmt.Errorf("upsert rep alignments: %s agreed on %d of %d bills",
+			return 0, fmt.Errorf("replace rep alignments: %s agreed on %d of %d bills",
 				a.MemberID, a.BillsAgreed, a.BillsCompared)
 		}
+		keep[repAlignmentKey{a.MemberID, int64(a.Congress), a.ScopeKey}] = true
 		mutations = append(mutations, spanner.InsertOrUpdate(tableRepAlignment, cols, []any{
 			a.MemberID, int64(a.Congress), a.ScopeKey, int64(a.BillsCompared), int64(a.BillsAgreed), a.ComputedAt,
 		}))
 	}
-	if _, err := s.client.Apply(ctx, mutations); err != nil {
-		return fmt.Errorf("upsert rep alignments: %w", err)
+
+	removed := 0
+	err := eachRow(ctx, s.client.Single(), spanner.Statement{
+		SQL: "SELECT member_id, congress, scope_key FROM rep_alignment",
+	}, func(row *spanner.Row) error {
+		var k repAlignmentKey
+		if err := row.Columns(&k.memberID, &k.congress, &k.scopeKey); err != nil {
+			return err
+		}
+		if !keep[k] {
+			mutations = append(
+				mutations,
+				spanner.Delete(tableRepAlignment, spanner.Key{k.memberID, k.congress, k.scopeKey}),
+			)
+			removed++
+		}
+		return nil
+	})
+	if err != nil {
+		return 0, fmt.Errorf("replace rep alignments: %w", err)
 	}
-	return nil
+
+	for chunk := range slices.Chunk(mutations, repAlignmentBatch) {
+		if _, err = s.client.Apply(ctx, chunk); err != nil {
+			return 0, fmt.Errorf("replace rep alignments: %w", err)
+		}
+	}
+	return removed, nil
+}
+
+// repAlignmentKey is rep_alignment's primary key.
+type repAlignmentKey struct {
+	memberID string
+	congress int64
+	scopeKey string
 }
 
 // validateAggregate checks a cell's scope, scope key and status before it's written.

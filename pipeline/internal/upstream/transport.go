@@ -195,10 +195,24 @@ func (t *transport) retryWait(
 	return ra, ra <= maxRetryAfter
 }
 
+// Non-standard statuses a CDN edge sends for a transient origin error, retried like a 502
+// (#1004): unknown error, origin down, connection timed out, origin unreachable, origin
+// timed out, and a 530 wrapping one of them.
+const (
+	statusEdgeUnknown           = 520
+	statusEdgeOriginDown        = 521
+	statusEdgeConnectTimeout    = 522
+	statusEdgeOriginUnreachable = 523
+	statusEdgeOriginTimeout     = 524
+	statusEdgeOriginError       = 530
+)
+
 func retryableStatus(status int) bool {
 	switch status {
 	case http.StatusRequestTimeout, http.StatusTooManyRequests, http.StatusInternalServerError,
-		http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+		http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout,
+		statusEdgeUnknown, statusEdgeOriginDown, statusEdgeConnectTimeout, statusEdgeOriginUnreachable,
+		statusEdgeOriginTimeout, statusEdgeOriginError:
 		return true
 	}
 	return false

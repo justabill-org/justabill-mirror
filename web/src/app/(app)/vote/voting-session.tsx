@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef, type Ref } from "react";
 import Link from "next/link";
 import type { PaginatedResult, UserVoteChoice } from "@/lib/types";
 import { SwipeCard } from "@/components/vote/swipe-card";
@@ -86,11 +86,23 @@ function DeckSession({
   const [attempt, setAttempt] = useState(0);
   const card = deck.card;
   const { next } = deck;
+  const cardKey = card ? `${card.bill.id}:${attempt}` : null;
+
+  // After a vote (#967), focus goes to what the deck shows next: the next card's title, the same
+  // card's when the save failed (its alert says why), or the end of the deck. Never on page load,
+  // so the skip link and the page heading stay first. The button that had focus is gone either way.
+  const voted = useRef(false);
+  const nextFocus = useRef<HTMLHeadingElement>(null);
+  const shown = cardKey ?? deck.status;
+  useEffect(() => {
+    if (voted.current) nextFocus.current?.focus();
+  }, [shown]);
 
   const handleVote = useCallback(
     async (vote: UserVoteChoice) => {
       if (isAnimating || !card) return;
 
+      voted.current = true;
       setIsAnimating(true);
       setFailed(null);
       setCapped(false);
@@ -148,17 +160,19 @@ function DeckSession({
         query={query}
         listHref={listHref}
         onChangeFilters={onChangeFilters}
+        headingRef={nextFocus}
       />
 
       {card && (
         <>
           <SwipeCard
-            key={`${card.bill.id}:${attempt}`}
+            key={cardKey}
             bill={card.bill}
             summary={card.summary}
             card={card.card}
             onVote={handleVote}
             isAnimating={isAnimating}
+            titleRef={nextFocus}
           />
 
           {/* Always in the page, so a screen reader announces the message when it appears (#955). */}
@@ -225,12 +239,15 @@ function DeckBody({
   query,
   listHref,
   onChangeFilters,
+  headingRef,
 }: {
   deck: VoteDeck;
   voted: number;
   query: string;
   listHref: string;
   onChangeFilters?: () => void;
+  /** The heading of the message shown, which takes focus when the last card is voted on (#967). */
+  headingRef: Ref<HTMLHeadingElement>;
 }) {
   const changeFilters = onChangeFilters && (
     <Button variant="outline" onClick={onChangeFilters}>
@@ -248,7 +265,7 @@ function DeckBody({
     case "empty":
       return (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
-          <h2 className="text-lg font-semibold text-foreground">No bills found</h2>
+          <h2 ref={headingRef} tabIndex={-1} className="text-lg font-semibold text-foreground">No bills found</h2>
           <p className="mt-2 max-w-xs text-muted-foreground">
             {query ? "No bill matches these filters." : "Check back later for new legislation."}
           </p>
@@ -262,7 +279,7 @@ function DeckBody({
     case "capped":
       return (
         <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card px-4 py-16 text-center">
-          <h2 className="text-lg font-semibold text-foreground">That&apos;s as far as this list goes</h2>
+          <h2 ref={headingRef} tabIndex={-1} className="text-lg font-semibold text-foreground">That&apos;s as far as this list goes</h2>
           <p className="mt-2 max-w-sm text-muted-foreground">
             This list has more bills than we can go through here. Narrow the filters, for example by congress, bill type
             or policy area, to see the rest.
@@ -281,7 +298,7 @@ function DeckBody({
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
             <CheckIcon className="h-8 w-8 text-success" />
           </div>
-          <h2 className="mt-4 text-xl font-semibold text-foreground">You&apos;ve voted on every bill here</h2>
+          <h2 ref={headingRef} tabIndex={-1} className="mt-4 text-xl font-semibold text-foreground">You&apos;ve voted on every bill here</h2>
           <p className="mt-2 max-w-xs text-muted-foreground">
             You&apos;ve voted on or skipped every bill under these filters
             {voted > 0 ? `, ${voted} of them on this visit` : ""}.

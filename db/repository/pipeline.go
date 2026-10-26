@@ -1094,7 +1094,10 @@ type PipelineStore interface {
 	// excluded yet, so their votes leave the aggregates at the job's next run. It's idempotent,
 	// and returns how many accounts it excluded (a lower bound: partitioned DML).
 	ExcludeAggregateCohort(ctx context.Context, c AggregateCohort, at time.Time) (int64, error)
-	UpsertRepAlignments(ctx context.Context, rows []model.RepAlignment) error
+	// ReplaceRepAlignments makes rep_alignment hold exactly rows: it writes them and deletes every
+	// stored row whose member, congress and scope key aren't among them, so a member no shown cell
+	// compares any more has no row. It returns how many rows it deleted.
+	ReplaceRepAlignments(ctx context.Context, rows []model.RepAlignment) (int, error)
 	// AggregateSnapshot reads the eligible votes, grouped by bill, state and district, and the
 	// ineligible ones by reason, in one read-only transaction.
 	AggregateSnapshot(ctx context.Context, p AggregateSnapshotParams) (*AggregateSnapshot, error)

@@ -176,6 +176,12 @@ describe("the list", () => {
     expect(rowTitles()).toHaveLength(4);
   });
 
+  it("says vote, not votes, when there is one (#969)", async () => {
+    await withBackend(deviceBackend(seededStore([SEEDS[0]])));
+    fireEvent.click(screen.getByRole("button", { name: "Yea 1" }));
+    expect(screen.getByText("1 of 1 vote")).toBeTruthy();
+  });
+
   it("puts a vote cast elsewhere (another tab, an import) at the top", async () => {
     const store = seededStore(SEEDS);
     await withBackend(deviceBackend(store));
@@ -358,6 +364,17 @@ describe("changing a vote", () => {
     expect(rowTitles()).toEqual(["H.J.Res. 7"]);
   });
 
+  it("counts only the votes that still match while a changed row stays (#969)", async () => {
+    await withBackend(deviceBackend(seededStore(SEEDS)));
+    fireEvent.click(screen.getByRole("button", { name: "Yea 2" }));
+    const row = rowOf("hr-119-1");
+    openChange(row);
+    await act(async () => fireEvent.click(within(row).getByRole("button", { name: "Nay" })));
+
+    expect(rowTitles()).toEqual(["H.J.Res. 7", "Companion Act"]);
+    expect(screen.getByText("1 of 4 votes")).toBeTruthy();
+  });
+
   it("keeps the stored vote and says which one failed when a save fails, and Try again resends it", async () => {
     const store = seededStore([SEEDS[0]]);
     const local = deviceBackend(store);
@@ -419,6 +436,28 @@ describe("removing a vote", () => {
     expect(store.getSnapshot().value["hjres-119-7"].vote).toBe("yea");
     expect(within(row).getByRole("button", { name: "Yea" }).getAttribute("aria-pressed")).toBe("true");
     expect(document.activeElement).toBe(within(row).getByRole("button", { name: "Done changing my vote on H.J.Res. 7" }));
+  });
+
+  it("leaves a removed vote out of a filter's count while its row offers Undo (#969)", async () => {
+    const yeas: Seed[] = [
+      ["hr-119-1", "yea", "2026-10-01T12:00:00.000Z", "Companion Act"],
+      ["hr-119-2", "yea", "2026-10-02T12:00:00.000Z", "Second Act"],
+      ["hr-119-3", "yea", "2026-10-03T12:00:00.000Z", "Third Act"],
+    ];
+    await withBackend(deviceBackend(seededStore(yeas)));
+    fireEvent.click(screen.getByRole("button", { name: "Yea 3" }));
+    expect(screen.getByText("3 of 3 votes")).toBeTruthy();
+    const row = rowOf("hr-119-2");
+    openChange(row);
+
+    await act(async () => fireEvent.click(within(row).getByRole("button", { name: "Remove my vote on H.R. 2" })));
+
+    expect(screen.getByText("2 of 2 votes")).toBeTruthy();
+    expect(rowTitles()).toEqual(["Third Act", "Second Act", "Companion Act"]);
+    expect(within(row).getByRole("button", { name: "Undo removing my vote on H.R. 2" })).toBeTruthy();
+
+    await act(async () => fireEvent.click(within(row).getByRole("button", { name: "Undo removing my vote on H.R. 2" })));
+    expect(screen.getByText("3 of 3 votes")).toBeTruthy();
   });
 
   it("keeps the last vote's row to undo rather than showing the empty page", async () => {

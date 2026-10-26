@@ -1,6 +1,6 @@
 module github.com/justabill-org/justabill/obs
 
-go 1.27.2
+go 1.27.3
 
 require (
 	go.opentelemetry.io/contrib/bridges/otelslog v0.20.1

@@ -58,6 +58,12 @@ export function BillFilterFields({
   // select shows what the list is filtered by.
   const areas =
     policyAreas && filters.area && !policyAreas.includes(filters.area) ? [filters.area, ...policyAreas] : policyAreas;
+  // Likewise a congress the list doesn't have, as when the congresses couldn't be read (#968).
+  const named = filters.congress;
+  const offered =
+    typeof named === "number" && !congresses.some((c) => c.number === named)
+      ? [{ number: named }, ...congresses]
+      : congresses;
 
   return (
     <>
@@ -90,7 +96,7 @@ export function BillFilterFields({
           value={congressValue(filters.congress, current)}
           onChange={(e) => onChange({ congress: congressChoice(e.target.value, current) })}
         >
-          {congresses.map((c) => (
+          {offered.map((c) => (
             <option key={c.number} value={c.number}>
               {c.number}th{c.number === current ? " (current)" : ""}
             </option>

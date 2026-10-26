@@ -106,6 +106,11 @@ export function MyVotes({ deviceStore, loadStatuses = loadBillStatuses }: MyVote
   const summary = myVoteSummary(votes, statuses);
   const rows = myVoteRows(ids, votes, statuses, query, removed);
   const filtered = activeFilterCount(query) > 0 || query.search.trim() !== "";
+  // The votes that match, not the rows: a removed row (kept for Undo) or one changed out of the
+  // filter stays on screen but isn't counted, so the count never exceeds the total (#969).
+  const matching = filtered ? myVoteIds(votes, statuses, query).length : 0;
+  const noun = summary.total === 1 ? "vote" : "votes";
+  const count = `${matching.toLocaleString()} of ${summary.total.toLocaleString()} ${noun}`;
   const pages = Math.max(1, Math.ceil(rows.length / MY_VOTES_PAGE_SIZE));
   const current = Math.min(page, pages - 1);
 
@@ -156,9 +161,7 @@ export function MyVotes({ deviceStore, loadStatuses = loadBillStatuses }: MyVote
               )}
               <div className="flex min-h-8 flex-wrap items-center justify-between gap-x-4">
                 <p role="status" className="text-sm text-muted-foreground">
-                  {filtered
-                    ? `${rows.length.toLocaleString()} of ${summary.total.toLocaleString()} votes`
-                    : "Newest first"}
+                  {filtered ? count : "Newest first"}
                 </p>
                 {filtered && (
                   <Button variant="ghost" size="sm" onClick={() => setQuery(MY_VOTES_ALL)}>

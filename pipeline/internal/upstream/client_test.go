@@ -94,6 +94,78 @@ func equalDurations(a, b []time.Duration) bool {
 	return true
 }
 
+// TestEdgeStatusesAreRetried covers the statuses CDN edges send for a transient origin error
+// (#1004): they get the same five attempts and backoff as a 502.
+func TestEdgeStatusesAreRetried(t *testing.T) {
+	for _, status := range []int{520, 521, 522, 523, 524, 530} {
+		t.Run(strconv.Itoa(status), func(t *testing.T) {
+			srv := newServer(t, func(w http.ResponseWriter, _ *http.Request, _ int) {
+				w.WriteHeader(status)
+			})
+			sl := &sleeps{}
+			c := newClient(t, slog.New(slog.DiscardHandler), map[string]upstream.Host{srv.host(): host(fastBudget(t))},
+				upstream.Hooks{Sleep: sl.sleep, Jitter: func(d time.Duration) time.Duration { return d }})
+
+			_, err := get(t.Context(), c, srv.URL+"/v3/bill/119", nil)
+			se, ok := errors.AsType[*upstream.StatusError](err)
+			if !ok {
+				t.Fatalf("got %v, want a StatusError", err)
+			}
+			want := upstream.StatusError{Host: srv.host(), Path: "/v3/bill/119", Status: status, Attempts: 5}
+			if *se != want {
+				t.Errorf("got %+v, want %+v", *se, want)
+			}
+			if upstream.IsPermanent(err) {
+				t.Errorf("a %d is not permanent", status)
+			}
+			wantWaits := []time.Duration{2 * time.Second, 4 * time.Second, 8 * time.Second, 16 * time.Second}
+			if got := sl.got(); !equalDurations(got, wantWaits) {
+				t.Errorf("backoff caps = %v, want %v", got, wantWaits)
+			}
+		})
+	}
+}
+
+func TestEdgeStatusOnceThenOK(t *testing.T) {
+	srv := newServer(t, statusThen(520))
+	log, logs := newLogger()
+	c := newClient(t, log, map[string]upstream.Host{srv.host(): host(fastBudget(t))},
+		upstream.Hooks{Sleep: (&sleeps{}).sleep})
+
+	body, err := get(t.Context(), c, srv.URL+"/v3/bill/119", nil)
+	if err != nil || body != "ok" {
+		t.Fatalf("got %q, %v; want ok", body, err)
+	}
+	if srv.count() != 2 {
+		t.Errorf("attempts = %d, want 2", srv.count())
+	}
+	if n := logs.count("upstream_error"); n != 0 {
+		t.Errorf("upstream_error logged %d times, want none", n)
+	}
+}
+
+func TestStatusesNotRetried(t *testing.T) {
+	for _, status := range []int{
+		http.StatusNotImplemented, http.StatusHTTPVersionNotSupported, http.StatusBadRequest,
+		http.StatusForbidden, http.StatusNotFound, http.StatusConflict, http.StatusUnprocessableEntity,
+	} {
+		t.Run(strconv.Itoa(status), func(t *testing.T) {
+			srv := newServer(t, statusThen(status))
+			c := newClient(t, slog.New(slog.DiscardHandler), map[string]upstream.Host{srv.host(): host(fastBudget(t))},
+				upstream.Hooks{Sleep: (&sleeps{}).sleep})
+
+			_, err := get(t.Context(), c, srv.URL+"/v3/bill/119", nil)
+			se, ok := errors.AsType[*upstream.StatusError](err)
+			if !ok || se.Status != status || se.Attempts != 1 {
+				t.Errorf("got %v, want a StatusError for %d after 1 attempt", err, status)
+			}
+			if srv.count() != 1 {
+				t.Errorf("attempts = %d, want 1", srv.count())
+			}
+		})
+	}
+}
+
 func TestRetryAfterSeconds(t *testing.T) {
 	srv := newServer(t, func(w http.ResponseWriter, _ *http.Request, hit int) {
 		if hit == 1 {
@@ -224,7 +296,7 @@ func TestIsPermanent(t *testing.T) {
 	for status, want := range map[int]bool{
 		http.StatusBadRequest: true, http.StatusUnauthorized: true, http.StatusForbidden: true,
 		http.StatusNotFound: true, http.StatusGone: true, http.StatusTooManyRequests: false,
-		http.StatusInternalServerError: false, http.StatusServiceUnavailable: false,
+		http.StatusInternalServerError: false, http.StatusServiceUnavailable: false, 520: false,
 	} {
 		err := &upstream.StatusError{Host: "h", Path: "/", Status: status, Attempts: 1}
 		if got := upstream.IsPermanent(err); got != want {

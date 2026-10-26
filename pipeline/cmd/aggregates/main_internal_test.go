@@ -71,9 +71,9 @@ func (f *fakeStore) BillSeatPositions(context.Context, []string) ([]repository.S
 	return nil, nil
 }
 
-func (f *fakeStore) UpsertRepAlignments(context.Context, []model.RepAlignment) error {
+func (f *fakeStore) ReplaceRepAlignments(context.Context, []model.RepAlignment) (int, error) {
 	f.writes++
-	return nil
+	return 0, nil
 }
 
 func (f *fakeStore) CountAggregateCohort(context.Context, repository.AggregateCohort) (int64, error) {

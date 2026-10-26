@@ -225,6 +225,26 @@ describe("BillListControls", () => {
     expect(nav.push).toHaveBeenLastCalledWith("/bills");
   });
 
+  it("offers every congress, keeping the URL's, when the congresses couldn't be read (#968)", () => {
+    const { unmount } = render(<BillListControls congresses={[]} counts={counts} />);
+    fireEvent.click(screen.getByRole("button", { name: /Filters/ }));
+    const all = screen.getByLabelText("Congress") as HTMLSelectElement;
+    expect([...all.options].map((o) => o.text)).toEqual(["All congresses"]);
+    expect(all.value).toBe("all");
+    unmount();
+
+    nav.query = "congress=118";
+    render(<BillListControls congresses={[]} counts={counts} />);
+    const more = screen.getByRole("button", { name: /Filters/ });
+    expect(more.textContent).toBe("Filters1 active");
+    fireEvent.click(more);
+    const select = screen.getByLabelText("Congress") as HTMLSelectElement;
+    expect([...select.options].map((o) => o.text)).toEqual(["118th", "All congresses"]);
+    expect(select.value).toBe("118");
+    fireEvent.change(select, { target: { value: "all" } });
+    expect(nav.push).toHaveBeenLastCalledWith("/bills");
+  });
+
   it("offers bills I haven't voted on only to a signed-in user with accounts on", () => {
     vi.stubEnv("NEXT_PUBLIC_ACCOUNTS_ENABLED", "true");
     auth.status = "signed-in";

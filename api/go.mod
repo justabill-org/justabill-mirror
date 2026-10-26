@@ -1,6 +1,6 @@
 module github.com/justabill-org/justabill/api
 
-go 1.27.2
+go 1.27.3
 
 require (
 	cloud.google.com/go/spanner v1.95.1
