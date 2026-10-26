@@ -128,6 +128,37 @@ type MemberVoteRow struct {
 	Vote     string
 }
 
+// RollCallRef names a stored roll call (a congressional_votes row with a roll_number) and the
+// question it put, for the attendance rule to tell quorum calls apart (IsQuorumCall). Question is
+// empty when none was stored.
+type RollCallRef struct {
+	VoteID   string
+	Chamber  string
+	Question string
+}
+
+// MemberVoteCount is how many of a congress's roll calls in a chamber a member answered with Vote,
+// in its stored form.
+type MemberVoteCount struct {
+	MemberID string
+	Chamber  string
+	Vote     string
+	Count    int64
+}
+
+// MemberAttendanceRow is a member_attendance row to write (docs/design/agent-1742-member-attendance.md).
+// computed_at is the commit timestamp of the write.
+type MemberAttendanceRow struct {
+	MemberID         string
+	Congress         int
+	Chamber          string
+	Eligible         int64
+	Missed           int64
+	Present          int64
+	ChamberMembers   int64
+	ChamberMedianPct float64
+}
+
 // TextVersionRef is a reference to an unfetched text version.
 type TextVersionRef struct {
 	ID          string
@@ -902,6 +933,10 @@ type PipelineStore interface {
 	// a sync that failed or was interrupted after UpsertBill). These are the bills the
 	// backfill's voted-bills step loads, so a rerun picks up where a partial run stopped.
 	ListMissingVotedBillIDs(ctx context.Context, congress int) ([]string, error)
+	// ListVotedBillIDs pages through the stored bills a congress's recorded roll calls name
+	// (roll_number set, so not a voice or unanimous-consent passage), once each in bill_id order,
+	// starting after afterBillID ("" for the first page). A bill with no bills row isn't listed.
+	ListVotedBillIDs(ctx context.Context, congress int, afterBillID string, limit int) ([]string, error)
 	ReplaceBillActions(ctx context.Context, billID string, actions []BillActionRow) error
 	// UpsertBillTextVersions matches versions to the bill's stored ones by code, then by type, and
 	// updates them in place so version IDs, texts, diffs and diff summaries survive a re-sync. New
@@ -1077,6 +1112,19 @@ type PipelineStore interface {
 	// member_votes rows than yeas + nays + present + not_voting. Rows without totals (voice
 	// votes and unanimous consent) are never incomplete.
 	IncompleteVoteIDs(ctx context.Context, congress int, chamber string) ([]string, error)
+
+	// Attendance (docs/design/agent-1742-member-attendance.md). The vote sync reads the congress's
+	// roll calls and its members' vote counts, applies the rule in Go, and replaces the rows.
+	// ListRollCallRefs returns the congress's roll calls that have a roll number, by vote ID.
+	ListRollCallRefs(ctx context.Context, congress int) ([]RollCallRef, error)
+	// CountMemberVotes counts the congress's member_votes rows per member, chamber and vote,
+	// leaving out excludedVoteIDs and votes without a roll number, ordered by member, chamber and
+	// vote.
+	CountMemberVotes(ctx context.Context, congress int, excludedVoteIDs []string) ([]MemberVoteCount, error)
+	// ReplaceMemberAttendance makes the congress's member_attendance rows exactly rows, in one
+	// read-write transaction, with computed_at the commit timestamp. Every row must be of the
+	// congress; other congresses' rows are untouched.
+	ReplaceMemberAttendance(ctx context.Context, congress int, rows []MemberAttendanceRow) error
 
 	// Aggregates (docs/design/89-aggregate-analytics.md). The job reads the previous cells,
 	// with their bookkeeping, to apply the republish and hold rules, then writes new ones.

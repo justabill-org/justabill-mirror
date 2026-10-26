@@ -152,8 +152,10 @@ export default function TermsPage() {
             code.
           </li>
           <li>
-            You give us a limited license to use what you submit (such as your votes) in order to provide the Service to
-            you, but we claim no ownership over it.
+            You give us a limited license to use what you submit (such as your votes) to provide the Service to you
+            and, if you sign in, in the rounded, de-identified totals of how users voted that the{" "}
+            <Link href="/privacy#access-and-disclosure">Privacy Policy</Link> describes, unless you turn that off in
+            your settings, but we claim no ownership over it.
           </li>
           <li>
             We reserve the right (but not the obligation) in our sole discretion to refuse or remove anything submitted

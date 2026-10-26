@@ -43,6 +43,14 @@ type voteStore struct {
 
 	existingErr error // ExistingVoteIDs
 	lisErr      error // LISLookup
+
+	// The attendance step (attendance_internal_test.go). Stored roll calls' member votes are read
+	// back as their counts.
+	memberRows map[string][]repository.MemberVoteRow // vote ID -> what StoreRollCall wrote
+	excluded   [][]string                            // every CountMemberVotes' excludedVoteIDs
+	attendance map[int][]repository.MemberAttendanceRow
+	refsCalls  int   // ListRollCallRefs
+	replaceErr error // ReplaceMemberAttendance
 }
 
 // newVoteStore knows the stored LIS IDs of the three senators in the trimmed Senate fixtures.
@@ -50,6 +58,8 @@ func newVoteStore(existing ...string) *voteStore {
 	st := &voteStore{
 		existing:    map[string]bool{},
 		memberVotes: map[string][]string{},
+		memberRows:  map[string][]repository.MemberVoteRow{},
+		attendance:  map[int][]repository.MemberAttendanceRow{},
 		lis:         map[string]string{"S428": "A000382", "S354": "B001230", "S429": "B001299"},
 	}
 	for _, id := range existing {
@@ -89,6 +99,7 @@ func (f *voteStore) StoreRollCall(
 	for _, m := range members {
 		f.memberVotes[v.ID] = append(f.memberVotes[v.ID], m.MemberID)
 	}
+	f.memberRows[v.ID] = append(f.memberRows[v.ID], members...)
 	return nil
 }
 
@@ -170,13 +181,15 @@ func (f *voteStore) voteIDs() []string {
 const senateMembersPath = "/senators/cvc_member_data.xml"
 
 // voteFeedServer stands in for the House Clerk and Senate LIS. Each session serves rolls
-// 1..n, all with the same recorded document. A year or session missing from a map is a 404.
-// The Senate member feed is the xmlparse fixture unless senateMembers is set.
+// 1..n, all with the same recorded document unless houseRollDocs names another. A year or
+// session missing from a map is a 404. The Senate member feed is the xmlparse fixture unless
+// senateMembers is set.
 type voteFeedServer struct {
-	houseRolls    map[int]int    // year -> highest roll
-	houseDocs     map[int]string // year -> testdata file served for every roll
-	senateVotes   map[int]int    // session -> highest vote number
-	senateDocs    map[int]string // session -> testdata file served for every vote
+	houseRolls    map[int]int       // year -> highest roll
+	houseDocs     map[int]string    // year -> testdata file served for every roll
+	houseRollDocs map[[2]int]string // {year, roll} -> testdata file served instead of houseDocs'
+	senateVotes   map[int]int       // session -> highest vote number
+	senateDocs    map[int]string    // session -> testdata file served for every vote
 	senateMembers []byte
 	membersStatus int // the member feed's HTTP status, when not 200
 
@@ -205,6 +218,9 @@ func (f *voteFeedServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	case scan(r.URL.Path, "/evs/%d/roll%d.xml", &year, &roll):
 		if name, ok := f.houseDocs[year]; ok && roll <= f.houseRolls[year] {
+			if doc, found := f.houseRollDocs[[2]int{year, roll}]; found {
+				name = doc
+			}
 			writeFixture(w, name)
 			return
 		}
@@ -328,6 +344,8 @@ func session1IDs() []string {
 
 func TestSyncVotes_Session2IsNotSkipped(t *testing.T) {
 	store := newVoteStore(session1IDs()...)
+	// The senators are stored members, so they get attendance rows and nothing warns.
+	store.roster = []string{"A000382", "B001230", "B001299"}
 	feeds := the119th()
 	s, warnings := voteService(t, store, feeds)
 

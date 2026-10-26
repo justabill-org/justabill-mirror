@@ -27,7 +27,7 @@ func newSince(alias string) string {
 
 // aggregateGroupsSQL counts the eligible Yea and Nay votes by bill, state and district
 // (docs/design/89-aggregate-analytics.md). An eligible vote is Yea or Nay, from an account
-// that isn't excluded and is at least the minimum age, and passed App Check when that's
+// that isn't excluded, hasn't opted out (#1040) and is at least the minimum age, and passed App Check when that's
 // required. The three LEFT JOINs find the last publish of the group's national, state and
 // district cells, for the new-account share hold rule. user_votes is interleaved in users, so
 // the join is local.
@@ -56,17 +56,19 @@ LEFT JOIN vote_aggregates AS d
   AND d.scope_key = CONCAT(u.state, '-', CAST(u.district AS STRING))
 WHERE v.vote IN ('yea', 'nay')
   AND u.agg_excluded_at IS NULL
+  AND u.agg_opted_out_at IS NULL
   AND u.created_at <= @eligibleBefore
   AND (NOT @requireAppCheck OR v.app_check_ok = TRUE)
 GROUP BY v.bill_id, u.state, u.district`
 }
 
 // aggregateIneligibleSQL counts the Yea and Nay votes the snapshot leaves out, each under the
-// first reason that applies: excluded, then a young account, then no App Check.
+// first reason that applies: excluded, then opted out, then a young account, then no App Check.
 const aggregateIneligibleSQL = `SELECT
   COUNTIF(u.agg_excluded_at IS NOT NULL) AS excluded,
-  COUNTIF(u.agg_excluded_at IS NULL AND u.created_at > @eligibleBefore) AS young,
-  COUNTIF(u.agg_excluded_at IS NULL AND u.created_at <= @eligibleBefore
+  COUNTIF(u.agg_excluded_at IS NULL AND u.agg_opted_out_at IS NOT NULL) AS opted_out,
+  COUNTIF(u.agg_excluded_at IS NULL AND u.agg_opted_out_at IS NULL AND u.created_at > @eligibleBefore) AS young,
+  COUNTIF(u.agg_excluded_at IS NULL AND u.agg_opted_out_at IS NULL AND u.created_at <= @eligibleBefore
     AND @requireAppCheck AND IFNULL(v.app_check_ok, FALSE) = FALSE) AS no_app_check
 FROM user_votes AS v
 JOIN users AS u ON u.user_id = v.user_id
@@ -145,11 +147,12 @@ func (s *PipelineStoreImpl) AggregateSnapshot(
 		ro,
 		spanner.Statement{SQL: aggregateIneligibleSQL, Params: params},
 		func(row *spanner.Row) error {
-			var excluded, young, noAppCheck int64
-			if colErr := row.Columns(&excluded, &young, &noAppCheck); colErr != nil {
+			var excluded, optedOut, young, noAppCheck int64
+			if colErr := row.Columns(&excluded, &optedOut, &young, &noAppCheck); colErr != nil {
 				return colErr
 			}
 			snap.Ineligible[repository.IneligibleExcluded] = int(excluded)
+			snap.Ineligible[repository.IneligibleOptedOut] = int(optedOut)
 			snap.Ineligible[repository.IneligibleYoung] = int(young)
 			snap.Ineligible[repository.IneligibleNoAppCheck] = int(noAppCheck)
 			return nil

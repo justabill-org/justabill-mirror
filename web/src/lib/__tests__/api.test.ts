@@ -201,6 +201,18 @@ describe("caching (#74)", () => {
     expect(REVALIDATE.partialMember).toBeLessThan(REVALIDATE.member);
   });
 
+  it("on the server, reads a member whose attendance failed again for REVALIDATE.partialMember (#1001)", async () => {
+    const partial = { bioguide_id: "A000001", terms: [], recent_votes: [], attendance: null };
+    const whole = { ...partial, attendance: { rule: "attendance-v1", congresses: [] } };
+    mockFetch.mockResolvedValueOnce(mockResponse(partial)).mockResolvedValueOnce(mockResponse(whole));
+    expect(await getMember("A000001")).toEqual(whole);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch.mock.calls[1][1].next).toEqual({
+      revalidate: REVALIDATE.partialMember,
+      tags: ["members", "member:A000001"],
+    });
+  });
+
   it("returns a member's retry even when its recent votes failed again, so the page still renders", async () => {
     const partial = { bioguide_id: "A000001", terms: [], recent_votes: null };
     mockFetch.mockResolvedValue(mockResponse(partial));
@@ -818,20 +830,47 @@ describe("isPartialBillDetail (#454)", () => {
 });
 
 describe("isPartialMember (#929)", () => {
-  const member = { bioguide_id: "A000001", first_name: "Ada", last_name: "Alvarez", terms: [] };
+  const member = {
+    bioguide_id: "A000001",
+    first_name: "Ada",
+    last_name: "Alvarez",
+    terms: [],
+    recent_votes: [],
+    attendance: { rule: "attendance-v1", congresses: [] },
+  };
 
   it("is true when the recent votes are null: the API's read failed", () => {
     expect(isPartialMember({ ...member, recent_votes: null })).toBe(true);
   });
 
-  it("is false when there are no recent votes, or some", () => {
-    expect(isPartialMember({ ...member, recent_votes: [] })).toBe(false);
+  it("is true when the attendance is null: the API's read failed (#1001)", () => {
+    expect(isPartialMember({ ...member, attendance: null })).toBe(true);
+  });
+
+  it("is false when there are no recent votes or attendance rows, or some", () => {
+    expect(isPartialMember(member)).toBe(false);
     expect(
       isPartialMember({
         ...member,
         recent_votes: [
           { vote_id: "v", vote_date: "2025-03-04T00:00:00Z", member_vote: "Yea", chamber: "House" },
         ],
+        attendance: {
+          rule: "attendance-v1",
+          congresses: [
+            {
+              congress: 119,
+              chamber: "House",
+              eligible: 782,
+              missed: 44,
+              present: 3,
+              missed_pct: 5.6,
+              chamber_members: 441,
+              chamber_median_pct: 2.6,
+              computed_at: "2026-10-17T06:12:03Z",
+            },
+          ],
+        },
       }),
     ).toBe(false);
   });

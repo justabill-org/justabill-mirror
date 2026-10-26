@@ -42,9 +42,11 @@ type AggregateVoteGroup struct {
 }
 
 // Reasons a vote is left out of the aggregates, the keys of [AggregateSnapshot.Ineligible].
-// A vote is counted under the first reason that applies, in this order.
+// A vote is counted under the first reason that applies, in this order: the operator's cohort
+// exclusion, the user's own opt-out (users.agg_opted_out_at, #1040), a young account, no App Check.
 const (
 	IneligibleExcluded   = "excluded"
+	IneligibleOptedOut   = "opted_out"
 	IneligibleYoung      = "young_account"
 	IneligibleNoAppCheck = "app_check"
 )

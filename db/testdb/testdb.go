@@ -16,6 +16,7 @@ import (
 	database "cloud.google.com/go/spanner/admin/database/apiv1"
 	databasepb "cloud.google.com/go/spanner/admin/database/apiv1/databasepb"
 
+	"github.com/justabill-org/justabill/db/repository"
 	"github.com/justabill-org/justabill/db/schema"
 )
 
@@ -27,6 +28,8 @@ const (
 	colUserID        = "user_id"
 	colAuthUID       = "auth_uid"
 	colCongress      = "congress"
+	colChamber       = "chamber"
+	colMemberID      = "member_id"
 )
 
 func envOrDefault(key, fallback string) string {
@@ -179,7 +182,7 @@ func SeedMemberTerm(ctx context.Context, t *testing.T, client *spanner.Client,
 	}
 	_, err := client.Apply(ctx, []*spanner.Mutation{
 		spanner.Insert("member_terms",
-			[]string{"member_id", colCongress, "chamber", "state", "district", "party"},
+			[]string{colMemberID, colCongress, colChamber, "state", "district", "party"},
 			[]any{memberID, int64(congress), chamber, state, dist, party}),
 	})
 	if err != nil {
@@ -229,7 +232,7 @@ func SeedCongressionalVote(ctx context.Context, t *testing.T, client *spanner.Cl
 	}
 	_, err := client.Apply(ctx, []*spanner.Mutation{
 		spanner.Insert("congressional_votes",
-			[]string{"vote_id", colBillID, colCongress, "chamber", "vote_date"},
+			[]string{"vote_id", colBillID, colCongress, colChamber, "vote_date"},
 			[]any{id, bid, int64(congress), chamber, voteDate}),
 	})
 	if err != nil {
@@ -243,7 +246,7 @@ func SeedMemberVote(ctx context.Context, t *testing.T, client *spanner.Client,
 	t.Helper()
 	_, err := client.Apply(ctx, []*spanner.Mutation{
 		spanner.Insert("member_votes",
-			[]string{"vote_id", "member_id", "vote"},
+			[]string{"vote_id", colMemberID, "vote"},
 			[]any{congressionalVoteID, memberID, vote}),
 	})
 	if err != nil {
@@ -262,6 +265,23 @@ func SeedUserVote(ctx context.Context, t *testing.T, client *spanner.Client,
 	})
 	if err != nil {
 		t.Fatalf("testdb: seed user vote: %v", err)
+	}
+}
+
+// SeedMemberAttendance inserts a member_attendance row, computed_at the commit timestamp. The
+// member and congress rows must exist.
+func SeedMemberAttendance(ctx context.Context, t *testing.T, client *spanner.Client,
+	row repository.MemberAttendanceRow) {
+	t.Helper()
+	_, err := client.Apply(ctx, []*spanner.Mutation{
+		spanner.Insert("member_attendance",
+			[]string{colMemberID, colCongress, colChamber, "eligible", "missed", "present",
+				"chamber_members", "chamber_median_pct", "computed_at"},
+			[]any{row.MemberID, int64(row.Congress), row.Chamber, row.Eligible, row.Missed, row.Present,
+				row.ChamberMembers, row.ChamberMedianPct, spanner.CommitTimestamp}),
+	})
+	if err != nil {
+		t.Fatalf("testdb: seed member attendance: %v", err)
 	}
 }
 

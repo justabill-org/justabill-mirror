@@ -1,0 +1,16 @@
+# Golden cases for scoring.IsQuorumCall (rule attendance-v1).
+# Columns: chamber, question as stored in congressional_votes.question, want (quorum|vote), source.
+# A quorum call is the House Clerk's QUORUM vote-type: it asks who is present, not a question to
+# vote on. The Senate takes quorum calls by voice, never as roll-call votes, so every Senate
+# question is a vote. TestIsQuorumCallScorecardQuestions also checks every line of questions.tsv.
+# Adding a quorum-call form means adding a line here.
+House	Call by States	quorum	clerk.house.gov 2025 roll 1 (QUORUM)
+House	Call By States	quorum	clerk.house.gov 2023 roll 1 (QUORUM)
+House	Call of the House	quorum	clerk.house.gov 2023 roll 526 (QUORUM)
+House	CALL OF THE HOUSE	quorum	case variant of clerk.house.gov 2023 roll 526
+House	  Call  by   States 	quorum	whitespace variant of clerk.house.gov 2025 roll 1
+House	Election of the Speaker	vote	clerk.house.gov 2025 roll 2 (candidate names)
+House	On Motion to Adjourn	vote	clerk.house.gov 2025 roll 178 (ADJOURN)
+House	On Passage	vote	clerk.house.gov 2025 roll 98 (H R 1526)
+Senate	On Cloture on the Motion to Proceed S. 5	vote	senate.gov 119-1 vote 1
+Senate	Call of the House	vote	not a Senate form: the House's quorum call names no Senate vote

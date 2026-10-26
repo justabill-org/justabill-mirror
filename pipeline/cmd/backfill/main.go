@@ -126,7 +126,7 @@ func main() {
 	rootCmd.Flags().Bool("wait-for-lease", false,
 		"Wait for the pipeline lease when another process (a running serve) holds it, instead of exiting")
 
-	rootCmd.AddCommand(newLinksCmd(), newReparseTextsCmd(), newDiffsCmd(), newStatusHistoryCmd())
+	rootCmd.AddCommand(newLinksCmd(), newReparseTextsCmd(), newDiffsCmd(), newStatusHistoryCmd(), newRecordedVotesCmd())
 
 	_ = viper.BindPFlag("spanner_project", rootCmd.PersistentFlags().Lookup("spanner-project"))
 	_ = viper.BindPFlag("spanner_instance", rootCmd.PersistentFlags().Lookup("spanner-instance"))

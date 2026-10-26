@@ -1,8 +1,11 @@
 package handler_test
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"testing"
 	"time"
@@ -13,17 +16,20 @@ import (
 	"github.com/justabill-org/justabill/db/model"
 )
 
-// memberStore is a seeded store of members by bioguide ID, with each one's recent votes. err fails
-// every read but GetRecentVotes, which votesErr fails; listCalls records List's params.
+// memberStore is a seeded store of members by bioguide ID, with each one's recent votes and
+// attendance rows. err fails every read but GetRecentVotes and GetAttendance, which votesErr and
+// attendanceErr fail; listCalls records List's params.
 type memberStore struct {
 	mockMemberRepo
 
-	members   map[string]model.MemberDetail
-	recent    map[string][]model.MemberVoteSummary
-	list      []model.Member
-	err       error
-	votesErr  error
-	listCalls []model.ListParams
+	members       map[string]model.MemberDetail
+	recent        map[string][]model.MemberVoteSummary
+	attendance    map[string][]model.MemberAttendance
+	list          []model.Member
+	err           error
+	votesErr      error
+	attendanceErr error
+	listCalls     []model.ListParams
 }
 
 func (s *memberStore) GetByID(_ context.Context, id string) (*model.MemberDetail, error) {
@@ -38,6 +44,12 @@ func (s *memberStore) GetRecentVotes(_ context.Context, id string, _ int) ([]mod
 		return nil, s.votesErr
 	}
 	return s.recent[id], nil
+}
+func (s *memberStore) GetAttendance(_ context.Context, id string) ([]model.MemberAttendance, error) {
+	if s.attendanceErr != nil {
+		return nil, s.attendanceErr
+	}
+	return s.attendance[id], nil
 }
 func (s *memberStore) List(_ context.Context, p model.ListParams) (*model.ListResult[model.Member], error) {
 	s.listCalls = append(s.listCalls, p)
@@ -89,7 +101,8 @@ func TestGetMember(t *testing.T) {
 	}
 	assertJSON(t, w.Body.Bytes(), `{"bioguide_id":"P000197","first_name":"Nancy","last_name":"Pelosi",
 		"terms":[],"recent_votes":[{"vote_id":"h-119-1-42","bill_id":"hr-119-1",
-		"vote_date":"2026-03-04T00:00:00Z","question":"On Passage","member_vote":"Yea","chamber":"House"}]}`)
+		"vote_date":"2026-03-04T00:00:00Z","question":"On Passage","member_vote":"Yea","chamber":"House"}],
+		"attendance":{"rule":"attendance-v1","congresses":[]}}`)
 }
 
 // A member with no recorded votes gets `[]`, so it can't be read as a failed section (#929): the
@@ -106,7 +119,7 @@ func TestGetMember_NoRecentVotes(t *testing.T) {
 		t.Fatalf("status = %d, want 200 (%s)", w.Code, w.Body.String())
 	}
 	assertJSON(t, w.Body.Bytes(), `{"bioguide_id":"P000197","first_name":"Nancy","last_name":"Pelosi",
-		"terms":[],"recent_votes":[]}`)
+		"terms":[],"recent_votes":[],"attendance":{"rule":"attendance-v1","congresses":[]}}`)
 }
 
 // A member whose recent votes can't be read is still served, with the section null, the API's
@@ -124,7 +137,95 @@ func TestGetMember_RecentVotesUnreadable(t *testing.T) {
 		t.Fatalf("status = %d, want 200 (%s)", w.Code, w.Body.String())
 	}
 	assertJSON(t, w.Body.Bytes(), `{"bioguide_id":"P000197","first_name":"Nancy","last_name":"Pelosi",
-		"terms":[],"recent_votes":null}`)
+		"terms":[],"recent_votes":null,"attendance":{"rule":"attendance-v1","congresses":[]}}`)
+}
+
+// TestGetMember_Attendance: a member's attendance rows come newest congress first under the rule's
+// name, each with its missed share of the eligible roll calls rounded to one decimal (#1001).
+func TestGetMember_Attendance(t *testing.T) {
+	computed := time.Date(2026, time.October, 17, 6, 12, 3, 0, time.UTC)
+	members := seededMembers()
+	members.attendance = map[string][]model.MemberAttendance{"P000197": {
+		{MemberID: "P000197", Congress: 119, Chamber: "House", Eligible: 782, Missed: 44, Present: 3,
+			ChamberMembers: 441, ChamberMedianPct: 2.5641025641, ComputedAt: computed},
+		// 2 of 3 is 66.666…%: rounded, not cut, to one decimal. 0 missed is 0, not left out.
+		{MemberID: "P000197", Congress: 118, Chamber: "Senate", Eligible: 3, Missed: 2,
+			ChamberMembers: 100, ChamberMedianPct: 1.25, ComputedAt: computed},
+		{MemberID: "P000197", Congress: 117, Chamber: "House", Eligible: 1241,
+			ChamberMembers: 447, ChamberMedianPct: 0, ComputedAt: computed},
+	}}
+	h := newTestHandler(&mockBillRepo{})
+	h.Members = members
+
+	w := get(t, memberRouter(h), "/api/v1/members/P000197")
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200 (%s)", w.Code, w.Body.String())
+	}
+	assertJSON(t, w.Body.Bytes(), `{"bioguide_id":"P000197","first_name":"Nancy","last_name":"Pelosi",
+		"terms":[],"recent_votes":[{"vote_id":"h-119-1-42","bill_id":"hr-119-1",
+		"vote_date":"2026-03-04T00:00:00Z","question":"On Passage","member_vote":"Yea","chamber":"House"}],
+		"attendance":{"rule":"attendance-v1","congresses":[
+			{"congress":119,"chamber":"House","eligible":782,"missed":44,"present":3,"missed_pct":5.6,
+				"chamber_members":441,"chamber_median_pct":2.6,"computed_at":"2026-10-17T06:12:03Z"},
+			{"congress":118,"chamber":"Senate","eligible":3,"missed":2,"present":0,"missed_pct":66.7,
+				"chamber_members":100,"chamber_median_pct":1.3,"computed_at":"2026-10-17T06:12:03Z"},
+			{"congress":117,"chamber":"House","eligible":1241,"missed":0,"present":0,"missed_pct":0,
+				"chamber_members":447,"chamber_median_pct":0,"computed_at":"2026-10-17T06:12:03Z"}]}}`)
+}
+
+// A row with no eligible roll calls (the pipeline writes none, but a hand-edited row could) gets
+// 0%, not NaN: [json.Marshal] refuses NaN, which would turn the whole member into a 500.
+func TestGetMember_AttendanceWithNoEligibleRollCalls(t *testing.T) {
+	members := seededMembers()
+	members.recent = nil
+	members.attendance = map[string][]model.MemberAttendance{"P000197": {
+		{MemberID: "P000197", Congress: 119, Chamber: "House", ChamberMembers: 441, ChamberMedianPct: 2.6,
+			ComputedAt: time.Date(2026, time.October, 17, 0, 0, 0, 0, time.UTC)},
+	}}
+	h := newTestHandler(&mockBillRepo{})
+	h.Members = members
+
+	w := get(t, memberRouter(h), "/api/v1/members/P000197")
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200 (%s)", w.Code, w.Body.String())
+	}
+	assertJSON(t, w.Body.Bytes(), `{"bioguide_id":"P000197","first_name":"Nancy","last_name":"Pelosi",
+		"terms":[],"recent_votes":[],"attendance":{"rule":"attendance-v1","congresses":[
+			{"congress":119,"chamber":"House","eligible":0,"missed":0,"present":0,"missed_pct":0,
+				"chamber_members":441,"chamber_median_pct":2.6,"computed_at":"2026-10-17T00:00:00Z"}]}}`)
+}
+
+// A member whose attendance can't be read is still served, with attendance null, and the WARN
+// names the member, as for recent votes (#929).
+func TestGetMember_AttendanceUnreadable(t *testing.T) {
+	members := seededMembers()
+	members.recent = nil
+	members.attendanceErr = errSpanner
+	var logs bytes.Buffer
+	h := newTestHandler(&mockBillRepo{})
+	h.SetLogger(slog.New(slog.NewJSONHandler(&logs, nil)))
+	h.Members = members
+
+	w := get(t, memberRouter(h), "/api/v1/members/P000197")
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200 (%s)", w.Code, w.Body.String())
+	}
+	assertJSON(t, w.Body.Bytes(), `{"bioguide_id":"P000197","first_name":"Nancy","last_name":"Pelosi",
+		"terms":[],"recent_votes":[],"attendance":null}`)
+	var entry struct {
+		Level    string `json:"level"`
+		Msg      string `json:"msg"`
+		MemberID string `json:"member_id"`
+	}
+	if err := json.Unmarshal(logs.Bytes(), &entry); err != nil {
+		t.Fatalf("log = %q, want one JSON line: %v", logs.String(), err)
+	}
+	if entry.Level != "WARN" || entry.MemberID != "P000197" || entry.Msg != "failed to get member attendance" {
+		t.Errorf("log = %+v, want a WARN naming member P000197", entry)
+	}
 }
 
 func TestGetMember_Errors(t *testing.T) {

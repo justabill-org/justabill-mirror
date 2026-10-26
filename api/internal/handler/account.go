@@ -213,13 +213,16 @@ func validImportVotes(in []importVote) ([]model.UserVote, error) {
 // isn't a state, DC or territory, or a district that isn't one of its House
 // seats, answers 400 invalid_seat and stores nothing. A change to the state or
 // district within the district-change interval of the last one answers 429
-// district_change_limited with Retry-After.
+// district_change_limited with Retry-After. count_in_totals false leaves the
+// user's votes out of the published totals from the next aggregation run, and
+// true counts them again (#1040); it alone never meets the district limit.
 func (h *Handler) UpdateMe(w http.ResponseWriter, r *http.Request) {
 	userID := mw.UserIDFromContext(r.Context())
 
 	var body struct {
-		State    *string `json:"state"`
-		District *int    `json:"district"`
+		State         *string `json:"state"`
+		District      *int    `json:"district"`
+		CountInTotals *bool   `json:"count_in_totals"`
 	}
 	if !decodeJSON(w, r.Body, &body) {
 		return
@@ -228,6 +231,7 @@ func (h *Handler) UpdateMe(w http.ResponseWriter, r *http.Request) {
 	user, err := h.Users.Update(r.Context(), userID, model.UserUpdate{
 		State:                  body.State,
 		District:               body.District,
+		CountInTotals:          body.CountInTotals,
 		DistrictChangeInterval: h.rules.DistrictChangeInterval,
 	})
 	if errors.Is(err, repository.ErrInvalidSeat) {

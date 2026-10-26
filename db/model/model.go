@@ -38,6 +38,30 @@ type MemberDetail struct {
 	OfficialURL *string             `json:"official_url,omitempty"`
 	Terms       []MemberTerm        `json:"terms"`
 	RecentVotes []MemberVoteSummary `json:"recent_votes"`
+	// Attendance is nil when its read failed, so the page can tell "couldn't load" from "none".
+	Attendance *MemberAttendanceSummary `json:"attendance"`
+}
+
+// MemberAttendanceSummary is a member's attendance on the member API: the rule that counted it
+// (scoring.AttendanceRule) and one entry per congress and chamber, newest congress first, empty
+// when the member has no row (docs/design/agent-1742-member-attendance.md).
+type MemberAttendanceSummary struct {
+	Rule       string                  `json:"rule"`
+	Congresses []MemberAttendanceEntry `json:"congresses"`
+}
+
+// MemberAttendanceEntry is a MemberAttendance row as the API serves it, without the member ID
+// and with MissedPct, round(100 × missed / eligible, 1). ChamberMedianPct is rounded the same way.
+type MemberAttendanceEntry struct {
+	Congress         int       `json:"congress"`
+	Chamber          string    `json:"chamber"`
+	Eligible         int       `json:"eligible"`
+	Missed           int       `json:"missed"`
+	Present          int       `json:"present"`
+	MissedPct        float64   `json:"missed_pct"`
+	ChamberMembers   int       `json:"chamber_members"`
+	ChamberMedianPct float64   `json:"chamber_median_pct"`
+	ComputedAt       time.Time `json:"computed_at"`
 }
 
 // MemberVoteSummary shows a member's vote on a specific roll call.
@@ -50,6 +74,23 @@ type MemberVoteSummary struct {
 	Result     *string   `json:"result,omitempty"`
 	MemberVote string    `json:"member_vote"`
 	Chamber    string    `json:"chamber"`
+}
+
+// MemberAttendance is a member's roll-call attendance in one congress and chamber, as the vote
+// sync computed it (rule attendance-v1, docs/design/agent-1742-member-attendance.md). Eligible
+// counts the roll calls the member was listed on, quorum calls excluded; Missed and Present count
+// those answered Not Voting and Present. ChamberMembers is how many members of the chamber have a
+// row in the congress, and ChamberMedianPct the median of their missed / eligible × 100.
+type MemberAttendance struct {
+	MemberID         string    `json:"member_id"`
+	Congress         int       `json:"congress"`
+	Chamber          string    `json:"chamber"`
+	Eligible         int       `json:"eligible"`
+	Missed           int       `json:"missed"`
+	Present          int       `json:"present"`
+	ChamberMembers   int       `json:"chamber_members"`
+	ChamberMedianPct float64   `json:"chamber_median_pct"`
+	ComputedAt       time.Time `json:"computed_at"`
 }
 
 // MemberTerm represents a member's term in a congress.
@@ -291,6 +332,10 @@ type User struct {
 	SignInProvider *string `json:"sign_in_provider,omitempty"`
 	// DistrictChangedAt is when the state or district was last set.
 	DistrictChangedAt *time.Time `json:"district_changed_at,omitempty"`
+	// AggOptedOutAt is users.agg_opted_out_at: when the user chose in
+	// Settings to leave their votes out of the published totals, or null
+	// while they count (#1040). Always present, so null reads as counted.
+	AggOptedOutAt *time.Time `json:"agg_opted_out_at"`
 }
 
 // UserUpdate holds optional fields for updating a user profile.
@@ -298,6 +343,10 @@ type User struct {
 type UserUpdate struct {
 	State    *string `json:"state,omitempty"`
 	District *int    `json:"district,omitempty"`
+	// CountInTotals, when set, is whether the user's votes count in the
+	// published totals: false stamps agg_opted_out_at (keeping an earlier
+	// stamp), true clears it. It never consults DistrictChangeInterval.
+	CountInTotals *bool `json:"count_in_totals,omitempty"`
 	// DistrictChangeInterval is the least time between two changes that set
 	// the state or district (design 89's district-change rule). Zero means no
 	// limit. Clearing the state is always allowed.

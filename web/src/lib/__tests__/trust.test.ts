@@ -74,6 +74,23 @@ describe("trustMetadata", () => {
     expect(md.openGraph?.url).toBe("/privacy");
   });
 
+  // Next merges metadata shallowly, so the page's own openGraph drops the root's file-based og:image
+  // (#1036): the trust pages name the site's card themselves. Leaving twitter unset keeps the root
+  // twitter-image.
+  it("keeps the site's card as the preview image", () => {
+    const md = trustMetadata("/terms", "Terms of Service", "The rules.");
+    expect(md.openGraph?.images).toEqual([
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Just a Bill: read bills in Congress, vote on them, and see how your representatives voted",
+        type: "image/png",
+      },
+    ]);
+    expect(md).not.toHaveProperty("twitter");
+  });
+
   it("lists the five trust pages in footer order", () => {
     expect(TRUST_LINKS.map((l) => l.href)).toEqual(["/about", "/methodology", "/privacy", "/terms", "/contact"]);
   });

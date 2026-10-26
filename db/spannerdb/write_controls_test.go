@@ -238,3 +238,64 @@ func TestImportVotesDailyCap(t *testing.T) {
 		"SELECT bill_id, vote FROM user_votes WHERE user_id = 'u1' ORDER BY bill_id", nil),
 		[]string{"hr-119-1|yea", "hr-119-2|yea", "hr-119-3|nay", "hr-119-4|yea"})
 }
+
+// count_in_totals (#1040): false stamps agg_opted_out_at once, true clears it, and neither touches
+// the state or district or waits for the district-change interval.
+func TestUpdateCountInTotals(t *testing.T) {
+	repo, client := newUserRepo(t)
+	ctx := t.Context()
+	testdb.SeedUser(ctx, t, client, "u1")
+	const interval = 30 * 24 * time.Hour
+	countIn := func(v bool) (*model.User, error) {
+		return repo.Update(ctx, "u1", model.UserUpdate{CountInTotals: &v, DistrictChangeInterval: interval})
+	}
+
+	fresh, err := repo.GetByID(ctx, "u1")
+	if err != nil || fresh.AggOptedOutAt != nil {
+		t.Fatalf("new user = %+v, %v; want agg_opted_out_at nil (counted)", fresh, err)
+	}
+	// The district was just set, so another district change would have to wait 30 days.
+	if _, err = repo.Update(ctx, "u1", model.UserUpdate{
+		State: new("CA"), District: new(12), DistrictChangeInterval: interval,
+	}); err != nil {
+		t.Fatalf("set district: %v", err)
+	}
+
+	before := time.Now()
+	out, err := countIn(false)
+	if err != nil || out.AggOptedOutAt == nil || out.AggOptedOutAt.Before(before) {
+		t.Fatalf("opt out = %+v, %v; want agg_opted_out_at stamped now", out, err)
+	}
+	if out.State == nil || *out.State != "CA" || out.District == nil || *out.District != 12 {
+		t.Errorf("opt out changed the seat: %+v, want CA-12 kept", out)
+	}
+	first := *out.AggOptedOutAt
+
+	again, err := countIn(false)
+	if err != nil || again.AggOptedOutAt == nil || !again.AggOptedOutAt.Equal(first) {
+		t.Errorf("opt out again = %+v, %v; want the first stamp %v kept", again, err, first)
+	}
+	in, err := countIn(true)
+	if err != nil || in.AggOptedOutAt != nil {
+		t.Errorf("opt back in = %+v, %v; want agg_opted_out_at cleared", in, err)
+	}
+	if in, err = countIn(true); err != nil || in.AggOptedOutAt != nil {
+		t.Errorf("opt in again = %+v, %v; want still cleared", in, err)
+	}
+
+	// A body that also moves the district within the interval fails as a whole: nothing is stored.
+	_, err = repo.Update(ctx, "u1", model.UserUpdate{
+		State: new("NY"), District: new(3), CountInTotals: new(false), DistrictChangeInterval: interval,
+	})
+	if !isDistrictChangeError(err) {
+		t.Fatalf("move and opt out within 30 days = %v, want a *DistrictChangeError", err)
+	}
+	assertRows(t, queryStrings(t, client,
+		"SELECT state, CAST(district AS STRING), IFNULL(CAST(agg_opted_out_at AS STRING), '-') FROM users", nil),
+		[]string{"CA|12|-"})
+
+	missing, err := repo.Update(ctx, "nobody", model.UserUpdate{CountInTotals: new(false)})
+	if err != nil || missing != nil {
+		t.Errorf("opt out missing user = %+v, %v; want nil, nil", missing, err)
+	}
+}

@@ -123,6 +123,7 @@ describe("type shape validation with example data", () => {
       recent_votes: [
         { vote_id: "house-119-roll001", vote_date: "2025-01-15T00:00:00Z", member_vote: "Yea", chamber: "House" },
       ],
+      attendance: { rule: "attendance-v1", congresses: [] },
     };
     expect(detail.terms).toHaveLength(1);
     expect(detail.recent_votes).toHaveLength(1);

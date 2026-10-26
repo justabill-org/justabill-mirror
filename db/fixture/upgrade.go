@@ -195,6 +195,18 @@ type alignmentRow struct {
 	ComputedAt    time.Time `spanner:"computed_at"`
 }
 
+type attendanceRow struct {
+	MemberID         string    `spanner:"member_id"`
+	Congress         int64     `spanner:"congress"`
+	Chamber          string    `spanner:"chamber"`
+	Eligible         int64     `spanner:"eligible"`
+	Missed           int64     `spanner:"missed"`
+	Present          int64     `spanner:"present"`
+	ChamberMembers   int64     `spanner:"chamber_members"`
+	ChamberMedianPct float64   `spanner:"chamber_median_pct"`
+	ComputedAt       time.Time `spanner:"computed_at"`
+}
+
 type retryRow struct {
 	Step          string    `spanner:"step"`
 	Congress      int64     `spanner:"congress"`
@@ -413,7 +425,8 @@ func userTables() []Table {
 }
 
 // pipelineTables returns the pipeline's bookkeeping and derived rows: sync
-// state, aggregates, the US Code and law changes, summary attempts and batches.
+// state, aggregates, attendance, the US Code and law changes, summary attempts
+// and batches.
 func pipelineTables() []Table {
 	at := newUpgradeTimes()
 	synced := at.synced
@@ -431,6 +444,7 @@ func pipelineTables() []Table {
 			},
 		}},
 		{"rep_alignment", []any{alignmentRow{HouseDem, Congress, upgradeScopeKey, 1, 1, synced}}},
+		{"member_attendance", []any{attendanceRow{HouseDem, Congress, chamberHouse, 1, 0, 0, 1, 0, synced}}},
 		{"sync_retry", []any{retryRow{"bills", Congress, LawBill, 1, synced.Add(-time.Hour), synced, "status 503"}}},
 		{"pipeline_leases", []any{leaseRow{"pipeline", upgradeHolder, synced, synced.Add(upgradeLeaseTTL)}}},
 		{"usc_release_points", []any{releasePointRow{upgradeReleasePt, upgradeReleaseURL, synced, 1}}},

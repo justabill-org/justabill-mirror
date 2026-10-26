@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCollaborators, getMember, listCongresses } from "@/lib/api";
@@ -5,8 +6,10 @@ import type { CollaboratorsResponse, MemberDetail } from "@/lib/types";
 import { memberDetail as exampleMemberDetail } from "@/lib/examples";
 import { isNotFound, orDevFixture } from "@/lib/fallback";
 import { latestTerm, ordinal } from "@/lib/graph";
+import { memberMetadata, unavailableMemberMetadata } from "@/lib/member-metadata";
 import { MemberPhoto } from "@/components/member/member-photo";
 import { MemberTerms, seatOf } from "@/components/member/member-terms";
+import { MissedVotes } from "@/components/member/missed-votes";
 import { PartyIndicator } from "@/components/member/party-indicator";
 import { RecentVotes } from "@/components/member/recent-votes";
 import { WorksMostWith } from "@/components/member/works-most-with";
@@ -22,9 +25,20 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
   return [];
 }
 
+// getMember's fetch is memoized, so the page's own call reuses this response. An unknown member
+// gets the plain metadata here and its 404 from the page.
+export async function generateMetadata({ params }: MemberPageProps): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    return memberMetadata(await getMember(id));
+  } catch {
+    return unavailableMemberMetadata;
+  }
+}
+
 /**
- * One member (#787): who they are, their recent votes and the bill behind each, their terms on
- * record, and who they work with most. The same sections in the same order for every member.
+ * One member (#787): who they are, their recent votes and the bill behind each, the roll calls they
+ * missed (#1001), their terms on record, and who they work with most. The same sections in the same order for every member.
  */
 export default async function MemberPage({ params }: MemberPageProps) {
   const { id } = await params;
@@ -89,6 +103,7 @@ export default async function MemberPage({ params }: MemberPageProps) {
           <RecentVotes votes={member.recent_votes} />
         </div>
         <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
+          <MissedVotes attendance={member.attendance} />
           <MemberTerms bioguideId={member.bioguide_id} terms={terms} congresses={congresses} />
           {collaborators && (
             <WorksMostWith

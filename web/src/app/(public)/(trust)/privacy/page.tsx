@@ -24,6 +24,12 @@ export const metadata = trustMetadata(
 //   loads only for signed-in users, from web/src/lib/auth (#122, docs/design/89-aggregate-analytics.md);
 //   the Firebase sign-in library (and with it Google's helper) loads only after a sign-in press, or when
 //   the jab.signed-in.v1 / jab.sign-in-redirect.v1 notes say someone signed in here (lib/auth/session-hint.ts, #757)
+// - the jab.onboarded note: which account finished onboarding on this device (lib/auth/onboarding.ts); the auth
+//   store forgets it, with jab.signed-in.v1, whenever a session ends here (lib/auth/store.ts, #1039)
+// - published totals: signed-in votes count unless users.agg_opted_out_at is set ("Count my votes in the published
+//   totals" in Settings, #1040); the operator's users.agg_excluded_at sets aside a cohort (ExcludeAggregateCohort)
+// components/__tests__/privacy-disclosures.test.ts maps every column of the user tables and every jab.* key to
+// the line of this page that discloses it: a new column or key needs an entry there and a line here (#982).
 // - browser performance and error data: web/src/lib/obs/browser.ts, browser-sdk.ts and relay.ts (#292)
 // - sharing: web/src/lib/share.ts (what a link holds), components/share/share-dialog.tsx (when it's
 //   fetched), redactSharePath and trackShare in web/src/lib/analytics.ts; docs/design/88-share-cards.md;
@@ -57,8 +63,9 @@ export default function PrivacyPage() {
             only the state and district.
           </li>
           <li>
-            <strong>If you sign in</strong>, we store your votes, followed bills, state and district. Your name and email
-            stay with the sign-in service and never reach our database.
+            <strong>If you sign in</strong>, we store your votes, followed bills, state and district, and your votes
+            count toward the rounded totals we publish unless you turn that off in Settings. Your name and email stay
+            with the sign-in service and never reach our database.
           </li>
           <li>
             <strong>No ads, no tracking cookies, no data sales.</strong> Our page-view counts are cookieless. We use
@@ -135,21 +142,36 @@ export default function PrivacyPage() {
         </p>
         <p>For a signed-in account, our database stores:</p>
         <ul>
-          <li>a random account ID, the ID Identity Platform gives you, and which kind of account you signed in with;</li>
+          <li>
+            a random account ID, the ID Identity Platform gives you, which kind of account you signed in with, and when
+            you created your account;
+          </li>
           <li>your state and congressional district, and when you last changed your district;</li>
-          <li>your votes on bills (yea, nay or skip) and when you cast them;</li>
+          <li>
+            your votes on bills (yea, nay or skip), when you cast each one, and when our server recorded it (the two
+            differ for votes copied in from your browser);
+          </li>
           <li>the bills you follow, and when you followed them;</li>
           <li>
             for each vote, whether it passed our automated check that requests come from our own app, when that check is
-            turned on.
+            turned on;
+          </li>
+          <li>whether, and when, you chose in Settings to leave your votes out of the published totals;</li>
+          <li>
+            whether, and when, we set your account&apos;s votes aside from the published totals. We do that only for a
+            batch of accounts that look automated, picked by sign-in method and when they were created, never by how
+            they voted, and it changes nothing else about your account.
           </li>
         </ul>
         <p>
           We use these to show your votes on every device you sign in on, to build your scorecard, and to publish
           rounded totals of how users voted (see{" "}
-          <a href="#access-and-disclosure">aggregated data</a>). When you sign in,
-          you can choose to copy the votes saved in your browser into your account. To stop abuse, we limit how many
-          votes an account can cast in a day and how often it can change its district.
+          <a href="#access-and-disclosure">aggregated data</a>). You can leave your votes out of those totals at any
+          time with &ldquo;Count my votes in the published totals&rdquo; in Settings; the change applies from our next
+          update of the totals, and you can turn it back on. While you&apos;re signed in, each vote you cast goes to
+          your account as you cast it. When you sign in, you can also choose to copy the votes saved in your browser
+          into your account. To stop abuse, we limit how many votes an account can cast in a day and how often it can
+          change its district.
         </p>
         <p id="recaptcha">
           The automated check is Google&apos;s{" "}
@@ -213,8 +235,9 @@ export default function PrivacyPage() {
           Just a Bill doesn&apos;t show ads and doesn&apos;t use advertising or tracking cookies, pixels or other
           third-party trackers. If you don&apos;t sign in, no third-party scripts or fonts load in your browser. When you
           sign in, Google&apos;s sign-in helper loads from apis.google.com, and the sign-in library keeps you signed in
-          using your browser&apos;s storage. We also keep a note there that someone signed in on this device, so the
-          sign-in library loads only after a sign-in, and remove it when you sign out. While you&apos;re signed in,
+          using your browser&apos;s storage. We also keep two notes there: that someone signed in on this device, so the
+          sign-in library loads only after a sign-in, and which account (by its random ID) finished setting up here, so
+          we don&apos;t ask again. We remove both when you sign out. While you&apos;re signed in,
           Google reCAPTCHA also loads, as described{" "}
           <a href="#recaptcha">under Accounts</a>.
         </p>
@@ -321,6 +344,11 @@ export default function PrivacyPage() {
             time.
           </li>
           <li>
+            <strong>Right to limit use.</strong> Signed in, turn off &ldquo;Count my votes in the published
+            totals&rdquo; in Settings to leave your votes out of the <a href="#access-and-disclosure">rounded totals we
+            publish</a>.
+          </li>
+          <li>
             <strong>Right to erasure.</strong> &ldquo;Delete my account&rdquo; in Settings deletes your account, votes
             and followed bills from our database right away, and your sign-in record from Identity Platform. Signed out,
             clearing your browser&apos;s site data for Just a Bill erases your votes.
@@ -360,9 +388,10 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>Your votes are sensitive.</strong> How you vote on bills can reveal your political views, and some
-            laws treat that as sensitive information. We store your votes only if you sign in and choose to save them
-            to your account, and we use them only to provide the Service to you: to show them back to you and build
-            your scorecard.
+            laws treat that as sensitive information. We store your votes only if you sign in. We use them to show
+            them back to you, to build your scorecard, and in the rounded, de-identified totals described under{" "}
+            <a href="#access-and-disclosure">aggregated data</a>, which can&apos;t identify you, unless you turn that
+            off in Settings. We don&apos;t use them for anything else.
           </li>
           <li>
             <strong>Making a request.</strong> <a href="#your-rights">Your rights</a> above says how to download,

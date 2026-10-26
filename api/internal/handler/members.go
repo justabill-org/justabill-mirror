@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -88,7 +89,46 @@ func (h *Handler) GetMember(w http.ResponseWriter, r *http.Request) {
 		member.RecentVotes = recentVotes
 	}
 
+	// Attendance follows the same convention: null when the read failed, no congresses when the
+	// member has no row (docs/design/agent-1742-member-attendance.md).
+	attendance, attendanceErr := h.Members.GetAttendance(r.Context(), id)
+	if attendanceErr != nil {
+		h.log.WarnContext(r.Context(), "failed to get member attendance", "member_id", id, "error", attendanceErr)
+		member.Attendance = nil
+	} else {
+		member.Attendance = attendanceSummary(attendance)
+	}
+
 	writeJSON(w, http.StatusOK, member)
+}
+
+// attendanceSummary is the API shape of a member's attendance rows, kept in their order (newest
+// congress first), with each one's missed share and the chamber median rounded to one decimal.
+func attendanceSummary(rows []model.MemberAttendance) *model.MemberAttendanceSummary {
+	entries := make([]model.MemberAttendanceEntry, 0, len(rows))
+	for _, a := range rows {
+		entries = append(entries, model.MemberAttendanceEntry{
+			Congress: a.Congress, Chamber: a.Chamber, Eligible: a.Eligible, Missed: a.Missed, Present: a.Present,
+			MissedPct: missedPct(a.Missed, a.Eligible), ChamberMembers: a.ChamberMembers,
+			ChamberMedianPct: roundTenth(a.ChamberMedianPct), ComputedAt: a.ComputedAt,
+		})
+	}
+	return &model.MemberAttendanceSummary{Rule: scoring.AttendanceRule, Congresses: entries}
+}
+
+// missedPct is round(100 × missed / eligible, 1), and 0 with no eligible roll call: the pipeline
+// writes no such row, but a NaN would make [json.Marshal] fail the whole member.
+func missedPct(missed, eligible int) float64 {
+	if eligible <= 0 {
+		return 0
+	}
+	return roundTenth(100 * float64(missed) / float64(eligible))
+}
+
+// roundTenth rounds a percentage to one decimal, halves away from zero.
+func roundTenth(pct float64) float64 {
+	const tenths = 10
+	return math.Round(pct*tenths) / tenths
 }
 
 // memberPositionsResponse is a member's position on each bill in one congress, and the

@@ -19,7 +19,9 @@ const (
 	paramUserID          = "userID"
 	colSignInProvider    = "sign_in_provider"
 	colDistrictChangedAt = "district_changed_at"
-	userColumns          = "user_id, auth_uid, state, district, created_at, sign_in_provider, district_changed_at"
+	colAggOptedOutAt     = "agg_opted_out_at"
+	userColumns          = "user_id, auth_uid, state, district, created_at, sign_in_provider, district_changed_at, " +
+		colAggOptedOutAt
 	// voteCapWindow is the window model.VoteChecks.DailyCap counts votes in.
 	voteCapWindow = 24 * time.Hour
 	// voteRecordedAt is when the server stored a vote. Rows stored before
@@ -82,13 +84,15 @@ func (r *UserRepository) CreateForAuthUID(ctx context.Context, id, authUID, prov
 // stamped in district_changed_at, and one within
 // updates.DistrictChangeInterval of the last fails with a
 // *repository.DistrictChangeError. Clearing the state is always allowed, and
-// leaves the stamp alone so the next change still waits.
+// leaves the stamp alone so the next change still waits. updates.CountInTotals
+// false stamps agg_opted_out_at with the server's time unless it's already
+// set, and true clears it; the district-change interval doesn't apply to it.
 func (r *UserRepository) Update(
 	ctx context.Context,
 	id string,
 	updates model.UserUpdate,
 ) (*model.User, error) {
-	if updates.State == nil && updates.District == nil {
+	if updates.State == nil && updates.District == nil && updates.CountInTotals == nil {
 		return r.GetByID(ctx, id)
 	}
 
@@ -122,6 +126,10 @@ func (r *UserRepository) Update(
 func userUpdateColumns(cur *model.User, u model.UserUpdate, now time.Time) ([]string, []any, error) {
 	cols := []string{colUserID}
 	vals := []any{cur.ID}
+	if optedOut, ok := optOutValue(cur, u, now); ok {
+		cols = append(cols, colAggOptedOutAt)
+		vals = append(vals, optedOut)
+	}
 	state, district := cur.State, cur.District
 	if u.State != nil {
 		state = nilIfEmpty(*u.State)
@@ -151,6 +159,22 @@ func userUpdateColumns(cur *model.User, u model.UserUpdate, now time.Time) ([]st
 		}
 	}
 	return append(cols, colDistrictChangedAt), append(vals, now), nil
+}
+
+// optOutValue returns the agg_opted_out_at value u.CountInTotals writes, and
+// false when it writes nothing: unset, or opting out again, which keeps the
+// first choice's time.
+func optOutValue(cur *model.User, u model.UserUpdate, now time.Time) (spanner.NullTime, bool) {
+	switch {
+	case u.CountInTotals == nil:
+		return spanner.NullTime{}, false
+	case *u.CountInTotals:
+		return spanner.NullTime{}, cur.AggOptedOutAt != nil
+	case cur.AggOptedOutAt != nil:
+		return spanner.NullTime{}, false
+	default:
+		return spanner.NullTime{Time: now, Valid: true}, true
+	}
 }
 
 // checkSeat checks the state and district an update leaves the user with: a state it sets must be
@@ -618,8 +642,10 @@ func scanUser(row *spanner.Row, extra ...any) (model.User, error) {
 		district  spanner.NullInt64
 		provider  spanner.NullString
 		changedAt spanner.NullTime
+		optedOut  spanner.NullTime
 	)
-	cols := append([]any{&u.ID, &u.AuthUID, &state, &district, &u.CreatedAt, &provider, &changedAt}, extra...)
+	cols := append([]any{&u.ID, &u.AuthUID, &state, &district, &u.CreatedAt, &provider, &changedAt, &optedOut},
+		extra...)
 	if err := row.Columns(cols...); err != nil {
 		return model.User{}, err
 	}
@@ -627,6 +653,7 @@ func scanUser(row *spanner.Row, extra ...any) (model.User, error) {
 	u.District = nullInt64Ptr(district)
 	u.SignInProvider = nullStringPtr(provider)
 	u.DistrictChangedAt = nullTimePtr(changedAt)
+	u.AggOptedOutAt = nullTimePtr(optedOut)
 	return u, nil
 }
 

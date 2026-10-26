@@ -136,7 +136,7 @@ export interface CardCopy {
 
 const PRINTED_PARTIES = new Set(["D", "R", "I"]);
 
-export function memberTitle(member: CardMember): string {
+export function memberTitle(member: Pick<CardMember, "chamber" | "state">): string {
   if (member.chamber === "Senate") return "Sen.";
   if (DELEGATE_AREAS.has(member.state)) return "Del.";
   if (RESIDENT_COMMISSIONER_AREAS.has(member.state)) return "Res. Comm.";

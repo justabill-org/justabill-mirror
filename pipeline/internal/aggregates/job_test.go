@@ -138,6 +138,7 @@ func newFakeStore() *fakeStore {
 			},
 			Ineligible: map[string]int{
 				repository.IneligibleYoung: 7, repository.IneligibleNoAppCheck: 3, repository.IneligibleExcluded: 2,
+				repository.IneligibleOptedOut: 4,
 			},
 			CellBills: []string{"s-119-1"},
 		},
@@ -223,6 +224,7 @@ func TestRunWritesCellsAndAlignment(t *testing.T) {
 	checkMetric(t, tel, semconv.AggregatesVotesName, semconv.AggregatesEligibilityKey, map[string]int64{
 		semconv.AggregatesEligibilityEligible: 190, semconv.AggregatesEligibilityYoungAccount: 7,
 		semconv.AggregatesEligibilityAppCheck: 3, semconv.AggregatesEligibilityExcluded: 2,
+		semconv.AggregatesEligibilityOptedOut: 4,
 	})
 
 	held := 0

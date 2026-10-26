@@ -7,6 +7,7 @@ import { Button, buttonClasses } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/lib/auth/provider";
+import { CountInTotals } from "./count-in-totals";
 import { FollowedBills } from "./followed-bills";
 import { SettingsForm } from "./settings-form";
 import { YourData } from "./your-data";
@@ -82,6 +83,8 @@ export function AccountSettings() {
       <ImportLocalVotes />
 
       <FollowedBills user={user} />
+
+      <CountInTotals user={account} getIdToken={getIdToken} onSaved={setAccount} />
 
       <YourData user={user} />
 

@@ -88,6 +88,10 @@ var rollNumberRe = regexp.MustCompile(`rollnumber=(\d+)`)
 // at the start of the run), then by a strict name match. Senators neither places are logged,
 // counted, and named in sync_state.last_error ("unmatched senators: S409") without failing the
 // step, and their votes are fetched again on the next run.
+//
+// Every run ends by recomputing the congress's member_attendance rows from all its stored roll
+// calls (computeAttendance), whether or not it stored new ones; a failure there fails the step,
+// and the roll calls stored before it stay stored.
 func (s *Service) SyncVotes(ctx context.Context, congressNum int, sessions []int) error {
 	return s.runStepOutcome(ctx, stepVotes, congressNum, false, func(ctx context.Context) (stepOutcome, error) {
 		return s.syncVotes(ctx, congressNum, sessions)
@@ -138,8 +142,16 @@ func (s *Service) syncVotes(ctx context.Context, congressNum int, sessions []int
 	if len(unmatched) > 0 {
 		out.warning = "unmatched senators: " + strings.Join(unmatched, ", ")
 	}
+	// The attendance rows follow what member_votes holds, so they're recomputed even when this
+	// run stored nothing or a session failed. A cancelled run, failing anyway, skips them.
+	members := 0
+	if ctx.Err() == nil {
+		if members, err = s.computeAttendance(ctx, congressNum); err != nil {
+			errs = append(errs, err)
+		}
+	}
 	s.logger.InfoContext(ctx, "vote sync finished", "congress", congressNum, "stored", total,
-		"unmatched_senators", len(unmatched))
+		"unmatched_senators", len(unmatched), "attendance_members", members)
 	err = errors.Join(errs...)
 	if err != nil && onlySenateRefusals(errs) {
 		s.logger.WarnContext(ctx, "senate.gov refused the senate vote feed; the run is unavailable",

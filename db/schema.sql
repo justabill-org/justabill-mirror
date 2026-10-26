@@ -308,6 +308,7 @@ CREATE TABLE users (
   sign_in_provider STRING(32),
   district_changed_at TIMESTAMP,
   agg_excluded_at TIMESTAMP,
+  agg_opted_out_at TIMESTAMP,
 ) PRIMARY KEY(user_id);
 
 CREATE UNIQUE INDEX idx_users_auth_uid ON users(auth_uid);
@@ -580,6 +581,22 @@ CREATE TABLE bill_cra_rules (
   ),
 ) PRIMARY KEY(bill_id),
   INTERLEAVE IN PARENT bills ON DELETE CASCADE;
+
+CREATE TABLE member_attendance (
+  member_id STRING(36) NOT NULL,
+  congress INT64 NOT NULL,
+  chamber STRING(MAX) NOT NULL,
+  eligible INT64 NOT NULL,
+  missed INT64 NOT NULL,
+  present INT64 NOT NULL,
+  chamber_members INT64 NOT NULL,
+  chamber_median_pct FLOAT64 NOT NULL,
+  computed_at TIMESTAMP NOT NULL OPTIONS (
+    allow_commit_timestamp = true
+  ),
+  CONSTRAINT fk_member_attendance_member FOREIGN KEY(member_id) REFERENCES members(bioguide_id),
+  CONSTRAINT fk_member_attendance_congress FOREIGN KEY(congress) REFERENCES congresses(number),
+) PRIMARY KEY(member_id, congress, chamber);
 
 CREATE PROPERTY GRAPH civic_graph
 NODE TABLES(

@@ -159,6 +159,22 @@ describe("trust pages", () => {
     expect(body).toContain("The US Code: once a week.");
   });
 
+  it("Methodology states the missed-vote rule at the member card's anchor, and that reasons aren't recorded (#1001)", () => {
+    const html = renderToStaticMarkup(<MethodologyPage />);
+    // The member page's Missed votes card links /methodology#missed-votes.
+    const section = new RegExp('id="missed-votes"[\\s\\S]*?</section>').exec(html)?.[0] ?? "";
+    const body = text(section);
+    expect(body).toContain("attendance-v1");
+    expect(body).toContain("roll-call votes the member was listed on");
+    expect(body).toContain("Quorum calls");
+    expect(body).toContain("aren't counted");
+    expect(body).toContain("“Present” counts as voting");
+    expect(body).toContain("in each congress");
+    expect(body).toContain("median");
+    expect(body).toContain("The record doesn't say why a member didn't vote");
+    expect(section).toContain(`href="${REPO}/blob/main/db/scoring/attendance.go"`);
+  });
+
   it("Methodology lists the Federal Register and explains CRA rule matching at the card's anchor (#643)", () => {
     const html = renderToStaticMarkup(<MethodologyPage />);
     const body = text(html);

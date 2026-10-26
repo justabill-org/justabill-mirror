@@ -111,6 +111,9 @@ func TestExcludeAggregateCohort(t *testing.T) {
 	for _, u := range users {
 		ms = append(ms, spanner.Insert("users", cols, []any{u.id, testdb.TestAuthUID(u.id), u.created, u.provider}))
 	}
+	// in-1 left the totals in Settings (#1040): the cohort still counts it, and exclude keeps its choice.
+	optedOut := base.Add(2 * time.Hour)
+	ms = append(ms, spanner.Update("users", []string{"user_id", "agg_opted_out_at"}, []any{"in-1", optedOut}))
 	if _, err := client.Apply(ctx, ms); err != nil {
 		t.Fatalf("seed users: %v", err)
 	}
@@ -138,6 +141,10 @@ func TestExcludeAggregateCohort(t *testing.T) {
 			t.Errorf("%s agg_excluded_at = %v, want set to %v: %v", u.id, excluded, at, want)
 		}
 	}
+	assertRows(t, queryStrings(t, client,
+		"SELECT user_id, IFNULL(FORMAT_TIMESTAMP('%FT%TZ', agg_opted_out_at, 'UTC'), '-') FROM users "+
+			"WHERE user_id LIKE 'in-%' ORDER BY user_id", nil),
+		[]string{"in-1|" + optedOut.Format(time.RFC3339), "in-2|-"})
 }
 
 func TestAggregateCohortRejectsBadCohorts(t *testing.T) {

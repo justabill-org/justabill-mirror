@@ -54,5 +54,6 @@
       "member_vote": "Yea",
       "chamber": "House"
     }
-  ]
+  ],
+  "attendance": null
 }

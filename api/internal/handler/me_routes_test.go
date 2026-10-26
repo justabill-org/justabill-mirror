@@ -78,8 +78,10 @@ func TestGetMe(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200 (%s)", w.Code, w.Body.String())
 	}
-	// No auth_uid: the account's sign-in identity stays server-side.
-	assertJSON(t, w.Body.Bytes(), `{"id":"u1","state":"KS","district":3,"created_at":"2026-09-01T12:00:00Z"}`)
+	// No auth_uid: the account's sign-in identity stays server-side. agg_opted_out_at is always
+	// there, null while the votes count in the published totals (#1040).
+	assertJSON(t, w.Body.Bytes(),
+		`{"id":"u1","state":"KS","district":3,"created_at":"2026-09-01T12:00:00Z","agg_opted_out_at":null}`)
 }
 
 func TestGetMe_Errors(t *testing.T) {

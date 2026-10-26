@@ -397,8 +397,8 @@ func TestExportHasEveryStoredColumn(t *testing.T) {
 	}
 
 	got, err := repo.Export(ctx, "u1")
-	if err != nil || got.AggExcludedAt != nil {
-		t.Fatalf("export = %+v, %v; want agg_excluded_at nil before an exclusion", got, err)
+	if err != nil || got.AggExcludedAt != nil || got.User.AggOptedOutAt != nil {
+		t.Fatalf("export = %+v, %v; want agg_excluded_at and agg_opted_out_at nil", got, err)
 	}
 	for _, v := range got.Votes {
 		// The seeded vote predates recorded_at; the cast one has it.
@@ -415,5 +415,14 @@ func TestExportHasEveryStoredColumn(t *testing.T) {
 	got, err = repo.Export(ctx, "u1")
 	if err != nil || got.AggExcludedAt == nil || !got.AggExcludedAt.Equal(excludedAt) {
 		t.Errorf("export after exclusion = %+v, %v; want agg_excluded_at %v", got, err, excludedAt)
+	}
+
+	opted, err := repo.Update(ctx, "u1", model.UserUpdate{CountInTotals: new(false)})
+	if err != nil || opted.AggOptedOutAt == nil {
+		t.Fatalf("opt out = %+v, %v; want agg_opted_out_at set", opted, err)
+	}
+	got, err = repo.Export(ctx, "u1")
+	if err != nil || got.User.AggOptedOutAt == nil || !got.User.AggOptedOutAt.Equal(*opted.AggOptedOutAt) {
+		t.Errorf("export after opting out = %+v, %v; want agg_opted_out_at %v", got, err, opted.AggOptedOutAt)
 	}
 }

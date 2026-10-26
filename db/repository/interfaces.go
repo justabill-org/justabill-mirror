@@ -69,6 +69,9 @@ type MemberRepo interface {
 	GetByDistrict(ctx context.Context, state string, district int) ([]model.Member, error)
 	GetSenators(ctx context.Context, state string) ([]model.Member, error)
 	GetRecentVotes(ctx context.Context, bioguideID string, limit int) ([]model.MemberVoteSummary, error)
+	// GetAttendance returns the member's attendance rows, newest congress first. A member with
+	// none, or no such member, gets an empty slice and no error.
+	GetAttendance(ctx context.Context, bioguideID string) ([]model.MemberAttendance, error)
 }
 
 // UserRepo defines the user repository interface used by handlers.

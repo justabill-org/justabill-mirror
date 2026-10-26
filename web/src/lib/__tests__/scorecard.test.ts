@@ -272,6 +272,7 @@ describe("rep profiles", () => {
     photo_url: photo,
     terms: [term(118, "House", "D"), term(119, "Senate", "D")],
     recent_votes: [],
+    attendance: { rule: "attendance-v1", congresses: [] },
     ...overrides,
   });
 

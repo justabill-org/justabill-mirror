@@ -272,7 +272,11 @@ export default async function BillDetailPage({ params }: BillDetailPageProps) {
         </TabsContent>
 
         <TabsContent value="votes" className="mt-6">
-          {votes ? <CongressionalVotes votes={votes} /> : <UnavailableCard name="votes" />}
+          {votes ? (
+            <CongressionalVotes votes={votes} sponsorships={billData.sponsorships ?? null} />
+          ) : (
+            <UnavailableCard name="votes" />
+          )}
         </TabsContent>
 
         <TabsContent value="amendments" className="mt-6">

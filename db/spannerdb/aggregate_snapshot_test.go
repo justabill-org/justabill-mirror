@@ -23,6 +23,7 @@ type snapshotUser struct {
 	district   *int
 	age        time.Duration // how long before asOf the account was created
 	excluded   bool
+	optedOut   bool // agg_opted_out_at is set (the user's own choice, #1040)
 	changed    bool // district_changed_at is set
 	vote       string
 	votedAgo   time.Duration
@@ -37,6 +38,7 @@ func seedSnapshotUsers(t *testing.T, client *spanner.Client, asOf time.Time, use
 			state             spanner.NullString
 			district          spanner.NullInt64
 			excluded, changed spanner.NullTime
+			optedOut          spanner.NullTime
 			appCheck          spanner.NullBool
 		)
 		if u.state != "" {
@@ -48,6 +50,9 @@ func seedSnapshotUsers(t *testing.T, client *spanner.Client, asOf time.Time, use
 		if u.excluded {
 			excluded = spanner.NullTime{Time: asOf.Add(-time.Hour), Valid: true}
 		}
+		if u.optedOut {
+			optedOut = spanner.NullTime{Time: asOf.Add(-2 * time.Hour), Valid: true}
+		}
 		if u.changed {
 			changed = spanner.NullTime{Time: asOf.Add(-24 * time.Hour), Valid: true}
 		}
@@ -57,8 +62,8 @@ func seedSnapshotUsers(t *testing.T, client *spanner.Client, asOf time.Time, use
 		ms = append(ms,
 			spanner.Insert("users",
 				[]string{"user_id", "auth_uid", "state", "district", "created_at", "agg_excluded_at",
-					"district_changed_at"},
-				[]any{u.id, testdb.TestAuthUID(u.id), state, district, asOf.Add(-u.age), excluded, changed}),
+					"district_changed_at", "agg_opted_out_at"},
+				[]any{u.id, testdb.TestAuthUID(u.id), state, district, asOf.Add(-u.age), excluded, changed, optedOut}),
 			spanner.Insert("user_votes",
 				[]string{"user_id", "bill_id", "vote", "voted_at", "app_check_ok"},
 				[]any{u.id, testdb.FixtureHouseBill, u.vote, asOf.Add(-u.votedAgo), appCheck}),
@@ -117,6 +122,12 @@ func TestAggregateSnapshotCountsOnlyEligibleVotes(t *testing.T) {
 		{id: "no-check", state: "TX", district: new(7), age: 10 * day, vote: "yea", votedAgo: day},
 		{id: "excluded", state: "CA", district: new(12), age: 10 * day, excluded: true, vote: "yea", votedAgo: day,
 			appCheckOK: &ok},
+		// Opted out in Settings: left out of every cell, and counted apart from the operator's
+		// exclusion, which wins when both apply.
+		{id: "opted-out", state: "CA", district: new(12), age: 10 * day, optedOut: true, vote: "nay",
+			votedAgo: 2 * day, appCheckOK: &ok},
+		{id: "excluded-opted-out", state: "CA", district: new(12), age: 10 * day, excluded: true, optedOut: true,
+			vote: "yea", votedAgo: day, appCheckOK: &ok},
 		{id: "skipper", state: "CA", district: new(12), age: 10 * day, vote: "skip", votedAgo: day, appCheckOK: &ok},
 		{id: "deleted", state: "CA", district: new(12), age: 10 * day, vote: "yea", votedAgo: day, appCheckOK: &ok},
 	})
@@ -159,7 +170,8 @@ func TestAggregateSnapshotCountsOnlyEligibleVotes(t *testing.T) {
 		t.Errorf("groups:\n got %s\nwant %s", strings.Join(got, "\n     "), strings.Join(want, "\n     "))
 	}
 	wantIneligible := map[string]int{
-		repository.IneligibleExcluded: 1, repository.IneligibleYoung: 1, repository.IneligibleNoAppCheck: 2,
+		repository.IneligibleExcluded: 2, repository.IneligibleOptedOut: 1, repository.IneligibleYoung: 1,
+		repository.IneligibleNoAppCheck: 2,
 	}
 	if !reflect.DeepEqual(snap.Ineligible, wantIneligible) {
 		t.Errorf("ineligible = %v, want %v", snap.Ineligible, wantIneligible)
@@ -178,6 +190,22 @@ func TestAggregateSnapshotCountsOnlyEligibleVotes(t *testing.T) {
 	}
 	if snap.Ineligible[repository.IneligibleNoAppCheck] != 0 {
 		t.Errorf("no-App-Check ineligible = %d, want 0", snap.Ineligible[repository.IneligibleNoAppCheck])
+	}
+
+	// Switched back on, the opted-out nay counts in CA-12 again from the next snapshot.
+	if _, err = client.Apply(ctx, []*spanner.Mutation{spanner.Update("users",
+		[]string{"user_id", "agg_opted_out_at"}, []any{"opted-out", spanner.NullTime{}})}); err != nil {
+		t.Fatalf("opt back in: %v", err)
+	}
+	snap, err = store.AggregateSnapshot(ctx, snapshotParams(asOf, true))
+	if err != nil {
+		t.Fatalf("AggregateSnapshot after opting back in: %v", err)
+	}
+	if got := snapshotStrings(snap); !slices.Contains(got, "hr-119-1|CA|12|1/2|1/2|new 1,3,3|young 0,0,0") {
+		t.Errorf("groups after opting back in = %v, want CA-12 with the nay back", got)
+	}
+	if n := snap.Ineligible[repository.IneligibleOptedOut]; n != 0 {
+		t.Errorf("opted-out ineligible after opting back in = %d, want 0", n)
 	}
 }
 

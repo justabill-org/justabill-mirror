@@ -54,10 +54,35 @@ export interface MemberVoteSummary {
   chamber: string;
 }
 
+/**
+ * A member's roll-call attendance in one congress and chamber, under the rule `attendance-v1`
+ * (#1001): `eligible` roll calls they were listed on, quorum calls excluded, of which `missed` were
+ * Not Voting and `present` Present. `missed_pct` and `chamber_median_pct` are rounded to one decimal.
+ */
+export interface MemberAttendanceEntry {
+  congress: number;
+  chamber: string;
+  eligible: number;
+  missed: number;
+  present: number;
+  missed_pct: number;
+  chamber_members: number;
+  chamber_median_pct: number;
+  computed_at: string;
+}
+
+/** `GET /members/{id}`'s `attendance`: the rule's name and one entry per congress and chamber, newest first. */
+export interface MemberAttendance {
+  rule: string;
+  congresses: MemberAttendanceEntry[];
+}
+
 export interface MemberDetail extends Member {
   terms: MemberTerm[];
   /** `[]` when the member has none; null when the API's read failed (#929, `isPartialMember`). */
   recent_votes: MemberVoteSummary[] | null;
+  /** No congresses when the member has no row; null when the API's read failed (`isPartialMember`). */
+  attendance: MemberAttendance | null;
 }
 
 // --- Bills ---
@@ -699,6 +724,11 @@ export interface User {
   sign_in_provider?: string;
   /** When the state or district was last set. */
   district_changed_at?: string;
+  /**
+   * When the user chose in Settings to leave their votes out of the published totals (#1040), or
+   * null while they count. An API from before #1040 leaves it out, which also means counted.
+   */
+  agg_opted_out_at?: string | null;
 }
 
 export type UserVoteChoice = "yea" | "nay" | "skip";

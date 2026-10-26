@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.14.0 (2026-10-26)
+
+
+### Features
+
+* **account:** let a signed-in user leave their votes out of the published totals (#1054) (2fab24e)
+* **api:** show members' missed votes on the member API and page, with the methodology (#1062) (0905dea)
+* **db:** add the member_attendance table and its repositories (#1053) (68be442)
+* **pipeline:** backfill roll-call links on voted bills' stored actions (#1056) (1d6e208)
+* **pipeline:** compute member attendance at the end of every vote sync (#1058) (860a5c0)
+* **web:** list a visitor's reps on a voice-vote or unanimous-consent passage (#1065) (f9f5a95)
+* **web:** say what signed-in votes feed and list every stored field on /privacy (#1060) (243ce8f)
+
+
+### Bug Fixes
+
+* restore main CI (private-repo reference in the methodology page) (#1063) (dc3bd57)
+* **web:** cancel the /vote search when the page is left or the filters are cleared (#1055) (7ad20d1)
+* **web:** give member pages their own title, description and canonical URL (#1037) (2bcfb04)
+* **web:** give the trust pages the site's og:image (#1059) (37729df)
+
 ## 0.13.0 (2026-10-26)
 
 

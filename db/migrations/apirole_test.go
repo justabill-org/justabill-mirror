@@ -51,6 +51,7 @@ func apiTableClasses() apiClasses {
 			"bill_text_diff_summaries", "amendments", "congressional_votes", "member_votes", "gao_reports",
 			"bill_gao_reports", "vote_aggregates", "rep_alignment", "usc_release_points", "usc_sections",
 			"bill_law_refs", "bill_law_changes", "bill_crs_summaries", "federal_register_documents", "bill_cra_rules",
+			"member_attendance",
 		),
 		none: map[string]string{
 			wrenchTable:             "wrench's migration version",

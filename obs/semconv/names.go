@@ -35,6 +35,11 @@ const AggregatesEligibilityAppCheck = "app_check"
 // The account was excluded from the aggregates with the aggregates CLI.
 const AggregatesEligibilityExcluded = "excluded"
 
+// AggregatesEligibilityOptedOut is the justabill.aggregates.eligibility value "opted_out".
+//
+// The user chose in Settings to leave their votes out of the published totals.
+const AggregatesEligibilityOptedOut = "opted_out"
+
 // AggregatesHoldReasonKey is the attribute justabill.aggregates.hold_reason.
 //
 // The anomaly rule that put a cell on hold.

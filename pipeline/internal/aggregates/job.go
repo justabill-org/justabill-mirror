@@ -325,6 +325,8 @@ func (j *Job) record(ctx context.Context, res *Result) {
 		eligibility(semconv.AggregatesEligibilityAppCheck))
 	j.votes.Record(ctx, int64(res.Ineligible[repository.IneligibleExcluded]),
 		eligibility(semconv.AggregatesEligibilityExcluded))
+	j.votes.Record(ctx, int64(res.Ineligible[repository.IneligibleOptedOut]),
+		eligibility(semconv.AggregatesEligibilityOptedOut))
 	j.log.InfoContext(ctx, "aggregate votes done",
 		"published", res.Cells[statusPublished], "suppressed", res.Cells[statusSuppressed],
 		"held", res.Cells[statusHeld], "new_holds", sum(res.Holds), "eligible_votes", res.Eligible,

@@ -39,6 +39,7 @@ const senator: MemberDetail = {
     { member_id: "X000001", congress: 119, chamber: "Senate", state: "NY", party: "D" },
   ],
   recent_votes: [],
+  attendance: { rule: "attendance-v1", congresses: [] },
 };
 
 function positions(congress: number, votes: string[], billPrefix = `hr-${congress}`): MemberPositionsResponse {

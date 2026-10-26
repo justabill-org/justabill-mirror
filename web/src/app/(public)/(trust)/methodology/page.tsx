@@ -7,13 +7,14 @@ export const metadata = trustMetadata(
   "/methodology",
   "Methodology",
   "Where Just a Bill's bills, votes and district data come from, how the AI summaries are made, how we find and " +
-    "explain what a bill changes in current law, how often data updates, how the scorecard counts votes, and how " +
-    "we publish how Just a Bill users voted.",
+    "explain what a bill changes in current law, how often data updates, how the scorecard counts votes, how we " +
+    "count members' missed votes, and how we publish how Just a Bill users voted.",
 );
 
 // Sources: pipeline/internal/congress, govinfo, legislators and sync/votes.go; the summary prompt in
 // pipeline/internal/ai/prompt.go; the schedule in pipeline/cmd/serve (sync intervals); the district
-// lookup in api/internal/district; the scorecard rule in db/scoring (#69); the law changes in
+// lookup in api/internal/district; the scorecard rule in db/scoring (#69); the missed-vote rule in
+// db/scoring/attendance.go and pipeline/internal/attendance (#1001); the law changes in
 // pipeline/internal/uscode, pipeline/internal/billtext/lawrefs.go and pipeline/internal/ai/law.go (#149), with
 // the classifier's agreement rate from billtext's TestUSLMCrossCheck (PR #430); the user-vote aggregates' rules
 // in pipeline/internal/aggregates (config.go defaults, publish.go, rollup.go) and design #89; the rules CRA
@@ -36,7 +37,7 @@ export default function MethodologyPage() {
   return (
     <TrustPage
       title="Methodology"
-      lead="Where our data comes from, how summaries and explanations of law changes are written, and how the scorecard counts votes."
+      lead="Where our data comes from, how summaries and explanations of law changes are written, and how the scorecard and missed votes are counted."
     >
       <Section id="sources" title="Data sources">
         <p>Everything on Just a Bill comes from public, official sources:</p>
@@ -271,6 +272,45 @@ export default function MethodologyPage() {
           The rule is named <code>final-passage-v1</code>, and it&apos;s the same for every member. Read{" "}
           <a href={publicRepoUrl("docs/methodology/scorecard.md")}>the rule in full</a> and{" "}
           <a href={publicRepoUrl("db/scoring/")}>the code that applies it</a>.
+        </p>
+      </Section>
+
+      <Section id="missed-votes" title="Missed votes">
+        <p>
+          Each member&apos;s page shows how many roll-call votes they missed in each congress, as a count and a
+          percentage, next to the median for their chamber.
+        </p>
+        <ul>
+          <li>
+            <strong>What counts.</strong> For each congress and chamber, the roll-call votes the member was listed on
+            in the House Clerk&apos;s or the Senate&apos;s record. Quorum calls (the House&apos;s &ldquo;Call by
+            States&rdquo; and &ldquo;Call of the House&rdquo;), which check who is present rather than decide a
+            question, aren&apos;t counted. Voice votes and unanimous consent record no individual positions, so
+            they aren&apos;t counted either.
+          </li>
+          <li>
+            <strong>What&apos;s missed.</strong> A roll call is missed when the record lists the member as
+            &ldquo;Not Voting.&rdquo; &ldquo;Present&rdquo; counts as voting, as does any other answer the record
+            lists, such as a name in the election of the Speaker.
+          </li>
+          <li>
+            <strong>The chamber median</strong> is the middle of the missed percentages of every member of that
+            chamber with figures in the same congress (with an even number of members, the average of the two in the
+            middle). It&apos;s shown as a number only, not as a ranking.
+          </li>
+          <li>
+            <strong>Counts come first.</strong> Every percentage is shown after the count it&apos;s made of, so a
+            member sworn in partway through a congress is read against the roll calls they were listed on.
+          </li>
+          <li>
+            <strong>The record doesn&apos;t say why a member didn&apos;t vote</strong>, and neither do we. Many
+            things keep a member off the floor.
+          </li>
+          <li>The figures are counted again after each sync of recorded votes, every 6 hours.</li>
+        </ul>
+        <p>
+          The rule is named <code>attendance-v1</code>, and it&apos;s the same for every member. Read{" "}
+          <a href={publicRepoUrl("db/scoring/attendance.go")}>the rule&apos;s code</a>.
         </p>
       </Section>
 

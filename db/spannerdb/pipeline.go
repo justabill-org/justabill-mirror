@@ -161,6 +161,21 @@ func (s *PipelineStoreImpl) ListMissingVotedBillIDs(ctx context.Context, congres
 	})
 }
 
+// ListVotedBillIDs reads idx_cv_congress's roll calls for one congress and joins bills, so a
+// bill whose actions can't be stored yet (no bills row: voted-bills loads it) isn't listed.
+func (s *PipelineStoreImpl) ListVotedBillIDs(
+	ctx context.Context, congressNum int, afterBillID string, limit int,
+) ([]string, error) {
+	return readStrings(ctx, s.client.Single(), spanner.Statement{
+		SQL: `SELECT DISTINCT cv.bill_id FROM congressional_votes cv
+			JOIN bills b ON b.bill_id = cv.bill_id
+			WHERE cv.congress = @congress AND cv.roll_number IS NOT NULL AND cv.bill_id > @after
+			ORDER BY cv.bill_id
+			LIMIT @lim`,
+		Params: map[string]any{paramCongress: int64(congressNum), paramAfter: afterBillID, paramLimit: int64(limit)},
+	})
+}
+
 // ReplaceBillActions replaces all of a bill's actions in one transaction.
 func (s *PipelineStoreImpl) ReplaceBillActions(
 	ctx context.Context,

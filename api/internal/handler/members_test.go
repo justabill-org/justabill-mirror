@@ -116,6 +116,10 @@ func (m *mockMemberRepoForReps) GetRecentVotes(
 	return []model.MemberVoteSummary{}, nil
 }
 
+func (m *mockMemberRepoForReps) GetAttendance(_ context.Context, _ string) ([]model.MemberAttendance, error) {
+	return []model.MemberAttendance{}, nil
+}
+
 func newRepsHandler(dl *mockDistrictLookup, mr *mockMemberRepoForReps) *handler.Handler {
 	h := &handler.Handler{
 		Bills:      &mockBillRepo{},

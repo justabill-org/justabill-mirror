@@ -339,17 +339,17 @@ func TestEligibilityColumnsDefaultToNull(t *testing.T) {
 	testdb.SeedUserVote(ctx, t, client, "u1", "hr-119-7", "yea")
 
 	row, err := client.Single().ReadRow(ctx, "users", spanner.Key{"u1"},
-		[]string{"sign_in_provider", "district_changed_at", "agg_excluded_at"})
+		[]string{"sign_in_provider", "district_changed_at", "agg_excluded_at", "agg_opted_out_at"})
 	if err != nil {
 		t.Fatalf("read user: %v", err)
 	}
 	var provider spanner.NullString
-	var changed, excluded spanner.NullTime
-	if err = row.Columns(&provider, &changed, &excluded); err != nil {
+	var changed, excluded, optedOut spanner.NullTime
+	if err = row.Columns(&provider, &changed, &excluded, &optedOut); err != nil {
 		t.Fatal(err)
 	}
-	if provider.Valid || changed.Valid || excluded.Valid {
-		t.Errorf("new user eligibility columns = %v, %v, %v; want all NULL", provider, changed, excluded)
+	if provider.Valid || changed.Valid || excluded.Valid || optedOut.Valid {
+		t.Errorf("new user eligibility columns = %v, %v, %v, %v; want all NULL", provider, changed, excluded, optedOut)
 	}
 
 	row, err = client.Single().ReadRow(ctx, "user_votes", spanner.Key{"u1", "hr-119-7"}, []string{"app_check_ok"})

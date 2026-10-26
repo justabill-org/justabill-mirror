@@ -3,7 +3,7 @@
 
 import type { MetadataRoute } from "next";
 import { ordinal } from "./graph";
-import { plainText, truncateTitle, type CardCopy, type CardText } from "./share";
+import { plainText, SHARE_IMAGE_HEIGHT, SHARE_IMAGE_WIDTH, truncateTitle, type CardCopy, type CardText } from "./share";
 import { siteUrl } from "./site";
 import type { SponsorEntry } from "./sponsors";
 import { BILL_STATUS_LABELS, BILL_TYPE_LABELS, type Bill, type BillIndexEntry } from "./types";
@@ -99,6 +99,19 @@ export const SITE_CARD_COPY: CardCopy = {
   ],
   note: "Nonpartisan. Bills and roll-call votes from the congressional record.",
   plain: SITE_CARD_ALT,
+};
+
+/**
+ * The site's card (app/opengraph-image.tsx) as an openGraph image. Metadata merges shallowly, so a page
+ * that sets its own openGraph (member and trust pages) loses the root's file-based og:image unless it
+ * names the image again.
+ */
+export const SITE_CARD = {
+  url: "/opengraph-image",
+  width: SHARE_IMAGE_WIDTH,
+  height: SHARE_IMAGE_HEIGHT,
+  alt: SITE_CARD_ALT,
+  type: "image/png",
 };
 
 /** "H.R. 1" for a bill of type hr and number 1. */

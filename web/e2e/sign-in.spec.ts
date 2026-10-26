@@ -233,15 +233,26 @@ test("adds this device's votes, votes into the account, downloads the data and d
   await expect(page.getByRole("button", { name: "Yea", exact: true })).toHaveAttribute("aria-pressed", "true");
   expect(await page.evaluate(() => localStorage.getItem("jab.votes.v1"))).not.toContain(HOUSE_BILL.id);
 
-  // Download my data is exactly what the API keeps.
+  // Leaving the published totals is one PATCH /me, and the export then carries the choice (#1040).
   await page.goto("/settings");
+  const countBox = page.getByRole("checkbox", { name: "Count my votes in the published totals" });
+  await expect(countBox).toBeChecked();
+  const patched = page.waitForResponse((r) => r.request().method() === "PATCH" && new URL(r.url()).pathname === "/api/v1/me");
+  await countBox.click();
+  expect((await patched).status()).toBe(200);
+  await expect(page.getByText(/left out of the published totals from their next update/)).toBeVisible();
+  await expect(countBox).not.toBeChecked();
+
+  // Download my data is exactly what the API keeps.
   const downloading = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download my data" }).click();
   const download = await downloading;
   expect(download.suggestedFilename()).toBe("just-a-bill-account.json");
   const data = JSON.parse(await readFile((await download.path())!, "utf8")) as {
+    user: { agg_opted_out_at: string | null };
     votes: { bill_id: string; vote: string }[];
   };
+  expect(data.user.agg_opted_out_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   expect(data.votes.map((v) => [v.bill_id, v.vote]).sort()).toEqual([
     [HOUSE_BILL.id, "yea"],
     [SENATE_BILL.id, "nay"],

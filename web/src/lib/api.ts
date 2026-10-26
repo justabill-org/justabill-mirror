@@ -525,15 +525,18 @@ export async function listMembers(
   });
 }
 
-/** Whether a member's recent votes failed to load: the API still answers 200, with them null (#929). */
+/**
+ * Whether a member's recent votes (#929) or attendance (#1001) failed to load: the API still
+ * answers 200, with the section null.
+ */
 export function isPartialMember(member: MemberDetail): boolean {
-  return member.recent_votes === null;
+  return member.recent_votes === null || member.attendance === null;
 }
 
 /**
- * GET /members/{id}, cached for REVALIDATE.member. A response whose recent votes failed is read
- * again for REVALIDATE.partialMember under its own cache key, as `getBill` does for a partial
- * bill, so the page doesn't say they couldn't be loaded for an hour. The browser (the scorecard's
+ * GET /members/{id}, cached for REVALIDATE.member. A response whose recent votes or attendance
+ * failed is read again for REVALIDATE.partialMember under its own cache key, as `getBill` does for
+ * a partial bill, so the page doesn't say they couldn't be loaded for an hour. The browser (the scorecard's
  * rep cards) keeps the first answer, as `getBill` explains (#1010).
  */
 export async function getMember(id: string): Promise<MemberDetail> {
@@ -606,12 +609,13 @@ export async function getMe(token: string): Promise<User> {
 }
 
 /**
- * Sets the account's state and district, the only profile fields the API keeps. It answers 429
- * with code "district_change_limited" when they were changed too recently.
+ * Sets the account's state and district, or whether its votes count in the published totals
+ * (`count_in_totals`, #1040). A state or district change answers 429 with code
+ * "district_change_limited" when they were changed too recently; `count_in_totals` alone never does.
  */
 export async function updateMe(
   token: string,
-  data: { state: string; district: number }
+  data: { state: string; district: number } | { count_in_totals: boolean }
 ): Promise<User> {
   return request<User>("/me", {
     token,

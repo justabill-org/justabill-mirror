@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useId, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { BillFilterFields } from "@/components/bill/bill-filter-fields";
 import { Input } from "@/components/ui/input";
 import { ALL_CONGRESSES } from "@/lib/congress";
@@ -8,6 +8,9 @@ import { billFiltersQuery, type BillFilters } from "@/lib/bill-filters";
 import { clampSearch } from "@/lib/paging";
 import { BILL_SORTS, BILL_VIEWS, parseBillView } from "@/lib/bill-views";
 import { BILL_TYPE_LABELS, type Congress } from "@/lib/types";
+
+/** How long the search box waits after a keystroke before it searches. */
+const SEARCH_DELAY_MS = 300;
 
 interface DeckFilterProps {
   filters: BillFilters;
@@ -57,16 +60,37 @@ export function DeckFilter({
 }: DeckFilterProps) {
   const panelId = useId();
   const searchId = useId();
-  const searchTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const changed = billFiltersQuery(filters) !== "";
-  // What's in the search box. A new URL (Back, Clear filters) puts its search back in the box,
-  // unless the box already says it, so the visitor's own search never resets what they're typing.
+  // What's in the search box, and the search it waits to run (#1043). A new URL (Back) puts its
+  // search back in the box, unless the box already says it or is waiting to search: then it's
+  // ahead of the URL, as when its last search lands after more typing.
   const [text, setText] = useState(filters.q ?? "");
   const [urlQ, setUrlQ] = useState(filters.q);
+  const [pending, setPending] = useState<{ q: string | undefined } | null>(null);
   if (filters.q !== urlQ) {
     setUrlQ(filters.q);
-    if (clampSearch(text) !== filters.q) setText(filters.q ?? "");
+    if (!pending && clampSearch(text) !== filters.q) setText(filters.q ?? "");
   }
+  // The waiting search runs from an effect, so leaving the page cancels it. `onChange` is read
+  // when it runs, so a new one from the page doesn't restart the wait.
+  const latestOnChange = useRef(onChange);
+  useEffect(() => {
+    latestOnChange.current = onChange;
+  });
+  useEffect(() => {
+    if (!pending) return;
+    const timer = setTimeout(() => {
+      setPending(null);
+      latestOnChange.current(pending);
+    }, SEARCH_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [pending]);
+  // Clear filters drops the waiting search too, or it would land after and bring its search back.
+  const clear = () => {
+    setPending(null);
+    setText("");
+    onClear();
+  };
 
   return (
     <div>
@@ -112,8 +136,7 @@ export function DeckFilter({
               onChange={(e) => {
                 const value = e.target.value;
                 setText(value);
-                clearTimeout(searchTimer.current);
-                searchTimer.current = setTimeout(() => onChange({ q: value || undefined }), 300);
+                setPending({ q: value || undefined });
               }}
             />
           </div>
@@ -130,7 +153,7 @@ export function DeckFilter({
             {changed && (
               <button
                 type="button"
-                onClick={onClear}
+                onClick={clear}
                 className="min-h-11 rounded-lg px-3 text-sm font-medium text-foreground hover:bg-muted/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 Clear filters

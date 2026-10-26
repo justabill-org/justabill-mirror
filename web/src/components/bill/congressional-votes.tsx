@@ -1,10 +1,13 @@
-import type { CongressionalVote } from "@/lib/types";
+import type { BillSponsorship, CongressionalVote } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
+import { UnrecordedReps } from "./unrecorded-reps";
 
 interface CongressionalVotesProps {
   votes: CongressionalVote[];
+  /** The bill's sponsor and cosponsors, for the reps note on an unrecorded passage; null if the read failed. */
+  sponsorships?: BillSponsorship[] | null;
 }
 
 /** How a measure passed without a roll call, from the method segment of its vote ID. */
@@ -27,7 +30,7 @@ const UNRECORDED_LABELS: Record<UnrecordedMethod, { short: string; passed: strin
   unknown: { short: "No Recorded Vote", passed: "Passed without a recorded vote" },
 };
 
-export function CongressionalVotes({ votes }: CongressionalVotesProps) {
+export function CongressionalVotes({ votes, sponsorships = null }: CongressionalVotesProps) {
   if (votes.length === 0) {
     return (
       <Card>
@@ -46,13 +49,13 @@ export function CongressionalVotes({ votes }: CongressionalVotesProps) {
   return (
     <div className="space-y-4">
       {votes.map((vote) => (
-        <VoteCard key={vote.id} vote={vote} />
+        <VoteCard key={vote.id} vote={vote} sponsorships={sponsorships} />
       ))}
     </div>
   );
 }
 
-function VoteCard({ vote }: { vote: CongressionalVote }) {
+function VoteCard({ vote, sponsorships }: { vote: CongressionalVote; sponsorships: BillSponsorship[] | null }) {
   const method = unrecordedMethod(vote);
   return (
     <Card>
@@ -86,7 +89,12 @@ function VoteCard({ vote }: { vote: CongressionalVote }) {
       </CardHeader>
       <CardContent>
         {method ? (
-          <UnrecordedExplanation chamber={vote.chamber} method={method} question={vote.question} />
+          <UnrecordedExplanation
+            chamber={vote.chamber}
+            method={method}
+            question={vote.question}
+            sponsorships={sponsorships}
+          />
         ) : (
           <RollCallDetails vote={vote} />
         )}
@@ -119,10 +127,12 @@ function UnrecordedExplanation({
   chamber,
   method,
   question,
+  sponsorships,
 }: {
   chamber: string;
   method: UnrecordedMethod;
   question?: string;
+  sponsorships: BillSponsorship[] | null;
 }) {
   const action = actionText(question);
   return (
@@ -135,6 +145,8 @@ function UnrecordedExplanation({
         isn&apos;t part of anyone&apos;s scorecard.
       </p>
       {action && <p className="mt-2 text-xs text-muted-foreground">Floor action: {action}</p>}
+      {/* An unknown method may not be a voice vote or unanimous consent, which the note's copy names. */}
+      {method !== "unknown" && <UnrecordedReps chamber={chamber} sponsorships={sponsorships} />}
     </div>
   );
 }

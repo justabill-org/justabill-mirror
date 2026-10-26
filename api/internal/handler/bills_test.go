@@ -203,6 +203,10 @@ func (m *mockMemberRepo) GetRecentVotes(
 	return []model.MemberVoteSummary{}, nil
 }
 
+func (m *mockMemberRepo) GetAttendance(_ context.Context, _ string) ([]model.MemberAttendance, error) {
+	return []model.MemberAttendance{}, nil
+}
+
 type mockUserRepo struct{}
 
 func (m *mockUserRepo) CreateForAuthUID(_ context.Context, _, _, _ string) (*model.User, error) {

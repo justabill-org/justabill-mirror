@@ -202,6 +202,10 @@ groups:
               value: "excluded"
               stability: development
               brief: The account was excluded from the aggregates with the aggregates CLI.
+            - id: opted_out
+              value: "opted_out"
+              stability: development
+              brief: The user chose in Settings to leave their votes out of the published totals.
 
   - id: registry.justabill.experiment
     type: attribute_group

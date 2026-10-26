@@ -93,8 +93,15 @@ func (m *accountUsers) Update(_ context.Context, id string, u model.UserUpdate) 
 	if m.updateErr != nil {
 		return nil, m.updateErr
 	}
-	return &model.User{ID: id, State: u.State, District: u.District}, nil
+	user := &model.User{ID: id, State: u.State, District: u.District}
+	if u.CountInTotals != nil && !*u.CountInTotals {
+		user.AggOptedOutAt = new(optedOutAt())
+	}
+	return user, nil
 }
+
+// optedOutAt is when the accountUsers fake says a user opted out of the published totals.
+func optedOutAt() time.Time { return time.Date(2026, time.October, 26, 12, 0, 0, 0, time.UTC) }
 
 func (m *accountUsers) Export(_ context.Context, userID string) (*model.UserExport, error) {
 	if userID != "user-1" {

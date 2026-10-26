@@ -43,6 +43,13 @@ export const AGGREGATES_ELIGIBILITY_VALUE_APP_CHECK = "app_check";
 export const AGGREGATES_ELIGIBILITY_VALUE_EXCLUDED = "excluded";
 
 /**
+ * The justabill.aggregates.eligibility value "opted_out".
+ *
+ * The user chose in Settings to leave their votes out of the published totals.
+ */
+export const AGGREGATES_ELIGIBILITY_VALUE_OPTED_OUT = "opted_out";
+
+/**
  * The attribute justabill.aggregates.hold_reason.
  *
  * The anomaly rule that put a cell on hold.

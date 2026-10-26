@@ -142,3 +142,55 @@ func TestListMissingVotedBillIDs(t *testing.T) {
 		t.Errorf("after syncing HR 900: %v, %v; want [s-119-5]", got, err)
 	}
 }
+
+func TestListVotedBillIDs(t *testing.T) {
+	store, client := newLinkStore(t)
+	ctx := t.Context()
+	day := time.Date(2025, 3, 1, 0, 0, 0, 0, time.UTC)
+	rollCall := func(id, billID string, congress int, roll int64) {
+		t.Helper()
+		if _, err := client.Apply(ctx, []*spanner.Mutation{spanner.Insert("congressional_votes",
+			[]string{"vote_id", "bill_id", "congress", "chamber", "vote_date", "roll_number"},
+			[]any{id, billID, int64(congress), "House", day, roll})}); err != nil {
+			t.Fatalf("insert roll call %s: %v", id, err)
+		}
+	}
+	testdb.SeedBill(ctx, t, client, "hr-119-20", testdb.FixtureCongress, "hr", 20, "Twenty")
+	testdb.SeedBill(ctx, t, client, "hr-119-30", testdb.FixtureCongress, "hr", 30, "Thirty")
+	testdb.SeedBill(ctx, t, client, "s-119-7", testdb.FixtureCongress, "s", 7, "Seven")
+	testdb.SeedBill(ctx, t, client, "hr-118-20", testdb.FixturePrevCongress, "hr", 20, "Twenty, 118th")
+	// The fixture's roll calls name HR 1 and S 1 of the 119th. Add a second on HR 1, two on
+	// HR 20 and one on S 7 (listed once each); a voice vote on HR 30 (no roll_number); a roll
+	// call on HR 900, which isn't stored; and one on a stored bill of the 118th.
+	rollCall("house-119-s1-roll201", testdb.FixtureHouseBill, testdb.FixtureCongress, 201)
+	rollCall("house-119-s1-roll202", "hr-119-20", testdb.FixtureCongress, 202)
+	rollCall("house-119-s1-roll203", "hr-119-20", testdb.FixtureCongress, 203)
+	rollCall("senate-119-s1-vote00204", "s-119-7", testdb.FixtureCongress, 204)
+	testdb.SeedCongressionalVote(ctx, t, client, "house-119-voice-hr-119-30", new("hr-119-30"),
+		testdb.FixtureCongress, "House", day)
+	rollCall("house-119-s1-roll205", "hr-119-900", testdb.FixtureCongress, 205)
+	rollCall("house-118-s1-roll206", "hr-118-20", testdb.FixturePrevCongress, 206)
+
+	got, err := store.ListVotedBillIDs(ctx, testdb.FixtureCongress, "", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := []string{"hr-119-1", "hr-119-20", "s-119-1", "s-119-7"}; !slices.Equal(got, want) {
+		t.Errorf("voted bills = %v, want %v (stored, recorded, once each, sorted)", got, want)
+	}
+
+	pages := []struct {
+		after string
+		want  []string
+	}{
+		{"", []string{"hr-119-1", "hr-119-20"}},
+		{"hr-119-20", []string{"s-119-1", "s-119-7"}},
+		{"s-119-7", nil},
+	}
+	for _, p := range pages {
+		if got, err = store.ListVotedBillIDs(ctx, testdb.FixtureCongress, p.after, 2); err != nil ||
+			!slices.Equal(got, p.want) {
+			t.Errorf("page after %q = %v, %v; want %v", p.after, got, err, p.want)
+		}
+	}
+}

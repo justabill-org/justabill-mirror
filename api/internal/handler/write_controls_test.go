@@ -180,3 +180,42 @@ func TestCreateMeRecordsProvider(t *testing.T) {
 		t.Errorf("body = %s, want the provider", w.Body)
 	}
 }
+
+// count_in_totals (#1040) reaches the repository alone, with no state or district, and the
+// answer carries agg_opted_out_at, null while the votes count.
+func TestUpdateMeCountInTotals(t *testing.T) {
+	for _, tt := range []struct {
+		body, wantField string
+		want            bool
+	}{
+		{`{"count_in_totals":false}`, `"agg_opted_out_at":"2026-10-26T12:00:00Z"`, false},
+		{`{"count_in_totals":true}`, `"agg_opted_out_at":null`, true},
+	} {
+		users := newAccountUsers()
+		h := newAccountHandler(users, authtest.New(), nil)
+		handler.WithWriteRules(testRules())(h)
+
+		w := serveWrite("/api/v1/me", h.UpdateMe, http.MethodPatch, "/api/v1/me", tt.body, "")
+		if w.Code != http.StatusOK || len(users.updates) != 1 {
+			t.Fatalf("%s: %d, updates %+v; want 200 and one update", tt.body, w.Code, users.updates)
+		}
+		u := users.updates[0]
+		if u.CountInTotals == nil || *u.CountInTotals != tt.want || u.State != nil || u.District != nil {
+			t.Errorf("%s: update %+v; want count_in_totals %v and no state or district", tt.body, u, tt.want)
+		}
+		if !strings.Contains(w.Body.String(), tt.wantField) {
+			t.Errorf("%s: body %s, want %s", tt.body, w.Body, tt.wantField)
+		}
+	}
+
+	for _, bad := range []string{`{"count_in_totals":"no"}`, `{"count_in_totals":0}`} {
+		users := newAccountUsers()
+		h := newAccountHandler(users, authtest.New(), nil)
+		w := serveWrite("/api/v1/me", h.UpdateMe, http.MethodPatch, "/api/v1/me", bad, "")
+		if w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), "invalid request body") ||
+			len(users.updates) != 0 {
+			t.Errorf("%s: %d %s, %d updates; want 400 invalid request body and none", bad, w.Code, w.Body,
+				len(users.updates))
+		}
+	}
+}

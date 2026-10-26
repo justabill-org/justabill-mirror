@@ -2,6 +2,7 @@
 // link that sits under each AI summary.
 
 import type { Metadata } from "next";
+import { SITE_CARD } from "@/lib/seo";
 import type { Amendment, Bill } from "@/lib/types";
 
 /** The trust pages, in footer order. */
@@ -13,13 +14,16 @@ export const TRUST_LINKS = [
   { href: "/contact", label: "Contact" },
 ] as const;
 
-/** Title, description and canonical URL for a trust page. */
+/**
+ * Title, description, canonical URL and link preview for a trust page. Its openGraph names the site's
+ * card, which it would otherwise drop (#1036); no twitter tags, so the root twitter-image stays.
+ */
 export function trustMetadata(path: TrustPath, title: string, description: string): Metadata {
   return {
     title: `${title} | Just a Bill`,
     description,
     alternates: { canonical: path },
-    openGraph: { title: `${title} | Just a Bill`, description, url: path, type: "website" },
+    openGraph: { title: `${title} | Just a Bill`, description, url: path, type: "website", images: [SITE_CARD] },
   };
 }
 
@@ -47,7 +51,7 @@ export const CONTACT_EMAIL = "contact@justabill.io";
 export const PRIVACY_EMAIL = "privacy@justabill.io";
 
 /** The date shown at the top of /privacy and /terms. Change it with any change to either page. */
-export const POLICIES_LAST_UPDATED = "October 4, 2026";
+export const POLICIES_LAST_UPDATED = "October 26, 2026";
 
 /**
  * The policies' change history, newest first, listed at the end of /privacy and /terms (#806). The two
@@ -55,6 +59,15 @@ export const POLICIES_LAST_UPDATED = "October 4, 2026";
  * significant changes get an entry (wording tweaks don't); add one dated POLICIES_LAST_UPDATED with each.
  */
 export const POLICY_CHANGES: readonly { date: string; change: string }[] = [
+  {
+    date: "October 26, 2026",
+    change:
+      "Privacy Policy and Terms of Service: the Privacy Policy now lists every field an account stores (when the " +
+      "account was created, when our server recorded each vote, and whether we set an account's votes aside from " +
+      "the published totals) and says everywhere, as the Terms license now does, that signed-in votes also count " +
+      "toward the rounded, de-identified totals we publish, and how to leave yours out with the new setting. It " +
+      "also names the second note we keep in your browser after sign-in, which sign-out now removes.",
+  },
   {
     date: "October 4, 2026",
     change:
