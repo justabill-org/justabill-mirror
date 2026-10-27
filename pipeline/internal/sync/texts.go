@@ -3,12 +3,15 @@ package sync
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
 	"time"
 
 	"github.com/justabill-org/justabill/db/repository"
+	"github.com/justabill-org/justabill/obs"
+	"github.com/justabill-org/justabill/obs/semconv"
 	"github.com/justabill-org/justabill/pipeline/internal/billtext"
 	"github.com/justabill-org/justabill/pipeline/internal/diff"
 )
@@ -17,6 +20,10 @@ const (
 	formatXML  = "Formatted XML"
 	formatText = "Formatted Text"
 )
+
+// errNoTextFormat is selectTextURL's error for a version that lists neither XML nor text, as
+// Congress.gov lists a Public Law before it posts the law's files.
+var errNoTextFormat = errors.New("no supported text format")
 
 // textFormat represents a single format entry in the formats JSONB.
 type textFormat struct {
@@ -51,11 +58,12 @@ func (s *Service) syncBillTexts(ctx context.Context, congressNum, limit int) (in
 	var stored syncCounter
 	workerPool(ctx, groupByBill(versions), defaultTextWorkers,
 		func(ctx context.Context, bill []repository.TextVersionRef) {
+			var reread textReread // the bill's versions share at most one re-read
 			for _, v := range bill {
 				if ctx.Err() != nil {
 					return
 				}
-				if s.syncTextVersion(ctx, v) {
+				if s.syncTextVersion(ctx, v, &reread) {
 					stored.inc()
 				}
 			}
@@ -83,11 +91,19 @@ func groupByBill(versions []repository.TextVersionRef) [][]repository.TextVersio
 	return bills
 }
 
-// syncTextVersion fetches and stores one version's text, then diffs it against the bill's
-// previous fetched version, and reports whether the text was stored. A failure is logged,
-// and the version stays queued for the next run.
-func (s *Service) syncTextVersion(ctx context.Context, v repository.TextVersionRef) bool {
-	err := s.fetchAndStoreText(ctx, v)
+// syncTextVersion fetches and stores one version's text, re-reading the bill's versions first
+// if it lists no text format (fetchWithReread), then diffs it against the bill's previous fetched
+// version, and reports whether the text was stored. A failure is logged, and the version stays
+// queued for the next run. So does a version that still lists no text format, which is skipped,
+// not failed: Congress.gov hasn't posted its files yet.
+func (s *Service) syncTextVersion(ctx context.Context, v repository.TextVersionRef, reread *textReread) bool {
+	err := s.fetchWithReread(ctx, v, reread)
+	if errors.Is(err, errNoTextFormat) {
+		obs.Items(ctx, semconv.ItemOutcomeSkipped, 1)
+		s.logger.InfoContext(ctx, "text version lists no text format yet, left queued",
+			"text_version_id", v.ID, "bill_id", v.BillID, "version_code", v.VersionCode, "reason", err)
+		return false
+	}
 	countItem(ctx, err)
 	if err != nil {
 		s.logger.WarnContext(ctx, "fetch text failed",
@@ -102,6 +118,74 @@ func (s *Service) syncTextVersion(ctx context.Context, v repository.TextVersionR
 			"text_version_id", v.ID, "bill_id", v.BillID, "error", err)
 	}
 	return true
+}
+
+// textReread is one bill's re-read of its text versions in a sync-texts run: the formats each
+// version Congress.gov lists has now, by version code, or the re-read's error.
+type textReread struct {
+	done    bool
+	formats map[string]json.RawMessage
+	err     error
+}
+
+// fetchWithReread is fetchAndStoreText for a version that lists a text format. One that lists
+// none may be stale: Congress.gov lists a Public Law before its files are posted and doesn't
+// always move the bill's update date when they are, so a bill sync never reads the version again.
+// Its bill's versions are then re-read and stored (rereadFormats) and the version is tried again
+// with the formats Congress.gov lists now. The error wraps errNoTextFormat if it still lists
+// none, or is no longer listed.
+func (s *Service) fetchWithReread(ctx context.Context, v repository.TextVersionRef, reread *textReread) error {
+	err := s.fetchAndStoreText(ctx, v)
+	if !errors.Is(err, errNoTextFormat) {
+		return err
+	}
+	formats, err := s.rereadFormats(ctx, v.BillID, reread)
+	if err != nil {
+		return err
+	}
+	listed, ok := formats[v.VersionCode]
+	if !ok {
+		return fmt.Errorf("%w: the version is no longer listed", errNoTextFormat)
+	}
+	v.Formats = listed
+	return s.fetchAndStoreText(ctx, v)
+}
+
+// rereadFormats reads the bill's text versions from Congress.gov and stores them, as a bill sync
+// does, the first time it's called for the bill in a run, and returns each listed version's
+// formats by code. Later calls return the first call's answer, so a bill is re-read at most once a
+// run however many of its versions list no text format.
+func (s *Service) rereadFormats(
+	ctx context.Context, billID string, reread *textReread,
+) (map[string]json.RawMessage, error) {
+	if !reread.done {
+		reread.done = true
+		reread.formats, reread.err = s.rereadTextVersions(ctx, billID)
+	}
+	return reread.formats, reread.err
+}
+
+// rereadTextVersions reads the bill's text versions from Congress.gov, stores them and returns
+// their formats by version code.
+func (s *Service) rereadTextVersions(ctx context.Context, billID string) (map[string]json.RawMessage, error) {
+	if s.api == nil {
+		return nil, errors.New("re-read text versions: no Congress.gov client")
+	}
+	congressNum, billType, number, err := parseBillID(billID)
+	if err != nil {
+		return nil, fmt.Errorf("re-read text versions: %w", err)
+	}
+	rows, err := s.upsertTextVersions(ctx, billID, congressNum, billType, number)
+	if err != nil {
+		return nil, fmt.Errorf("re-read text versions: %w", err)
+	}
+	markBill(ctx, billID)
+	s.logger.InfoContext(ctx, "re-read text versions", "bill_id", billID, "versions", len(rows))
+	formats := make(map[string]json.RawMessage, len(rows))
+	for _, r := range rows {
+		formats[r.VersionCode] = r.Formats
+	}
+	return formats, nil
 }
 
 // selectTextURL picks the best URL from the formats list, preferring XML over plain text.
@@ -123,7 +207,7 @@ func selectTextURL(formatsJSON json.RawMessage) (string, string, error) {
 		}
 	}
 
-	return "", "", fmt.Errorf("no supported text format found in %d formats", len(formats))
+	return "", "", fmt.Errorf("%w found in %d formats", errNoTextFormat, len(formats))
 }
 
 // fetchAndStoreText downloads the text content, parses sections, and stores it. A refetched

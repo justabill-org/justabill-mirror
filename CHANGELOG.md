@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.3 (2026-10-27)
+
+
+### Bug Fixes
+
+* **pipeline:** re-read a bill's text versions when a queued version lists no text format (#1088) (ddeec01)
+
 ## 0.14.2 (2026-10-27)
 
 

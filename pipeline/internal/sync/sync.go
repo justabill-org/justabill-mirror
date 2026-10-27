@@ -540,19 +540,29 @@ func (s *Service) syncBillActions(
 func (s *Service) syncBillTextVersions(
 	ctx context.Context, billID string, congressNum int, billType string, number int,
 ) error {
+	_, err := s.upsertTextVersions(ctx, billID, congressNum, billType, number)
+	return err
+}
+
+// upsertTextVersions reads a bill's text versions from Congress.gov, stores them with
+// UpsertBillTextVersions and returns the rows it stored, for a bill sync and for sync-texts'
+// re-read of a version that lists no text format yet (rereadFormats).
+func (s *Service) upsertTextVersions(
+	ctx context.Context, billID string, congressNum int, billType string, number int,
+) ([]repository.TextVersionRow, error) {
 	resp, err := s.api.GetBillTextVersions(ctx, congressNum, billType, number)
 	if err != nil {
-		return fetchError("text_versions", err)
+		return nil, fetchError("text_versions", err)
 	}
 
 	versions := TextVersionRows(ctx, s.logger, billID, resp.TextVersions)
 
 	res, err := s.store.UpsertBillTextVersions(ctx, billID, versions)
 	if err != nil {
-		return fmt.Errorf("upsert text versions: %w", err)
+		return nil, fmt.Errorf("upsert text versions: %w", err)
 	}
 	s.logTextVersionSync(ctx, billID, res)
-	return nil
+	return versions, nil
 }
 
 // logTextVersionSync logs an upsert's counts. Pruning deletes texts and paid-for diff

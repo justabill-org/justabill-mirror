@@ -46,6 +46,10 @@ type textsStore struct {
 	refetched  []repository.BillTextRow
 	stored     []repository.BillTextRow // InsertBillText rows
 
+	upserts   []string // bill IDs, one per UpsertBillTextVersions call
+	upserted  []repository.TextVersionRow
+	upsertErr error
+
 	queryErr    error // QueryUnfetchedTextVersions
 	insertErr   error // InsertBillText
 	refetchErr  error // RefetchBillText
@@ -55,6 +59,19 @@ type textsStore struct {
 
 func (f *textsStore) QueryUnfetchedTextVersions(context.Context, int) ([]repository.TextVersionRef, error) {
 	return f.unfetched, f.queryErr
+}
+
+func (f *textsStore) UpsertBillTextVersions(
+	_ context.Context, billID string, rows []repository.TextVersionRow,
+) (repository.TextVersionSyncResult, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.upserts = append(f.upserts, billID)
+	if f.upsertErr != nil {
+		return repository.TextVersionSyncResult{}, f.upsertErr
+	}
+	f.upserted = append(f.upserted, rows...)
+	return repository.TextVersionSyncResult{Updated: len(rows)}, nil
 }
 
 func (f *textsStore) InsertBillText(_ context.Context, t repository.BillTextRow) error {
@@ -717,10 +734,10 @@ func TestSyncBillTexts_VersionFailuresStayQueued(t *testing.T) {
 			wantErr: "parsing formats JSONB",
 		},
 		{
-			name: "no XML or text format",
+			name: "no XML or text format, and no Congress.gov client to re-read it",
 			version: repository.TextVersionRef{ID: "v", BillID: "hr-119-1",
 				Formats: json.RawMessage(`[{"type":"PDF","url":"https://example.test/a.pdf"}]`)},
-			wantErr: "no supported text format found in 1 formats",
+			wantErr: "re-read text versions: no Congress.gov client",
 		},
 		{
 			name:    "a failed download",
