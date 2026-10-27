@@ -604,7 +604,6 @@ func mountPublicRoutes(
 	r.Get("/bills/{id}/text", h.ListTextVersions)
 	r.Get("/bills/{id}/diffs", h.ListDiffs)
 	r.Get("/bills/{id}/amendments", h.ListAmendments)
-	r.Get("/bills/{id}/gao-reports", h.ListGAOReports)
 	r.Get("/bills/{id}/related", h.GetRelatedBills)
 	r.Get("/bills/{id}/companion-votes", h.GetCompanionVotes)
 	r.Get("/bills/{id}/law-changes", h.GetBillLawChanges)

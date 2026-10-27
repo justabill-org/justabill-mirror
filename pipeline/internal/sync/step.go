@@ -22,7 +22,6 @@ const (
 	// stepPassedSummaries is the launch load's summaries of laws and bills that passed a chamber.
 	stepPassedSummaries = "passed_summaries"
 	stepGovInfo         = "govinfo"
-	stepGAOReports      = "gao_reports"
 	// stepCRSSummaries is the CRS summary sync from /summaries/{congress}.
 	stepCRSSummaries = "crs_summaries"
 	// stepCRARules matches CRA resolutions to Federal Register documents (design 590).

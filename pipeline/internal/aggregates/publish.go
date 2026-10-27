@@ -63,9 +63,11 @@ type Outcome struct {
 //  2. On hold (held, or suppressed with a hold reason before it was ever shown): unchanged until
 //     a human releases it.
 //  3. Shown, but fewer than RepublishMinChanges changed votes, or less than RepublishMinInterval
-//     since the last publish: the old numbers stay.
-//  4. An anomaly rule trips (burst, young accounts, swing) and the cell wasn't just released:
-//     held with its old numbers, or suppressed with the reason if it was never shown.
+//     since the last publish: the old numbers stay. A release ends here too, so the hold rules
+//     apply again from the next run.
+//  4. An anomaly rule trips (burst, young accounts, swing) and the cell wasn't released just
+//     before this run: held with its old numbers, or suppressed with the reason if it was never
+//     shown.
 //  5. Otherwise the rounded numbers are published.
 //
 // It's pure: the same inputs always give the same cell.
@@ -86,11 +88,14 @@ func Publish(key CellKey, prev *model.VoteAggregate, c Counts, cfg Config, now t
 		return Outcome{Cell: cell}
 	}
 	shown := prev != nil && prev.Status == statusPublished && prev.YeaPct != nil && prev.PublishedAt != nil
+	released := prev != nil && prev.HoldReason != nil && *prev.HoldReason == model.HoldReasonReleased
 	if shown && !republishDue(prev, c, cfg, now) {
+		if released {
+			cell.HoldReason = nil // a release exempts one run, not the next publish whenever it comes
+		}
 		return Outcome{Cell: cell}
 	}
 	yeaPct := int(math.Round(float64(c.Yea*percent) / float64(total))) // whole percent, halves up
-	released := prev != nil && prev.HoldReason != nil && *prev.HoldReason == model.HoldReasonReleased
 	if !released {
 		if reason := anomaly(prev, shown, c, yeaPct, cfg); reason != "" {
 			cell.HoldReason = &reason

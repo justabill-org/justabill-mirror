@@ -53,7 +53,7 @@ export default function MethodologyPage() {
             <a href="https://www.govinfo.gov/" target="_blank" rel="noopener noreferrer">
               GovInfo
             </a>{" "}
-            (US Government Publishing Office): the official text of each version of a bill, and related GAO reports.
+            (US Government Publishing Office): the official text of each version of a bill.
           </li>
           <li>
             <a href="https://clerk.house.gov/Votes" target="_blank" rel="noopener noreferrer">

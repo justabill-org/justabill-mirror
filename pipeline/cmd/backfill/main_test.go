@@ -53,8 +53,8 @@ func TestParseSteps(t *testing.T) {
 		{"texts, members", []string{"texts", "members"}},
 		{"bills,", []string{"bills"}},
 		{"members,votes,voted-bills,texts", []string{"members", "votes", "voted-bills", "texts"}},
-		{"members,bills,votes,texts,summaries,govinfo,gao,crs-summaries",
-			[]string{"members", "bills", "votes", "texts", "summaries", "govinfo", "gao", "crs-summaries"}},
+		{"members,bills,votes,texts,summaries,govinfo,crs-summaries",
+			[]string{"members", "bills", "votes", "texts", "summaries", "govinfo", "crs-summaries"}},
 	}
 	for _, tt := range tests {
 		got, err := parseSteps(tt.value)

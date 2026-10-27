@@ -580,20 +580,6 @@ export interface LawSectionResponse {
   current_release_point: USCReleasePoint | null;
 }
 
-// --- GAO Reports ---
-
-export interface GAOReport {
-  report_id: string;
-  title: string;
-  report_number?: string;
-  report_type?: string;
-  published_date?: string;
-  summary?: string;
-  pdf_url?: string;
-  html_url?: string;
-  synced_at?: string;
-}
-
 // --- Votes ---
 
 export interface CongressionalVote {
@@ -814,8 +800,6 @@ export interface BillDetailResponse {
   amendments: Amendment[] | null;
   votes: CongressionalVote[] | null;
   status_history: BillStatusEntry[] | null;
-  /** Absent from older API responses. */
-  gao_reports?: GAOReport[] | null;
   /** From the link table. Absent from older API responses, null if the read failed. */
   sponsorships?: BillSponsorship[] | null;
   /** Null when the bill has none or the read failed; absent from older API responses. */

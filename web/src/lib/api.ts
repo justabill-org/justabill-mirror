@@ -20,7 +20,6 @@ import type {
   Congress,
   CongressionalVote,
   DiffDetailResponse,
-  GAOReport,
   GraphRelatedBill,
   HealthResponse,
   LawSectionResponse,
@@ -355,7 +354,6 @@ const BILL_DETAIL_LISTS = [
   "amendments",
   "votes",
   "status_history",
-  "gao_reports",
   "sponsorships",
 ] as const satisfies readonly (keyof BillDetailResponse)[];
 
@@ -430,10 +428,6 @@ export async function getDiff(
 
 export async function listAmendments(billId: string) {
   return request<Amendment[]>(`/bills/${billId}/amendments`);
-}
-
-export async function listGAOReports(billId: string): Promise<GAOReport[]> {
-  return request<GAOReport[]>(`/bills/${billId}/gao-reports`);
 }
 
 export async function getRelatedBills(

@@ -39,7 +39,6 @@ describe("bill page with a partial detail", () => {
       amendments: null,
       votes: null,
       status_history: null,
-      gao_reports: null,
       sponsorships: null,
     });
     expect(html).toContain(examples.billDetail.bill.title);
@@ -47,7 +46,7 @@ describe("bill page with a partial detail", () => {
     // Only the active tab's panel is rendered: Actions.
     expect(html).toContain("The actions couldn&#x27;t be loaded right now.");
     // Tabs without a count rather than "(0)", which would claim there are none.
-    for (const tab of ["Actions", "Text", "Votes", "Amendments", "GAO reports"]) {
+    for (const tab of ["Actions", "Text", "Votes", "Amendments"]) {
       expect(html).toMatch(new RegExp(`>${tab}</button>`));
     }
   });
@@ -69,18 +68,21 @@ describe("bill page with a partial detail", () => {
     expect(html).not.toContain("couldn&#x27;t be loaded");
   });
 
-  it("treats a missing gao_reports (an older API) as none, not as failed", async () => {
-    const older = { ...examples.billDetail };
-    delete older.gao_reports;
+  // GAO reports were dropped (#1073): an API from before then still sends gao_reports, linked or
+  // failed, and the page shows neither a tab nor a failure for it.
+  it.each([
+    ["one report", [{ report_id: "GAO-08-823", title: "A report" }]],
+    ["a failed read", null],
+  ])("shows nothing for gao_reports an older API still sends (%s)", async (_, gaoReports) => {
+    const older = { ...examples.billDetail, gao_reports: gaoReports } as BillDetailResponse;
     const html = await renderBill(older);
-    expect(html).not.toContain("GAO reports");
+    expect(html).not.toContain("GAO");
     expect(html).not.toContain("couldn&#x27;t be loaded");
   });
 
   it("leaves out the tabs with nothing in them, and keeps one that didn't load (#717)", async () => {
-    const html = await renderBill({ ...examples.billDetail, amendments: [], gao_reports: [], votes: null });
+    const html = await renderBill({ ...examples.billDetail, amendments: [], votes: null });
     expect(html).not.toContain("Amendments");
-    expect(html).not.toContain("GAO reports");
     expect(html).toMatch(/>Votes<\/button>/);
     expect(html).toMatch(/>Sponsors<\/button>/);
   });

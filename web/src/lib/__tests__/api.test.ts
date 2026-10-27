@@ -34,7 +34,6 @@ const {
   listDiffs,
   getDiff,
   listAmendments,
-  listGAOReports,
   listBillsWithSummaries,
   countBills,
   listCongresses,
@@ -594,7 +593,6 @@ describe("bill section reads", () => {
     ["listDiffs", () => listDiffs("hr-119-1"), "/api/v1/bills/hr-119-1/diffs"],
     ["getDiff", () => getDiff("hr-119-1", "d1"), "/api/v1/bills/hr-119-1/diffs/d1"],
     ["listAmendments", () => listAmendments("hr-119-1"), "/api/v1/bills/hr-119-1/amendments"],
-    ["listGAOReports", () => listGAOReports("hr-119-1"), "/api/v1/bills/hr-119-1/gao-reports"],
   ])("%s GETs its route and returns the body", async (_name, call, path) => {
     mockFetch.mockResolvedValueOnce(mockResponse({ marker: path }));
     expect(await call()).toEqual({ marker: path });
@@ -805,7 +803,6 @@ describe("isPartialBillDetail (#454)", () => {
     amendments: [],
     votes: [],
     status_history: [],
-    gao_reports: [],
     sponsorships: [],
     crs_summary: null,
   } as unknown as Parameters<typeof isPartialBillDetail>[0];
@@ -814,14 +811,17 @@ describe("isPartialBillDetail (#454)", () => {
     expect(isPartialBillDetail(whole)).toBe(false);
   });
 
-  it("is false for an older response without gao_reports or sponsorships", () => {
+  it("is false for an older response without sponsorships", () => {
     const older = { ...whole };
-    delete older.gao_reports;
     delete older.sponsorships;
     expect(isPartialBillDetail(older)).toBe(false);
   });
 
-  it.each(["actions", "text_versions", "diffs", "amendments", "votes", "status_history", "gao_reports", "sponsorships"])(
+  it("is false when an older API's gao_reports read failed: the page no longer shows it (#1073)", () => {
+    expect(isPartialBillDetail({ ...whole, gao_reports: null } as typeof whole)).toBe(false);
+  });
+
+  it.each(["actions", "text_versions", "diffs", "amendments", "votes", "status_history", "sponsorships"])(
     "is true when %s is null",
     (section) => {
       expect(isPartialBillDetail({ ...whole, [section]: null })).toBe(true);

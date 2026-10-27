@@ -49,7 +49,6 @@ type BillRepo interface {
 	// empty or belongs to another bill.
 	GetDiffByID(ctx context.Context, billID, diffID string) (*model.BillTextDiff, error)
 	GetDiffSummary(ctx context.Context, diffID string) (*model.BillTextDiffSummary, error)
-	ListGAOReports(ctx context.Context, billID string) ([]model.GAOReport, error)
 	// Index returns every bill in the congress, ID and updated_at only, ordered by ID. It is
 	// empty for a congress with no bills.
 	Index(ctx context.Context, congress int) ([]model.BillIndexEntry, error)

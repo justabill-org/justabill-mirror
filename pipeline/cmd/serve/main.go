@@ -1,7 +1,6 @@
 // Serve runs the pipeline as a long-lived service: it syncs bills, members, votes, texts,
-// summaries, GovInfo changes, GAO reports, CRS summaries and the rules CRA resolutions disapprove
-// into Spanner, and loads each new US Code release
-// point, each on its own schedule, until it is stopped.
+// summaries, GovInfo changes, CRS summaries and the rules CRA resolutions disapprove into Spanner,
+// and loads each new US Code release point, each on its own schedule, until it is stopped.
 package main
 
 import (
@@ -42,8 +41,6 @@ import (
 const (
 	// serviceName is the pipeline's service.name, shared with backfill and seed.
 	serviceName = "justabill-pipeline"
-	// gaoBillsPerRun caps a sync-gao run's GovInfo searches (design Decision 4A).
-	gaoBillsPerRun = 1000
 	// craRulesPerRun caps a sync-cra-rules run's resolutions (docs/design/590-cra-disapproved-rules.md).
 	craRulesPerRun = 500
 	// craRulesJobName is the CRA rule lookup, which PIPELINE_CRA_RULES=false leaves out.
@@ -77,8 +74,6 @@ const (
 	lawChangeSyncTimeout  = 50 * time.Minute
 	govinfoSyncInterval   = 30 * time.Minute
 	govinfoSyncTimeout    = 25 * time.Minute
-	gaoSyncInterval       = 24 * time.Hour
-	gaoSyncTimeout        = 2 * time.Hour
 	// CRS summaries come from one list: a run is usually one request (docs/design/197-crs-summaries.md).
 	crsSyncInterval = 6 * time.Hour
 	crsSyncTimeout  = 30 * time.Minute
@@ -516,14 +511,6 @@ func syncJobs(svc *psync.Service, tracker *congressTracker, usc *uscode.Loader) 
 		{
 			Name: "load-uscode", Interval: uscodeLoadInterval, RetryInterval: uscodeRetryInterval,
 			Timeout: uscodeLoadTimeout, Run: usc.Run,
-		},
-		{
-			Name: "sync-gao", Interval: gaoSyncInterval, Timeout: gaoSyncTimeout,
-			Run: func(ctx context.Context) error {
-				return tracker.forEach(ctx, func(ctx context.Context, c int) error {
-					return svc.SyncGAOReports(ctx, c, gaoBillsPerRun)
-				})
-			},
 		},
 		{
 			Name: "sync-crs-summaries", Interval: crsSyncInterval, Timeout: crsSyncTimeout,

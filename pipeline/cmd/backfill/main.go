@@ -1,6 +1,6 @@
 // Backfill syncs one congress from Congress.gov, GovInfo and the House and Senate vote feeds
 // into Spanner once and exits: members and bills by default, and votes, texts, summaries,
-// GovInfo changes, GAO reports, CRS summaries and CRA rules when their flags ask for them. Without
+// GovInfo changes, CRS summaries and CRA rules when their flags ask for them. Without
 // --congress it loads the congress in progress by the calendar (the 119th until January 2, 2027,
 // the 120th from January 3).
 //
@@ -69,7 +69,6 @@ const (
 	stepSummaries   = "summaries"
 	stepPassed      = "passed-summaries"
 	stepGovInfo     = "govinfo"
-	stepGAO         = "gao"
 	stepCRS         = "crs-summaries"
 	// stepCRARules matches the congress's CRA resolutions to Federal Register documents. It reads
 	// only Spanner and the Federal Register: run it before summaries, so they get the rule.
@@ -79,7 +78,7 @@ const (
 func allSteps() []string {
 	return []string{
 		stepMembers, stepMemberTerms, stepBills, stepVotes, stepVotedBills,
-		stepTexts, stepCRARules, stepSummaries, stepGovInfo, stepGAO, stepCRS, stepPassed,
+		stepTexts, stepCRARules, stepSummaries, stepGovInfo, stepCRS, stepPassed,
 	}
 }
 
@@ -106,7 +105,7 @@ func main() {
 	rootCmd.Flags().String("congress-api-key", "", "Congress.gov API key")
 	rootCmd.Flags().Int("congress", 0, congressUsage)
 	rootCmd.Flags().Int("limit", 0,
-		"Limit number of bills (0 = all) in bills and voted-bills; also caps summaries and gao (0 = 50) "+
+		"Limit number of bills (0 = all) in bills and voted-bills; also caps summaries (0 = 50) "+
 			"and passed-summaries and cra-rules (0 = all)")
 	rootCmd.Flags().String("steps", "",
 		"Comma-separated steps to run, in the order given: "+strings.Join(allSteps(), ", ")+
@@ -608,8 +607,6 @@ func (r stepRunner) run(ctx context.Context, step string) error {
 		return r.svc.SyncSummaries(ctx, r.congress, r.limitOrDefault())
 	case stepGovInfo:
 		return r.svc.SyncGovInfoChanges(ctx, r.congress)
-	case stepGAO:
-		return r.svc.SyncGAOReports(ctx, r.congress, r.limitOrDefault())
 	case stepCRS:
 		return r.svc.SyncCRSSummaries(ctx, r.congress)
 	case stepCRARules:
@@ -621,7 +618,7 @@ func (r stepRunner) run(ctx context.Context, step string) error {
 	}
 }
 
-// limitOrDefault is the item cap for summaries and GAO reports: --limit, or 50 when it's 0.
+// limitOrDefault is the item cap for summaries: --limit, or 50 when it's 0.
 func (r stepRunner) limitOrDefault() int {
 	if r.limit == 0 {
 		return defaultSummaryLimit

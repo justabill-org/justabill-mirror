@@ -103,7 +103,6 @@ describe("a /vote card for a bill with no CRS summary, no AI summary and no text
       amendments: [],
       votes: [],
       status_history: [],
-      gao_reports: [],
       sponsorships: [],
     } as unknown as BillDetailResponse;
     vi.stubGlobal(

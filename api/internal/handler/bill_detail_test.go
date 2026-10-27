@@ -23,7 +23,7 @@ import (
 
 // billSections is the number of section reads GET /bills/{id} makes after
 // GetByID: ten on the bill repo and the congressional votes.
-const billSections = 11
+const billSections = 10
 
 // overlapTimeout bounds how long a section read waits for the others. With
 // sequential reads the first one would wait all of it and fail.
@@ -94,12 +94,6 @@ func (r *overlapBillRepo) GetStatusHistory(ctx context.Context, id string) ([]mo
 		return nil, err
 	}
 	return r.mockBillRepo.GetStatusHistory(ctx, id)
-}
-func (r *overlapBillRepo) ListGAOReports(ctx context.Context, id string) ([]model.GAOReport, error) {
-	if err := r.b.arrive(ctx); err != nil {
-		return nil, err
-	}
-	return r.mockBillRepo.ListGAOReports(ctx, id)
 }
 func (r *overlapBillRepo) GetSponsorships(ctx context.Context, id string) ([]model.BillSponsorship, error) {
 	if err := r.b.arrive(ctx); err != nil {
@@ -194,7 +188,7 @@ func TestGetBill_SectionsRunConcurrently(t *testing.T) {
 		t.Errorf("section reads = %d, want %d", got, billSections)
 	}
 	// A read that timed out at the barrier would leave its section null.
-	for _, key := range []string{"bill", "actions", "votes", "status_history", "gao_reports", "sponsorships"} {
+	for _, key := range []string{"bill", "actions", "votes", "status_history", "sponsorships"} {
 		if raw := string(body[key]); raw == "" || raw == "null" {
 			t.Errorf("%s = %q, want a value", key, raw)
 		}

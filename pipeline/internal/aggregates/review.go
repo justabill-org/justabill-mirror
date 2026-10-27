@@ -17,7 +17,9 @@ import (
 //     on a never-shown cell leaves it suppressed with the reason, so it isn't published.
 //   - A release makes a held cell published again with its old numbers, and a never-shown cell
 //     suppressed. Both get the released marker, so the next run publishes their new numbers
-//     without the anomaly rules holding them again at once.
+//     without the anomaly rules holding them again at once. The marker lasts that one run: if a
+//     shown cell hasn't changed enough to republish, it keeps its numbers and loses the marker,
+//     and its next publish goes through the rules.
 //
 // A cell that falls below its minimum loses any hold at the next run, as [Publish] documents.
 

@@ -226,10 +226,10 @@ func TestPublish(t *testing.T) {
 			want:   want{status: pub, yeaPct: 65, voters: 100, publishedNow: true, basisYea: 65, basisNay: 35},
 		},
 		{
-			name: "a released cell waits for enough changes", key: districtCell(),
+			name: "a released cell with too few changes keeps its numbers and ends the release", key: districtCell(),
 			prev:   withStatus(publishedCell(), pub, model.HoldReasonReleased),
 			counts: aggregates.Counts{Yea: 31, Nay: 30, New: 1},
-			want:   want{status: pub, yeaPct: 50, voters: 60, holdReason: model.HoldReasonReleased},
+			want:   want{status: pub, yeaPct: 50, voters: 60},
 		},
 		{
 			name: "an anomaly before the first publish keeps the cell suppressed", key: districtCell(),
@@ -274,6 +274,32 @@ func TestPublishWaitsAnHourBetweenPublishes(t *testing.T) {
 	if !got.Cell.PublishedAt.Equal(recent) {
 		t.Errorf("published_at = %v, want %v", got.Cell.PublishedAt, recent)
 	}
+}
+
+// A release exempts only the next run from the hold rules: a released cell that stays quiet
+// is held by a burst two weeks later, as a never-released cell would be (#1072).
+func TestPublishReleasedCellHoldsALaterBurst(t *testing.T) {
+	cfg := aggregates.DefaultConfig()
+	quietAt := t0().Add(-14 * 24 * time.Hour)
+	publishedAt := quietAt.Add(-time.Hour)
+	released := withStatus(publishedCell(), model.AggregateStatusPublished, model.HoldReasonReleased)
+	released.PublishedAt, released.ComputedAt = &publishedAt, publishedAt
+
+	few := aggregates.Counts{Yea: 31, Nay: 30, New: 1}
+	quiet := aggregates.Publish(districtCell(), released, few, cfg, quietAt).Cell
+	if quiet.Status != model.AggregateStatusPublished || *quiet.YeaPct != 50 || *quiet.VotersFloor != 60 ||
+		!quiet.PublishedAt.Equal(publishedAt) {
+		t.Errorf("quiet run: %s at %d%% of %d+ published %v, want published at 50%% of 60+ published %v",
+			quiet.Status, *quiet.YeaPct, *quiet.VotersFloor, quiet.PublishedAt, publishedAt)
+	}
+	if quiet.HoldReason != nil {
+		t.Errorf("quiet run: hold_reason = %q, want none: the release ends with the run", *quiet.HoldReason)
+	}
+
+	burst := aggregates.Counts{Yea: 530, Nay: 30, Recent: 500, Baseline: 10, New: 500, Young: 500}
+	check(t, aggregates.Publish(districtCell(), &quiet, burst, cfg, t0()), want{
+		status: model.AggregateStatusHeld, yeaPct: 50, voters: 60, holdReason: model.HoldReasonBurst, newHold: true,
+	})
 }
 
 // TestPublishHidesOneVote is the design's privacy test: one more vote on a published cell

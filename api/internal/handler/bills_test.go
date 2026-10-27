@@ -158,9 +158,6 @@ func (m *mockBillRepo) GetStatusHistory(_ context.Context, _ string) ([]model.Bi
 func (m *mockBillRepo) GetSponsorships(_ context.Context, _ string) ([]model.BillSponsorship, error) {
 	return m.sponsors, nil
 }
-func (m *mockBillRepo) ListGAOReports(_ context.Context, _ string) ([]model.GAOReport, error) {
-	return []model.GAOReport{}, nil
-}
 func (m *mockBillRepo) GetCRSSummary(_ context.Context, _ string) (*model.CRSSummary, error) {
 	return m.crs, m.crsErr
 }

@@ -421,19 +421,6 @@ type UserFavorite struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// GAOReport represents a Government Accountability Office report.
-type GAOReport struct {
-	ReportID      string     `json:"report_id"`
-	Title         string     `json:"title"`
-	ReportNumber  *string    `json:"report_number,omitempty"`
-	ReportType    *string    `json:"report_type,omitempty"`
-	PublishedDate *time.Time `json:"published_date,omitempty"`
-	Summary       *string    `json:"summary,omitempty"`
-	PDFURL        *string    `json:"pdf_url,omitempty"`
-	HTMLURL       *string    `json:"html_url,omitempty"`
-	SyncedAt      *time.Time `json:"synced_at,omitempty"`
-}
-
 // SyncState tracks pipeline synchronization progress.
 type SyncState struct {
 	Step         string    `json:"step"`

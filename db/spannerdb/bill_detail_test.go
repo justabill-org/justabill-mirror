@@ -24,7 +24,8 @@ func newBillDetailRepos(t *testing.T) (*spannerdb.BillRepository, *spannerdb.Pip
 	return spannerdb.NewBillRepo(&spannerdb.Client{Spanner: client}), store
 }
 
-func utcDate(y int, m time.Month, d int) time.Time { return time.Date(y, m, d, 0, 0, 0, 0, time.UTC) }
+// utcDate is midnight UTC on a day of 2025.
+func utcDate(m time.Month, d int) time.Time { return time.Date(2025, m, d, 0, 0, 0, 0, time.UTC) }
 
 func TestBillGetByID(t *testing.T) {
 	repo, store := newBillDetailRepos(t)
@@ -83,8 +84,8 @@ func TestBillGetActions(t *testing.T) {
 	vote := &model.RecordedVote{RollNumber: 123, URL: "https://clerk.house.gov/evs/2025/roll123.xml", Chamber: "House"}
 	// Written out of order: the reader orders by sort_order.
 	actions := []repository.BillActionRow{
-		{ActionDate: utcDate(2025, time.February, 1), ActionText: "Passed House", RecordedVote: vote, SortOrder: 2},
-		{ActionDate: utcDate(2025, time.January, 3), ActionText: "Introduced", ActionType: &committee, SortOrder: 1},
+		{ActionDate: utcDate(time.February, 1), ActionText: "Passed House", RecordedVote: vote, SortOrder: 2},
+		{ActionDate: utcDate(time.January, 3), ActionText: "Introduced", ActionType: &committee, SortOrder: 1},
 	}
 	if err := store.ReplaceBillActions(ctx, testdb.FixtureHouseBill, actions); err != nil {
 		t.Fatal(err)
@@ -136,9 +137,9 @@ func TestListStoredBillActions(t *testing.T) {
 
 	code, source := "8000", "Library of Congress"
 	actions := []repository.BillActionRow{
-		{ActionDate: utcDate(2025, time.February, 1), ActionText: "Passed/agreed to in House", ActionCode: &code,
+		{ActionDate: utcDate(time.February, 1), ActionText: "Passed/agreed to in House", ActionCode: &code,
 			SourceSystem: &source, SortOrder: 2},
-		{ActionDate: utcDate(2025, time.January, 3), ActionText: "Introduced in House", SortOrder: 1},
+		{ActionDate: utcDate(time.January, 3), ActionText: "Introduced in House", SortOrder: 1},
 	}
 	if err := store.ReplaceBillActions(ctx, testdb.FixtureHouseBill, actions); err != nil {
 		t.Fatal(err)
@@ -160,7 +161,7 @@ func TestListStoredBillActions(t *testing.T) {
 		t.Errorf("action 1 = %+v, want the introduced action, no code", got[0])
 	}
 	if a := got[1]; deref(a.ActionCode) != code || deref(a.SourceSystem) != source || a.SortOrder != 2 ||
-		!a.ActionDate.Equal(utcDate(2025, time.February, 1)) {
+		!a.ActionDate.Equal(utcDate(time.February, 1)) {
 		t.Errorf("action 2 = %+v, want the coded House passage on 2025-02-01", a)
 	}
 
@@ -206,23 +207,23 @@ func TestBillGetStatusHistory(t *testing.T) {
 		{
 			BillID:     testdb.FixtureHouseBill,
 			Status:     "signed",
-			StatusDate: utcDate(2025, time.March, 4),
+			StatusDate: utcDate(time.March, 4),
 			StatusRank: 8,
 		},
 		{
 			BillID:     testdb.FixtureHouseBill,
 			Status:     "introduced",
-			StatusDate: utcDate(2025, time.January, 3),
+			StatusDate: utcDate(time.January, 3),
 			StatusRank: 1,
 		},
 	}
-	signed := utcDate(2025, time.March, 4)
+	signed := utcDate(time.March, 4)
 	if err = store.ReplaceBillStatus(ctx, testdb.FixtureHouseBill, "signed", &signed, rows); err != nil {
 		t.Fatal(err)
 	}
 	// Deriving it again replaces the history: a stage the bill no longer has is dropped and a new one
 	// added, and the current status follows.
-	presented := utcDate(2025, time.March, 5)
+	presented := utcDate(time.March, 5)
 	rows = []repository.BillStatusRow{
 		rows[1],
 		{BillID: testdb.FixtureHouseBill, Status: "to_president", StatusDate: presented, StatusRank: 7},
@@ -303,55 +304,6 @@ func TestBillGetAmendments(t *testing.T) {
 		if getErr != nil || none == nil || len(none) != 0 {
 			t.Errorf("GetAmendments(%s) = %v, %v; want an empty, non-nil list", id, none, getErr)
 		}
-	}
-}
-
-func TestBillListGAOReports(t *testing.T) {
-	repo, store := newBillDetailRepos(t)
-	ctx := t.Context()
-
-	older, newer := utcDate(2024, time.May, 1), utcDate(2025, time.June, 1)
-	number := "GAO-25-1"
-	reports := []repository.GAOReportRow{
-		{ReportID: "gao-old", Title: "Older report", PublishedDate: &older},
-		{ReportID: "gao-new", Title: "Newer report", PublishedDate: &newer, ReportNumber: &number},
-		{ReportID: "gao-other", Title: "Another bill's report", PublishedDate: &newer},
-	}
-	for _, r := range reports {
-		if err := store.UpsertGAOReport(ctx, r); err != nil {
-			t.Fatal(err)
-		}
-	}
-	links := [][2]string{
-		{testdb.FixtureHouseBill, "gao-old"}, {testdb.FixtureHouseBill, "gao-new"},
-		{testdb.FixtureSenateBill, "gao-other"},
-		{testdb.FixtureHouseBill, "gao-new"}, // linking twice is a no-op
-	}
-	for _, l := range links {
-		if err := store.LinkBillGAOReport(ctx, l[0], l[1]); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	got, err := repo.ListGAOReports(ctx, testdb.FixtureHouseBill)
-	if err != nil {
-		t.Fatal(err)
-	}
-	var ids []string
-	for _, r := range got {
-		ids = append(ids, r.ReportID)
-	}
-	if !slices.Equal(ids, []string{"gao-new", "gao-old"}) {
-		t.Fatalf("ListGAOReports = %v, want [gao-new gao-old] (newest first, this bill's only)", ids)
-	}
-	if deref(got[0].ReportNumber) != number || got[0].PublishedDate == nil || !got[0].PublishedDate.Equal(newer) ||
-		got[1].ReportNumber != nil {
-		t.Errorf("ListGAOReports = %+v, %+v; want the stored number and dates", got[0], got[1])
-	}
-
-	none, err := repo.ListGAOReports(ctx, testdb.FixtureLawBill)
-	if err != nil || none == nil || len(none) != 0 {
-		t.Errorf("ListGAOReports(law bill) = %v, %v; want an empty, non-nil list", none, err)
 	}
 }
 

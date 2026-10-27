@@ -617,22 +617,6 @@ type BillStatusRow struct {
 	StatusRank int
 }
 
-// GAOReportRow holds data for upserting a GAO report.
-type GAOReportRow struct {
-	ReportID      string
-	Title         string
-	ReportNumber  *string
-	ReportType    *string
-	PublishedDate *time.Time
-	Summary       *string
-	PDFURL        *string
-	HTMLURL       *string
-}
-
-// GAORecheckAfter is how long a bill's GAO search stays fresh before
-// [PipelineStore.ListBillsForGAOCheck] returns the bill again.
-const GAORecheckAfter = 30 * 24 * time.Hour
-
 // Sponsorship roles stored in bill_sponsorships.role.
 const (
 	SponsorRoleSponsor   = "sponsor"
@@ -1069,16 +1053,6 @@ type PipelineStore interface {
 	// ReleaseSummaryBatch makes every bill still held by the batch due at now, and returns how
 	// many it released.
 	ReleaseSummaryBatch(ctx context.Context, batchID string, now time.Time) (int, error)
-
-	// GAO Reports
-	UpsertGAOReport(ctx context.Context, r GAOReportRow) error
-	LinkBillGAOReport(ctx context.Context, billID, reportID string) error
-	// ListBillsForGAOCheck returns up to limit bill IDs of a congress to search for GAO reports:
-	// never-checked bills first, then those last checked more than [GAORecheckAfter] ago, each
-	// group most recently active (status_date) first.
-	ListBillsForGAOCheck(ctx context.Context, congress, limit int) ([]string, error)
-	// MarkGAOChecked records that the bill's GAO search succeeded now.
-	MarkGAOChecked(ctx context.Context, billID string) error
 
 	// CRA resolutions and the rules they disapprove (docs/design/590-cra-disapproved-rules.md)
 	// ListCRARuleChecks returns up to limit of the congress's CRA resolutions (sjres and hjres

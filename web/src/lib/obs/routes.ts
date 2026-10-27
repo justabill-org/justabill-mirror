@@ -44,7 +44,6 @@ export const API_ROUTE_PATTERNS = [
   "/api/v1/bills/{id}/companion-votes",
   "/api/v1/bills/{id}/diffs",
   "/api/v1/bills/{id}/diffs/{did}",
-  "/api/v1/bills/{id}/gao-reports",
   "/api/v1/bills/{id}/law-changes",
   "/api/v1/bills/{id}/related",
   "/api/v1/bills/{id}/text",

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/justabill-org/justabill/pipeline/internal/congress"
 	"github.com/justabill-org/justabill/pipeline/internal/upstream"
@@ -89,7 +90,7 @@ func billSummaryFromID(id string) (congress.BillSummary, error) {
 		return congress.BillSummary{}, err
 	}
 	bs := congress.BillSummary{Congress: congressNum, Type: billType, Number: strconv.Itoa(number)}
-	if _, known := billTypeCitations[billType]; !known || congressNum <= 0 || number <= 0 ||
+	if !knownBillType(billType) || congressNum <= 0 || number <= 0 ||
 		billID(bs, congressNum) != id {
 		return congress.BillSummary{}, fmt.Errorf("not a canonical bill ID: %q", id)
 	}
@@ -104,4 +105,25 @@ func notFound(err error) bool {
 	}
 	se, ok := errors.AsType[*upstream.StatusError](err)
 	return ok && se.Status == http.StatusNotFound
+}
+
+// parseBillID splits a bill ID ("hr-119-1") into congress, type and number.
+func parseBillID(billID string) (int, string, int, error) {
+	parts := strings.Split(billID, "-")
+	const expectedParts = 3
+	if len(parts) != expectedParts {
+		return 0, "", 0, fmt.Errorf("invalid bill ID format: %s", billID)
+	}
+
+	congressNum, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return 0, "", 0, fmt.Errorf("invalid congress number in bill ID: %s", parts[1])
+	}
+
+	number, err := strconv.Atoi(parts[2])
+	if err != nil {
+		return 0, "", 0, fmt.Errorf("invalid bill number in bill ID: %s", parts[2])
+	}
+
+	return congressNum, parts[0], number, nil
 }

@@ -370,7 +370,6 @@ type billDetail struct {
 	Amendments    []model.Amendment         `json:"amendments"`
 	Votes         []model.CongressionalVote `json:"votes"`
 	StatusHistory []model.BillStatusEntry   `json:"status_history"`
-	GAOReports    []model.GAOReport         `json:"gao_reports"`
 	Sponsorships  []model.BillSponsorship   `json:"sponsorships"`
 	// CRSSummary is the latest Congressional Research Service summary, as plain text
 	// (docs/design/197-crs-summaries.md); null when the bill has none.
@@ -393,7 +392,6 @@ func (h *Handler) readBillDetail(ctx context.Context, id string, bill *model.Bil
 	readSection(s, "amendments", &d.Amendments, h.Bills.GetAmendments)
 	readSection(s, "votes", &d.Votes, h.Votes.GetCongressionalVotes)
 	readSection(s, "status history", &d.StatusHistory, h.Bills.GetStatusHistory)
-	readSection(s, "GAO reports", &d.GAOReports, h.Bills.ListGAOReports)
 	readSection(s, "sponsorships", &d.Sponsorships, h.Bills.GetSponsorships)
 	readSection(s, "CRS summary", &d.CRSSummary, h.Bills.GetCRSSummary)
 	readSection(s, "disapproved rule", &d.DisapprovedRule, h.disapprovedRule)
@@ -556,11 +554,6 @@ func (h *Handler) ListTextVersions(w http.ResponseWriter, r *http.Request) {
 // ListDiffs returns all text diffs for a bill.
 func (h *Handler) ListDiffs(w http.ResponseWriter, r *http.Request) {
 	writeBillList(h, w, r, "diffs", h.Bills.GetDiffs)
-}
-
-// ListGAOReports returns GAO reports linked to a bill.
-func (h *Handler) ListGAOReports(w http.ResponseWriter, r *http.Request) {
-	writeBillList(h, w, r, "GAO reports", h.Bills.ListGAOReports)
 }
 
 // ListAmendments returns all amendments for a bill.

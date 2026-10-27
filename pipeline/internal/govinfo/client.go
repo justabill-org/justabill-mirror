@@ -1,6 +1,6 @@
 // Package govinfo is a client for the GovInfo API (api.govinfo.gov): changes to the BILLS
 // collection, package summaries, the bill text files they link to, and searches for US Code
-// sections and for GAO reports about a bill.
+// sections.
 package govinfo
 
 import (
@@ -189,12 +189,6 @@ type SearchResponse struct {
 // SearchUSCode searches for a US Code section by title and section number.
 func (c *Client) SearchUSCode(ctx context.Context, title, section int) (*SearchResponse, error) {
 	query := fmt.Sprintf("collection:USCODE usctitlenum:%d uscsectionnum:%d", title, section)
-	return c.search(ctx, query)
-}
-
-// SearchGAOReports searches for GAO reports related to a bill citation (e.g. "h.r. 43").
-func (c *Client) SearchGAOReports(ctx context.Context, billCitation string) (*SearchResponse, error) {
-	query := fmt.Sprintf(`collection:GAOREPORTS billscitation:"%s"`, billCitation)
 	return c.search(ctx, query)
 }
 

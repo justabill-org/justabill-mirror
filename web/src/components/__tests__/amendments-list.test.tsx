@@ -1,13 +1,12 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { axeViolations } from "@/test/axe";
 import { AmendmentsList } from "../bill/amendments-list";
-import { GAOReportsList } from "../bill/gao-reports-list";
-import type { Amendment, GAOReport } from "@/lib/types";
+import type { Amendment } from "@/lib/types";
 
-// The bill page's Amendments and GAO reports tabs (#872): an honest empty state, and each item's
-// facts with its links.
+// The bill page's Amendments tab (#872): an honest empty state, and each amendment's facts with
+// its links.
 
 afterEach(cleanup);
 
@@ -34,18 +33,6 @@ const hamdt: Amendment = {
   description: "An amendment numbered 3 printed in House Report 119-5.",
   purpose: "Not shown when there's a description.",
   chamber: "House",
-};
-
-const gao: GAOReport = {
-  report_id: "gao-25-107000",
-  title: "Farm Programs: USDA Should Improve Oversight",
-  report_number: "GAO-25-107000",
-  report_type: "Report",
-  published_date: "2025-02-10T00:00:00Z",
-  summary: "What GAO found.",
-  pdf_url: "https://www.gao.gov/assets/gao-25-107000.pdf",
-  html_url: "https://www.gao.gov/products/gao-25-107000",
-  synced_at: "2025-02-11T00:00:00Z",
 };
 
 /** The amendment entries, in the order they're shown, by their designation. */
@@ -102,48 +89,6 @@ describe("AmendmentsList", () => {
 
   it("has no axe violations", async () => {
     const { container } = render(<AmendmentsList amendments={[samdt, hamdt]} />);
-    expect(await axeViolations(container)).toEqual([]);
-  });
-});
-
-describe("GAOReportsList", () => {
-  it("says no reports have been linked when there are none", () => {
-    render(<GAOReportsList reports={[]} />);
-    expect(screen.getByText("No GAO reports have been linked to this bill.")).toBeTruthy();
-  });
-
-  it("shows a report's title, number, type, date and summary, and links to it on gao.gov in a new tab", () => {
-    render(<GAOReportsList reports={[gao]} />);
-    expect(screen.getByRole("heading", { name: "Farm Programs: USDA Should Improve Oversight" })).toBeTruthy();
-    expect(screen.getByText("GAO-25-107000")).toBeTruthy();
-    expect(screen.getByText("Report")).toBeTruthy();
-    expect(screen.getByText("Published Feb 10, 2025")).toBeTruthy();
-    expect(screen.getByText("What GAO found.")).toBeTruthy();
-    for (const [name, href] of [
-      ["View PDF", "https://www.gao.gov/assets/gao-25-107000.pdf"],
-      ["View HTML", "https://www.gao.gov/products/gao-25-107000"],
-    ]) {
-      const link = screen.getByRole("link", { name });
-      expect(link.getAttribute("href")).toBe(href);
-      expect(link.getAttribute("target")).toBe("_blank");
-      expect(link.getAttribute("rel")).toBe("noopener noreferrer");
-    }
-  });
-
-  it("lists many in the API's order, each with only the links it has", () => {
-    const pdfOnly = { report_id: "gao-24-1", title: "Second", pdf_url: "https://www.gao.gov/assets/gao-24-1.pdf" };
-    const bare = { report_id: "gao-23-1", title: "Third" };
-    render(<GAOReportsList reports={[gao, pdfOnly, bare]} />);
-    const titles = screen.getAllByRole("heading").map((h) => h.textContent);
-    expect(titles).toEqual(["GAO reports", "Farm Programs: USDA Should Improve Oversight", "Second", "Third"]);
-    const second = screen.getByRole("heading", { name: "Second" }).closest("div.rounded-lg") as HTMLElement;
-    expect(within(second).getAllByRole("link").map((a) => a.textContent)).toEqual(["View PDF"]);
-    const third = screen.getByRole("heading", { name: "Third" }).closest("div.rounded-lg") as HTMLElement;
-    expect(within(third).queryAllByRole("link")).toEqual([]);
-  });
-
-  it("has no axe violations", async () => {
-    const { container } = render(<GAOReportsList reports={[gao]} />);
     expect(await axeViolations(container)).toEqual([]);
   });
 });

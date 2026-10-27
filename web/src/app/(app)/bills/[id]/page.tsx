@@ -19,7 +19,6 @@ import { BillTextPanel } from "@/components/bill/bill-text-panel";
 import { CongressionalVotes } from "@/components/bill/congressional-votes";
 import { SponsorDisplay } from "@/components/bill/sponsor-display";
 import { AmendmentsList } from "@/components/bill/amendments-list";
-import { GAOReportsList } from "@/components/bill/gao-reports-list";
 import { RelatedBills } from "@/components/bill/related-bills";
 import { CompanionVotes } from "@/components/bill/companion-votes";
 import { LawChanges } from "@/components/bill/law-changes";
@@ -91,7 +90,6 @@ export default async function BillDetailPage({ params }: BillDetailPageProps) {
   // A section the API couldn't read is null (getBill already asked again): its tab says so and the
   // rest of the page renders.
   const { bill, actions, summary, text_versions, diffs, amendments, votes, status_history } = billData;
-  const gaoReports = billData.gao_reports === undefined ? [] : billData.gao_reports;
   const crsSummary = billData.crs_summary ?? null;
   const disapprovedRule = showsDisapprovedRule(billData.bill.bill_type, billData.disapproved_rule)
     ? billData.disapproved_rule
@@ -244,7 +242,6 @@ export default async function BillDetailPage({ params }: BillDetailPageProps) {
           )}
           {hasTab(votes) && <TabsTrigger value="votes">{tabLabel("Votes", votes)}</TabsTrigger>}
           {hasTab(amendments) && <TabsTrigger value="amendments">{tabLabel("Amendments", amendments)}</TabsTrigger>}
-          {hasTab(gaoReports) && <TabsTrigger value="gao">{tabLabel("GAO reports", gaoReports)}</TabsTrigger>}
           <TabsTrigger value="sponsors">Sponsors</TabsTrigger>
         </TabsList>
 
@@ -281,10 +278,6 @@ export default async function BillDetailPage({ params }: BillDetailPageProps) {
 
         <TabsContent value="amendments" className="mt-6">
           {amendments ? <AmendmentsList amendments={amendments} /> : <UnavailableCard name="amendments" />}
-        </TabsContent>
-
-        <TabsContent value="gao" className="mt-6">
-          {gaoReports ? <GAOReportsList reports={gaoReports} /> : <UnavailableCard name="GAO reports" />}
         </TabsContent>
 
         <TabsContent value="sponsors" className="mt-6">

@@ -13,7 +13,6 @@ function detail(bill: Partial<Bill>, shortSummary?: string): BillDetailResponse 
     amendments: [],
     votes: [],
     status_history: [],
-    gao_reports: [],
   };
 }
 

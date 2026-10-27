@@ -60,7 +60,6 @@ func TestBillRepo_ReadErrors(t *testing.T) {
 		{"GetDiffSummary", func(ctx context.Context) error { return errOf(repo.GetDiffSummary(ctx, "d1")) }},
 		{"GetStatusHistory", func(ctx context.Context) error { return errOf(repo.GetStatusHistory(ctx, bill)) }},
 		{"GetAmendments", func(ctx context.Context) error { return errOf(repo.GetAmendments(ctx, bill)) }},
-		{"ListGAOReports", func(ctx context.Context) error { return errOf(repo.ListGAOReports(ctx, bill)) }},
 	})
 }
 
@@ -114,10 +113,6 @@ func TestPipelineStore_StoreErrors(t *testing.T) {
 		{"ExistingVoteIDs", func(ctx context.Context) error {
 			return errOf(store.ExistingVoteIDs(ctx, []string{testdb.FixtureHouseVote}))
 		}},
-		{"ListBillsForGAOCheck", func(ctx context.Context) error {
-			return errOf(store.ListBillsForGAOCheck(ctx, congress, 10))
-		}},
-		{"MarkGAOChecked", func(ctx context.Context) error { return store.MarkGAOChecked(ctx, bill) }},
 		{"QueryUnfetchedTextVersions", func(ctx context.Context) error {
 			return errOf(store.QueryUnfetchedTextVersions(ctx, 0))
 		}},

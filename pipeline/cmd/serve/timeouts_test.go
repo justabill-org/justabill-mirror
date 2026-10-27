@@ -66,7 +66,6 @@ func TestWithTimeoutOverrides_Applies(t *testing.T) {
 		"sync-law-changes":   lawChangeSyncTimeout,
 		"sync-govinfo":       29 * time.Minute,
 		"load-uscode":        uscodeLoadTimeout,
-		"sync-gao":           gaoSyncTimeout,
 		"sync-crs-summaries": crsSyncTimeout,
 		"sync-cra-rules":     45 * time.Minute,
 	}

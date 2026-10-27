@@ -26,7 +26,6 @@ type billStore struct {
 	versions   map[string][]model.BillTextVersion
 	diffs      map[string][]model.BillTextDiff
 	amendments map[string][]model.Amendment
-	gao        map[string][]model.GAOReport
 	listErr    error
 	byIDErr    error
 	byIDReads  int
@@ -47,9 +46,6 @@ func (s *billStore) GetDiffs(_ context.Context, id string) ([]model.BillTextDiff
 }
 func (s *billStore) GetAmendments(_ context.Context, id string) ([]model.Amendment, error) {
 	return s.amendments[id], s.listErr
-}
-func (s *billStore) ListGAOReports(_ context.Context, id string) ([]model.GAOReport, error) {
-	return s.gao[id], s.listErr
 }
 
 // voteStore holds each bill's roll calls by bill ID; err fails every read.
@@ -95,7 +91,6 @@ func seededBillStores() (*billStore, *voteStore) {
 			ID: "hamdt-119-7", BillID: seededBill, Congress: 119, AmendmentType: "hamdt", AmendmentNumber: 7,
 			Chamber: "House",
 		}}},
-		gao: map[string][]model.GAOReport{seededBill: {{ReportID: "GAO-26-1", Title: "Drug Prices"}}},
 	}
 	votes := &voteStore{votes: map[string][]model.CongressionalVote{seededBill: {{
 		ID: "h-119-1-42", BillID: &bid, Congress: 119, Chamber: "House", VoteDate: day,
@@ -113,7 +108,6 @@ func billListRouter(bills *billStore, votes *voteStore) http.Handler {
 	r.Get("/api/v1/bills/{id}/text", h.ListTextVersions)
 	r.Get("/api/v1/bills/{id}/diffs", h.ListDiffs)
 	r.Get("/api/v1/bills/{id}/amendments", h.ListAmendments)
-	r.Get("/api/v1/bills/{id}/gao-reports", h.ListGAOReports)
 	return r
 }
 
@@ -135,7 +129,6 @@ func billLists() []billList {
 		"diff_stats":{"added":3}}]`},
 		{"amendments", `[{"id":"hamdt-119-7","bill_id":"hr-119-1","congress":119,"amendment_type":"hamdt",
 		"amendment_number":7,"chamber":"House"}]`},
-		{"gao-reports", `[{"report_id":"GAO-26-1","title":"Drug Prices"}]`},
 	}
 }
 

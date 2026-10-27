@@ -36,7 +36,6 @@ function bareBill(id: string, type: Bill["bill_type"], number: number): BillDeta
     amendments: [],
     votes: [],
     status_history: [],
-    gao_reports: [],
     sponsorships: [],
     crs_summary: null,
     disapproved_rule: null,
@@ -101,7 +100,6 @@ describe("bill page with no CRS summary, no AI summary and no text", () => {
     const d = bareBill("hr-119-77", "hr", 77) as Partial<BillDetailResponse>;
     delete d.crs_summary;
     delete d.disapproved_rule;
-    delete d.gao_reports;
     const html = await render({ ...(d as BillDetailResponse), actions: null });
     expect(html).toContain("The actions couldn&#x27;t be loaded right now.");
     expect(html).not.toContain('aria-label="Summary"');

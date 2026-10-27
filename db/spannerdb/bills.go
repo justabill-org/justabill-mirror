@@ -826,57 +826,6 @@ func (r *BillRepository) GetAmendments(ctx context.Context, billID string) ([]mo
 	return amendments, nil
 }
 
-// ListGAOReports returns GAO reports linked to a bill.
-func (r *BillRepository) ListGAOReports(ctx context.Context, billID string) ([]model.GAOReport, error) {
-	stmt := spanner.Statement{
-		SQL: `SELECT g.report_id, g.title, g.report_number, g.report_type,
-		        g.published_date, g.summary, g.pdf_url, g.html_url, g.synced_at
-		 FROM bill_gao_reports bg
-		 JOIN gao_reports g ON g.report_id = bg.report_id
-		 WHERE bg.bill_id = @billID
-		 ORDER BY g.published_date DESC`,
-		Params: map[string]any{paramBillID: billID},
-	}
-	iter := r.client.Single().Query(ctx, stmt)
-	defer iter.Stop()
-
-	var reports []model.GAOReport
-	for {
-		row, err := iter.Next()
-		if errors.Is(err, iterator.Done) {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-		var (
-			id, title                string
-			reportNumber, reportType spanner.NullString
-			summary, pdfURL, htmlURL spanner.NullString
-			publishedDate            spanner.NullDate
-			syncedAt                 spanner.NullTime
-		)
-		if err = row.Columns(&id, &title, &reportNumber, &reportType,
-			&publishedDate, &summary, &pdfURL, &htmlURL, &syncedAt); err != nil {
-			return nil, err
-		}
-		reports = append(reports, model.GAOReport{
-			ReportID: id, Title: title,
-			ReportNumber:  nullStringPtr(reportNumber),
-			ReportType:    nullStringPtr(reportType),
-			PublishedDate: nullDatePtr(publishedDate),
-			Summary:       nullStringPtr(summary),
-			PDFURL:        nullStringPtr(pdfURL),
-			HTMLURL:       nullStringPtr(htmlURL),
-			SyncedAt:      nullTimePtr(syncedAt),
-		})
-	}
-	if reports == nil {
-		reports = []model.GAOReport{}
-	}
-	return reports, nil
-}
-
 func scanBill(row *spanner.Row) (model.Bill, error) {
 	var (
 		id, billType, title        string

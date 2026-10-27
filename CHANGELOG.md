@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.1 (2026-10-27)
+
+
+### Bug Fixes
+
+* **pipeline:** drop the GAO reports feature that could never link a report (#1079) (ea5b03d)
+* **pipeline:** end a vote-totals release after one run, not at the next publish (#1077) (38215ac)
+
 ## 0.14.0 (2026-10-26)
 
 

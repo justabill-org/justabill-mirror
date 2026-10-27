@@ -31,7 +31,6 @@ func TestSyncJobsTable(t *testing.T) {
 		"sync-law-changes":   {time.Hour, 50 * time.Minute},
 		"sync-govinfo":       {30 * time.Minute, 25 * time.Minute},
 		"load-uscode":        {24 * time.Hour, 2 * time.Hour},
-		"sync-gao":           {24 * time.Hour, 2 * time.Hour},
 		"sync-crs-summaries": {6 * time.Hour, 30 * time.Minute},
 		"sync-cra-rules":     {6 * time.Hour, 30 * time.Minute},
 	}
