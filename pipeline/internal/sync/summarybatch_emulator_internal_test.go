@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"context"
 	"encoding/json"
 	"slices"
 	"strconv"
@@ -217,5 +218,89 @@ func TestEmulator_SummaryBatchReleaseOnFailure(t *testing.T) {
 	open, err := store.OpenSummaryBatches(t.Context())
 	if err != nil || len(open) != 0 {
 		t.Errorf("open batches = %+v, %v", open, err)
+	}
+}
+
+// syncDuringExport is a store on which the synchronous job records attempt while the submit is
+// loading attempt's bill for the export.
+type syncDuringExport struct {
+	repository.PipelineStore
+
+	t       *testing.T
+	attempt repository.SummaryAttemptRow
+}
+
+func (s syncDuringExport) LoadBillContext(
+	ctx context.Context, billID, versionID string,
+) (*repository.SummaryBillContext, error) {
+	if billID == s.attempt.BillID {
+		if err := s.PipelineStore.RecordSummaryAttempt(ctx, s.attempt); err != nil {
+			s.t.Errorf("record the synchronous attempt: %v", err)
+		}
+	}
+	return s.PipelineStore.LoadBillContext(ctx, billID, versionID)
+}
+
+// The synchronous job summarized H.R. 1 while the submit was exporting it (#1074): the submit
+// doesn't hold H.R. 1, and the batch's line for it is skipped on import.
+func TestEmulator_SummaryBatchDoesNotHoldBillsAttemptedDuringTheExport(t *testing.T) {
+	s, client, api, files := emulatorBatchService(t, 2)
+	s.store = syncDuringExport{PipelineStore: s.store, t: t, attempt: repository.SummaryAttemptRow{
+		BillID: "hr-119-1", ContentHash: "hash-hr-119-1", PromptVersion: ai.PromptVersionBill, Model: ai.DefaultModel,
+		Outcome: repository.SummaryOutcomeOK, AttemptedAt: jobNow().Add(time.Minute),
+		RequestType: repository.SummaryRequestStandard,
+		Summary: &repository.BillSummaryRow{
+			BillID: "hr-119-1", ShortSummary: "S.", LongSummary: "L.", WhoItAffects: "Synchronous.",
+			ModelUsed: ai.DefaultModel, SourceContentHash: "hash-hr-119-1", PromptVersion: ai.PromptVersionBill,
+		},
+	}}
+	plan, err := s.SubmitSummaryBatch(t.Context(), SummaryBatchRequest{
+		Congress: 119, Tiers: []int{repository.SummaryTierOther}, Max: 10,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if plan.Bills != 2 || plan.NotHeld != 1 {
+		t.Fatalf("plan = %+v, want 2 bills exported and 1 not held", plan)
+	}
+	row, err := client.Single().ReadRow(t.Context(), "summary_attempts", spanner.Key{"hr-119-1"},
+		[]string{"outcome", "request_type"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var outcome, requestType string
+	if err = row.Columns(&outcome, &requestType); err != nil || outcome != "ok" || requestType != "standard" {
+		t.Errorf("H.R. 1's attempt = %s %s, %v; want the synchronous ok kept", outcome, requestType, err)
+	}
+
+	prefix := "gs://" + testBucket + "/summaries/" + plan.BatchID + "/"
+	lines := map[string]int{}
+	for _, raw := range files.lines(t, prefix+"manifest.jsonl") {
+		var it batchjsonl.Item
+		if err = json.Unmarshal([]byte(raw), &it); err != nil {
+			t.Fatal(err)
+		}
+		lines[it.BillID] = it.Line
+	}
+	ok := answer(`{"short_summary":"Short.","long_summary":"Long.","who_it_affects":"Batch."}`, "STOP")
+	files.objects[prefix+"output/prediction-1/predictions.jsonl"] = []byte(strings.Join([]string{
+		outputLine(lines["hr-119-1"], ok, ""), outputLine(lines["hr-119-2"], ok, ""),
+	}, "\n"))
+	api.state = genai.JobStateSucceeded
+	if err = s.PollSummaryBatches(t.Context(), 119); err != nil {
+		t.Fatal(err)
+	}
+	row, err = client.Single().ReadRow(t.Context(), "bill_summaries", spanner.Key{"hr-119-1"},
+		[]string{"why_it_matters"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var who string
+	if err = row.Columns(&who); err != nil || who != "Synchronous." {
+		t.Errorf("H.R. 1's summary = %q, %v; want the synchronous one kept", who, err)
+	}
+	open, err := s.store.OpenSummaryBatches(t.Context())
+	if err != nil || len(open) != 0 {
+		t.Errorf("open batches = %+v, %v; want the batch imported", open, err)
 	}
 }

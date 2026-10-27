@@ -41,7 +41,9 @@ type batchStore struct {
 	releases []string
 	// released is what ReleaseSummaryBatch reports per call.
 	released int
-	loads    atomic.Int32
+	// notHeld is how many of a hold's bills HoldSummaryBatch reports it didn't hold.
+	notHeld int
+	loads   atomic.Int32
 	// fail fails a method with its error: "count", "query", "create", "open", "hold", "release",
 	// "update:<state>" for an update to that state, or "record:<bill>" for a bill's attempt.
 	fail map[string]error
@@ -136,14 +138,14 @@ func (f *batchStore) OpenSummaryBatches(context.Context) ([]repository.SummaryBa
 	return open, nil
 }
 
-func (f *batchStore) HoldSummaryBatch(_ context.Context, h repository.SummaryBatchHolds) error {
+func (f *batchStore) HoldSummaryBatch(_ context.Context, h repository.SummaryBatchHolds) (int, error) {
 	f.bmu.Lock()
 	defer f.bmu.Unlock()
 	if err := f.fail["hold"]; err != nil {
-		return err
+		return 0, err
 	}
 	f.holds = append(f.holds, h)
-	return nil
+	return max(len(h.Bills)-f.notHeld, 0), nil
 }
 
 func (f *batchStore) RecordSummaryAttempt(ctx context.Context, a repository.SummaryAttemptRow) error {
@@ -528,6 +530,27 @@ func TestSubmitSummaryBatch_Exports(t *testing.T) {
 	}
 	if !slices.Equal(states, []string{"exporting", "JOB_STATE_PENDING"}) {
 		t.Errorf("summary_batch states = %v", states)
+	}
+}
+
+// A bill the synchronous job attempted during the export isn't held (#1074): the plan and the
+// job's summary_batch line count it, and the job is still created for the others.
+func TestSubmitSummaryBatch_CountsBillsNotHeld(t *testing.T) {
+	store := newBatchStore(tieredItems(map[int]int{2: 3}))
+	store.notHeld = 1
+	api := &fakeBatchAPI{}
+	s, _, logs := batchService(t, store, api, 1)
+
+	plan, err := s.SubmitSummaryBatch(t.Context(), SummaryBatchRequest{Congress: 119, Tiers: []int{2}, Max: 10})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if plan.Bills != 3 || plan.NotHeld != 1 || plan.JobName != testJobName {
+		t.Errorf("plan = %+v, want 3 bills, 1 not held and the job", plan)
+	}
+	batchLines := logLines(t, logs, "summary_batch")
+	if len(batchLines) != 2 || batchLines[1]["not_held"] != float64(1) {
+		t.Errorf("summary_batch lines = %v, want the job's with not_held 1", batchLines)
 	}
 }
 

@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"slices"
 	"sync"
 	"time"
 
 	"github.com/justabill-org/justabill/obs"
 	"github.com/justabill-org/justabill/pipeline/internal/rollcall"
+	"github.com/justabill-org/justabill/pipeline/internal/upstream"
 )
 
 // previousCongressGrace is how long after a new congress starts serve keeps syncing the one
@@ -98,7 +100,7 @@ func (t *congressTracker) MembersSynced(ctx context.Context, congress int) error
 }
 
 // forEach runs sync for every target congress, even after one fails, and joins the errors
-// (joinCongressErrors).
+// (joinCongressErrors). A run ended by upstream outages logs a WARN for each host and status.
 func (t *congressTracker) forEach(ctx context.Context, sync func(ctx context.Context, congress int) error) error {
 	targets, err := t.Targets(ctx)
 	if err != nil {
@@ -110,22 +112,46 @@ func (t *congressTracker) forEach(ctx context.Context, sync func(ctx context.Con
 			errs = append(errs, fmt.Errorf("congress %d: %w", c, err))
 		}
 	}
-	return joinCongressErrors(errs)
+	outages, err := joinCongressErrors(errs)
+	for _, o := range outages {
+		t.logger.WarnContext(ctx, "upstream outage; the run is unavailable", "host", o.Host, "status", o.Status)
+	}
+	return err
 }
 
 // joinCongressErrors joins the congresses' errors. The run is unavailable only when every
-// congress's error wraps [obs.ErrUnavailable]: [errors.Is] on a join is true if any part matches, so
-// when another congress failed, an unavailable congress's error keeps its text but not its
-// chain, and the run fails (#1032).
-func joinCongressErrors(errs []error) error {
+// congress's error is: it wraps [obs.ErrUnavailable] (senate.gov's refusal), or every cause in
+// it is an upstream outage ([upstream.Outages]: a 5xx, or a host that never answered after the
+// retries). Then the join wraps [obs.ErrUnavailable], and joinCongressErrors returns each
+// distinct outage's host and status for the log. [errors.Is] on a join is true if any part
+// matches, so when another congress failed, an unavailable congress's error keeps its text but
+// not its chain, and the run fails (#1032, #1084).
+func joinCongressErrors(errs []error) ([]upstream.Outage, error) {
 	unavailable := 0
+	var outages []upstream.Outage
 	for _, err := range errs {
 		if errors.Is(err, obs.ErrUnavailable) {
 			unavailable++
+			continue
+		}
+		if parts, ok := upstream.Outages(err); ok {
+			unavailable++
+			for _, o := range parts {
+				if !slices.Contains(outages, o) {
+					outages = append(outages, o)
+				}
+			}
 		}
 	}
-	if unavailable == 0 || unavailable == len(errs) {
-		return errors.Join(errs...)
+	joined := errors.Join(errs...)
+	switch {
+	case unavailable == 0:
+		return nil, joined
+	case unavailable == len(errs):
+		if !errors.Is(joined, obs.ErrUnavailable) {
+			joined = fmt.Errorf("%w: %w", obs.ErrUnavailable, joined)
+		}
+		return outages, joined
 	}
 	out := make([]error, 0, len(errs))
 	for _, err := range errs {
@@ -134,5 +160,5 @@ func joinCongressErrors(errs []error) error {
 		}
 		out = append(out, err)
 	}
-	return errors.Join(out...)
+	return nil, errors.Join(out...)
 }

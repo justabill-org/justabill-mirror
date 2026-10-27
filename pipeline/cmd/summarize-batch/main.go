@@ -252,6 +252,13 @@ func printPlan(w io.Writer, req psync.SummaryBatchRequest, plan *psync.SummaryBa
 		}
 		return
 	}
+	if plan.NotHeld > 0 {
+		_, _ = fmt.Fprintf(
+			w,
+			"not held  %d (attempted by sync-summaries during the export; skipped on import)\n",
+			plan.NotHeld,
+		)
+	}
 	if plan.BatchID != "" {
 		_, _ = fmt.Fprintf(w, "batch     %s\njob       %s\n", plan.BatchID, plan.JobName)
 	}

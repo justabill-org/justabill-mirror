@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"slices"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -226,6 +227,24 @@ func TestClient_PollChanges_ServerError(t *testing.T) {
 	_, err := client.PollChanges(context.Background(), "BILLS", time.Now())
 	if err == nil {
 		t.Error("expected error for 500 response")
+	}
+}
+
+// GovInfo answering 500 to every attempt, as on 2026-10-27, comes back from PollChanges as an
+// upstream outage, so serve reports the sync-govinfo run unavailable, not failed (#1084).
+func TestClient_PollChanges_OutageThroughUpstream(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Retry-After", "0")
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer srv.Close()
+
+	client := govinfo.NewClientWithBaseURL(upstreamClient(t, srv.URL), srv.URL)
+	_, err := client.PollChanges(t.Context(), "BILLS", time.Now())
+	outages, ok := upstream.Outages(err)
+	want := []upstream.Outage{{Host: strings.TrimPrefix(srv.URL, "http://"), Status: http.StatusInternalServerError}}
+	if !ok || !slices.Equal(outages, want) {
+		t.Errorf("PollChanges = %v: outages %v, %v; want %v", err, outages, ok, want)
 	}
 }
 

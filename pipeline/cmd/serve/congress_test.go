@@ -1,15 +1,19 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/justabill-org/justabill/obs"
+	"github.com/justabill-org/justabill/pipeline/internal/upstream"
 )
 
 // fakeCongresses records the tracker's writes. promoteOK is PromoteCongress's answer.
@@ -172,16 +176,24 @@ func TestTrackerForEach(t *testing.T) {
 	}
 }
 
-// A run is unavailable only when every congress's error is (#1032): an unavailable congress
-// beside a failed one fails the run, and its error still shows.
+// A run is unavailable only when every congress's error is (#1032, #1084): senate.gov's refusal,
+// or upstream outages (a 5xx, or no answer after the retries). An unavailable congress beside a
+// failed one fails the run, and its error still shows. A run ended by outages logs each host and
+// status at WARN.
 func TestTrackerForEachUnavailable(t *testing.T) {
 	refused := fmt.Errorf("%w: senate.gov refused the vote feed", obs.ErrUnavailable)
 	boom := errors.New("boom")
+	down := fmt.Errorf("poll govinfo changes: %w",
+		&upstream.StatusError{Host: "api.govinfo.gov", Path: "/collections", Status: 500, Attempts: 5})
+	silent := &upstream.TransportError{Host: "api.congress.gov", Path: "/v3/bill", Attempts: 5,
+		Err: errors.New("connection reset by peer")}
+	revoked := &upstream.StatusError{Host: "api.congress.gov", Path: "/v3/bill", Status: 403, Attempts: 1}
 	for _, tc := range []struct {
 		name            string
 		errs            map[int]error
 		wantUnavailable bool
 		wantErr         string
+		wantWarnings    []string
 	}{
 		{
 			name:            "every congress unavailable",
@@ -195,9 +207,47 @@ func TestTrackerForEachUnavailable(t *testing.T) {
 			errs:    map[int]error{120: refused, 119: boom},
 			wantErr: "congress 120: upstream source unavailable: senate.gov refused the vote feed\ncongress 119: boom",
 		},
+		{
+			name:            "5xx only",
+			errs:            map[int]error{120: down, 119: down},
+			wantUnavailable: true,
+			wantErr: "upstream source unavailable: " +
+				"congress 120: poll govinfo changes: upstream api.govinfo.gov/collections: HTTP 500 after 5 attempt(s)\n" +
+				"congress 119: poll govinfo changes: upstream api.govinfo.gov/collections: HTTP 500 after 5 attempt(s)",
+			wantWarnings: []string{"api.govinfo.gov 500"},
+		},
+		{
+			name:            "no answer only",
+			errs:            map[int]error{119: silent},
+			wantUnavailable: true,
+			wantErr: "upstream source unavailable: " +
+				"congress 119: upstream api.congress.gov/v3/bill after 5 attempt(s): connection reset by peer",
+			wantWarnings: []string{"api.congress.gov 0"},
+		},
+		{
+			name: "4xx",
+			errs: map[int]error{120: down, 119: revoked},
+			wantErr: "congress 120: poll govinfo changes: upstream api.govinfo.gov/collections: HTTP 500 after 5 attempt(s)\n" +
+				"congress 119: upstream api.congress.gov/v3/bill: HTTP 403 after 1 attempt(s)",
+		},
+		{
+			name:    "a 5xx joined with another error",
+			errs:    map[int]error{119: errors.Join(down, boom)},
+			wantErr: "congress 119: poll govinfo changes: upstream api.govinfo.gov/collections: HTTP 500 after 5 attempt(s)\nboom",
+		},
+		{
+			name:            "senate.gov refused and an outage",
+			errs:            map[int]error{120: down, 119: refused},
+			wantUnavailable: true,
+			wantErr: "congress 120: poll govinfo changes: upstream api.govinfo.gov/collections: HTTP 500 after 5 attempt(s)\n" +
+				"congress 119: upstream source unavailable: senate.gov refused the vote feed",
+			wantWarnings: []string{"api.govinfo.gov 500"},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
+			var logs bytes.Buffer
 			tr := trackerAt(&fakeCongresses{}, 0, utc(2027, time.January, 10, 0))
+			tr.logger = slog.New(slog.NewJSONHandler(&logs, nil))
 			err := tr.forEach(t.Context(), func(_ context.Context, c int) error { return tc.errs[c] })
 			if errors.Is(err, obs.ErrUnavailable) != tc.wantUnavailable {
 				t.Errorf("forEach = %v: unavailable %v, want %v", err, !tc.wantUnavailable, tc.wantUnavailable)
@@ -205,11 +255,35 @@ func TestTrackerForEachUnavailable(t *testing.T) {
 			if err == nil || err.Error() != tc.wantErr {
 				t.Errorf("forEach = %q, want %q", err, tc.wantErr)
 			}
-			if !tc.wantUnavailable && !errors.Is(err, boom) {
-				t.Errorf("forEach = %v, want it to wrap the failure", err)
+			if !tc.wantUnavailable && errors.Is(err, obs.ErrUnavailable) {
+				t.Errorf("forEach = %v, want it not to wrap obs.ErrUnavailable", err)
+			}
+			if got := outageWarnings(t, &logs); !slices.Equal(got, tc.wantWarnings) {
+				t.Errorf("outage warnings = %q, want %q", got, tc.wantWarnings)
 			}
 		})
 	}
+}
+
+// outageWarnings returns "host status" for each WARN record forEach logged for an outage.
+func outageWarnings(t *testing.T, logs *bytes.Buffer) []string {
+	t.Helper()
+	var out []string
+	for line := range strings.Lines(logs.String()) {
+		var rec struct {
+			Level  string `json:"level"`
+			Msg    string `json:"msg"`
+			Host   string `json:"host"`
+			Status int    `json:"status"`
+		}
+		if err := json.Unmarshal([]byte(line), &rec); err != nil {
+			t.Fatalf("log line %q: %v", line, err)
+		}
+		if rec.Level == "WARN" && rec.Msg == "upstream outage; the run is unavailable" {
+			out = append(out, fmt.Sprintf("%s %d", rec.Host, rec.Status))
+		}
+	}
+	return out
 }
 
 // Every sync job asks the tracker first, so none syncs a congress whose row couldn't be written.

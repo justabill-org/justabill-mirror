@@ -64,7 +64,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 				// attempt, RoundTrip's contract makes that our job.
 				closeBody(req)
 			}
-			return nil, t.fail(ctx, req, h, lastStatus, attempt-1, waitErr)
+			return nil, t.fail(ctx, req, h, lastStatus, attempt-1, waitErr, false)
 		}
 		resp, body, err := t.attempt(req, h, attempt)
 		if err == nil && resp.StatusCode < http.StatusBadRequest {
@@ -83,12 +83,12 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		}
 		wait, retry := t.retryWait(req, h, resp, err, attempt)
 		if !retry {
-			return nil, t.fail(ctx, req, h, lastStatus, attempt, err)
+			return nil, t.fail(ctx, req, h, lastStatus, attempt, err, true)
 		}
 		t.log.DebugContext(ctx, "upstream_retry", "provider", h.Budget.Name(), "host", req.URL.Host,
 			"path", req.URL.Path, "status", lastStatus, "attempt", attempt, "wait_ms", wait.Milliseconds())
 		if sleepErr := t.sleep(ctx, wait); sleepErr != nil {
-			return nil, t.fail(ctx, req, h, lastStatus, attempt, sleepErr)
+			return nil, t.fail(ctx, req, h, lastStatus, attempt, sleepErr, false)
 		}
 	}
 }
@@ -256,17 +256,21 @@ func (t *transport) observe(ctx context.Context, host string, h Host, header htt
 }
 
 // fail builds the error for a request that won't be retried and logs upstream_error once.
-// err is the last attempt's error, or nil for an HTTP error status. A request the caller
-// cancelled returns the context's error and logs nothing.
+// err is nil for an HTTP error status. Otherwise it's the last attempt's error when fromAttempt
+// is set (a [TransportError], unless the body was over the cap), or the budget wait's or the
+// backoff's. A request the caller cancelled returns the context's error and logs nothing.
 func (t *transport) fail(
-	ctx context.Context, req *http.Request, h Host, status, attempts int, err error,
+	ctx context.Context, req *http.Request, h Host, status, attempts int, err error, fromAttempt bool,
 ) error {
 	if ctx.Err() != nil {
 		return fmt.Errorf("upstream %s%s: %w", req.URL.Host, req.URL.Path, ctx.Err())
 	}
-	if err == nil {
+	switch {
+	case err == nil:
 		err = &StatusError{Host: req.URL.Host, Path: req.URL.Path, Status: status, Attempts: attempts}
-	} else {
+	case fromAttempt && !errors.Is(err, ErrBodyTooLarge):
+		err = &TransportError{Host: req.URL.Host, Path: req.URL.Path, Attempts: attempts, Err: err}
+	default:
 		err = fmt.Errorf("upstream %s%s after %d attempt(s): %w", req.URL.Host, req.URL.Path, attempts, err)
 	}
 	attrs := []any{"provider", h.Budget.Name(), "host", req.URL.Host, "path", req.URL.Path,

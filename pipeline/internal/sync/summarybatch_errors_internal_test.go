@@ -39,6 +39,11 @@ func TestSubmitSummaryBatch_Failures(t *testing.T) {
 		{name: "batch not recorded", max: 5, fail: map[string]error{"create": boom}, want: "record summary batch"},
 		{name: "hold fails", max: 5, fail: map[string]error{"hold": boom}, want: "hold batch bills", released: true},
 		{
+			name: "every bill attempted during the export", max: 5,
+			setup: func(s *batchStore, _ *fakeBatchAPI) { s.notHeld = 2 },
+			want:  "attempted every exported bill", released: true,
+		},
+		{
 			name: "job without a name", max: 5,
 			setup: func(_ *batchStore, api *fakeBatchAPI) { api.noName = true },
 			want:  "no job name", released: true,

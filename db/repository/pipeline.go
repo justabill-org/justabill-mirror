@@ -485,7 +485,8 @@ type SummaryBatchUpdate struct {
 }
 
 // SummaryBatchHolds are the batch_pending attempts for the bills exported to one batch. Each bill
-// is held for its ContentHash with PromptVersion and Model, from At until Until.
+// is held for its ContentHash with PromptVersion and Model, from At until Until. At must be taken
+// before the queue the bills came from was read: a bill attempted after it isn't held.
 type SummaryBatchHolds struct {
 	BatchID       string
 	PromptVersion string
@@ -1047,9 +1048,12 @@ type PipelineStore interface {
 	// OpenSummaryBatches lists the batches not yet imported or released, oldest first.
 	OpenSummaryBatches(ctx context.Context) ([]SummaryBatch, error)
 	// HoldSummaryBatch writes a batch_pending attempt (request type batch) for each of h.Bills,
-	// replacing its attempt row, in commits of at most 1,000 bills. A failed commit leaves the
-	// earlier ones in place; writing the same holds again is harmless.
-	HoldSummaryBatch(ctx context.Context, h SummaryBatchHolds) error
+	// replacing its attempt row, in commits of at most 1,000 bills, and returns how many bills it
+	// held. A bill whose attempt row was written after h.At isn't held: that attempt was made
+	// while the batch was exported, so the batch's result for the bill is skipped on import
+	// (#1074). A failed commit leaves the earlier ones in place and returns the bills they held;
+	// writing the same holds again is harmless.
+	HoldSummaryBatch(ctx context.Context, h SummaryBatchHolds) (int, error)
 	// ReleaseSummaryBatch makes every bill still held by the batch due at now, and returns how
 	// many it released.
 	ReleaseSummaryBatch(ctx context.Context, batchID string, now time.Time) (int, error)

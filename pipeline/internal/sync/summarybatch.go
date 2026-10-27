@@ -195,6 +195,9 @@ type SummaryBatchPlan struct {
 	// Bills is how many bills have a request (the batch's size); Skipped had no text to load.
 	Bills   int
 	Skipped int
+	// NotHeld is how many exported bills the synchronous job attempted during the export: they
+	// aren't held, and their lines are skipped on import (#1074).
+	NotHeld int
 	// InputTokens and OutputTokens are estimates: characters ÷ 4, and OutputTokens per bill.
 	InputTokens  int64
 	OutputTokens int64
@@ -427,12 +430,20 @@ func (s *Service) submitBatch(
 	s.logSummaryBatch(ctx, batch, now)
 	// Hold the bills before the job exists, so it never runs while the synchronous job can take
 	// them too. A crash before the job is created leaves an exporting batch the poller releases.
-	err = s.store.HoldSummaryBatch(ctx, repository.SummaryBatchHolds{
+	// now was taken before the queue was read, so a bill the synchronous job attempted during the
+	// export isn't held over that attempt.
+	n, err := s.store.HoldSummaryBatch(ctx, repository.SummaryBatchHolds{
 		BatchID: id, PromptVersion: ai.PromptVersionBill, Model: b.ai.Model,
 		At: now, Until: now.Add(b.cfg.Hold), Bills: held,
 	})
 	if err != nil {
 		return nil, errors.Join(fmt.Errorf("hold batch bills: %w", err), s.releaseBatch(ctx, batch, now))
+	}
+	plan.NotHeld = len(held) - n
+	if n == 0 {
+		return plan, errors.Join(
+			errors.New("submit summary batch: the synchronous job attempted every exported bill during the export"),
+			s.releaseBatch(ctx, batch, now))
 	}
 
 	job, err := s.createBatchJob(ctx, batch)
@@ -446,7 +457,7 @@ func (s *Service) submitBatch(
 	}); err != nil {
 		return plan, fmt.Errorf("record batch job %s: %w", job.Name, err)
 	}
-	s.logSummaryBatch(ctx, batch, now)
+	s.logSummaryBatch(ctx, batch, now, slog.Int("not_held", plan.NotHeld))
 	return plan, nil
 }
 

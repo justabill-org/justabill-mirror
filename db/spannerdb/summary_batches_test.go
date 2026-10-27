@@ -160,8 +160,8 @@ func TestHoldSummaryBatch_HoldsBillsOutOfTheQueue(t *testing.T) {
 	// A hold for text the bill no longer has doesn't hold it back.
 	stale := bills[2]
 	stale.ContentHash = "hash-old"
-	if err := store.HoldSummaryBatch(ctx, holds("b-1", bills[0], bills[1], stale)); err != nil {
-		t.Fatalf("hold: %v", err)
+	if n, err := store.HoldSummaryBatch(ctx, holds("b-1", bills[0], bills[1], stale)); err != nil || n != 3 {
+		t.Fatalf("hold = %d, %v; want 3, nil", n, err)
 	}
 
 	assertAttempt(t, client, billID(1), "batch_pending|0|2026-10-01T16:00:00Z|batch|b-1")
@@ -180,15 +180,18 @@ func TestHoldSummaryBatch_CommitsInChunks(t *testing.T) {
 	// H.R. 5 has no bills row, so the chunk holding it fails; the chunks before it stay committed.
 	bills = append(bills, repository.SummaryQueueItem{BillID: billID(5), ContentHash: "hash-ih"})
 
-	err := store.HoldSummaryBatchInChunks(t.Context(), holds("b-1", bills...), 2)
+	n, err := store.HoldSummaryBatchInChunks(t.Context(), holds("b-1", bills...), 2)
 	if err == nil {
 		t.Fatal("hold with a missing bill succeeded, want an error")
+	}
+	if n != 4 {
+		t.Errorf("held %d bills before the failed chunk, want 4", n)
 	}
 	assertRows(t, queryStrings(t, client, `SELECT bill_id FROM summary_attempts
 		WHERE batch_id = 'b-1' AND outcome = 'batch_pending' ORDER BY bill_id`, nil),
 		[]string{"hr-119-1", "hr-119-2", "hr-119-3", "hr-119-4"})
 
-	if err = store.HoldSummaryBatch(t.Context(), holds("", bills[0])); err == nil {
+	if _, err = store.HoldSummaryBatch(t.Context(), holds("", bills[0])); err == nil {
 		t.Error("hold without a batch ID succeeded, want an error")
 	}
 }
@@ -197,10 +200,10 @@ func TestReleaseSummaryBatch(t *testing.T) {
 	store, client := newSummaryStore(t)
 	ctx := t.Context()
 	bills := seedTextBills(t, store, client, 4)
-	if err := store.HoldSummaryBatch(ctx, holds("b-1", bills[0], bills[1], bills[2])); err != nil {
+	if _, err := store.HoldSummaryBatch(ctx, holds("b-1", bills[0], bills[1], bills[2])); err != nil {
 		t.Fatalf("hold b-1: %v", err)
 	}
-	if err := store.HoldSummaryBatch(ctx, holds("b-2", bills[3])); err != nil {
+	if _, err := store.HoldSummaryBatch(ctx, holds("b-2", bills[3])); err != nil {
 		t.Fatalf("hold b-2: %v", err)
 	}
 	// H.R. 3 was summarized after its batch was submitted: release leaves it alone.
@@ -240,7 +243,7 @@ func TestRecordSummaryAttempt_AfterBatchHold(t *testing.T) {
 			t.Fatalf("record %s: %v", outcome, err)
 		}
 	}
-	if err := store.HoldSummaryBatch(ctx, holds("b-1", bills...)); err != nil {
+	if _, err := store.HoldSummaryBatch(ctx, holds("b-1", bills...)); err != nil {
 		t.Fatalf("hold: %v", err)
 	}
 
@@ -259,9 +262,11 @@ func TestRecordSummaryAttempt_AfterBatchHold(t *testing.T) {
 	}
 	assertAttempt(t, client, bill, "error|1|2026-09-27T14:00:00Z|batch|b-1")
 
-	// A line Vertex AI failed is due when the import says.
-	if err := store.HoldSummaryBatch(ctx, holds("b-2", bills...)); err != nil {
-		t.Fatalf("hold b-2: %v", err)
+	// A line Vertex AI failed is due when the import says. b-2 is submitted after that import.
+	later := holds("b-2", bills...)
+	later.At = at.Add(2 * time.Hour)
+	if n, err := store.HoldSummaryBatch(ctx, later); err != nil || n != 1 {
+		t.Fatalf("hold b-2 = %d, %v; want 1, nil", n, err)
 	}
 	retryAt := at.Add(3 * time.Hour)
 	failed.BatchID, failed.RetryAt = "b-2", &retryAt
@@ -288,11 +293,11 @@ func TestRecordSummaryAttempt_StaleBatchResult(t *testing.T) {
 	for n := 2; n <= 3; n++ {
 		seedSummaryBill(t, store, client, testdb.FixtureCongress, n, 10, []string{"ih"}, "ih")
 	}
-	if err := store.HoldSummaryBatch(ctx, holds("b-1", held)); err != nil {
+	if _, err := store.HoldSummaryBatch(ctx, holds("b-1", held)); err != nil {
 		t.Fatalf("hold b-1: %v", err)
 	}
 	other := repository.SummaryQueueItem{BillID: billID(2), ContentHash: "hash-ih"}
-	if err := store.HoldSummaryBatch(ctx, holds("b-2", other)); err != nil {
+	if _, err := store.HoldSummaryBatch(ctx, holds("b-2", other)); err != nil {
 		t.Fatalf("hold b-2: %v", err)
 	}
 	newer := attempt(billID(1), "hash-rh", repository.SummaryOutcomeOK, summaryNow().Add(time.Hour))
@@ -320,6 +325,65 @@ func TestRecordSummaryAttempt_StaleBatchResult(t *testing.T) {
 	assertRows(t, queue(t, store, nil), []string{billID(3) + "|ih|hash-ih|1"})
 }
 
+// A bill the synchronous job summarized while the submit was exporting isn't held (#1074): the
+// hold would replace that attempt, and the batch's result for the older text would then be
+// accepted over the newer summary.
+func TestHoldSummaryBatch_SkipsBillsAttemptedAfterTheQueueRead(t *testing.T) {
+	store, client := newSummaryStore(t)
+	ctx := t.Context()
+	// H.R. 1 was exported for its introduced text, then the reported version arrived and the
+	// synchronous job summarized it during the export. H.R. 2 was summarized during the export
+	// for the text the batch has. H.R. 3 failed before the submit read the queue, H.R. 4 had no
+	// attempt: both are held as before.
+	ids := seedSummaryBill(t, store, client, testdb.FixtureCongress, 1, 10, []string{"rh", "ih"}, "rh", "ih")
+	exported := []repository.SummaryQueueItem{{BillID: billID(1), VersionID: ids["ih"], ContentHash: "hash-ih"}}
+	for n := 2; n <= 4; n++ {
+		ids = seedSummaryBill(t, store, client, testdb.FixtureCongress, n, 10, []string{"ih"}, "ih")
+		exported = append(exported, repository.SummaryQueueItem{
+			BillID: billID(n), VersionID: ids["ih"], ContentHash: "hash-ih",
+		})
+	}
+	h := holds("b-1", exported...)
+	failed := attempt(billID(3), "hash-ih", repository.SummaryOutcomeError, h.At.Add(-time.Hour))
+	if err := store.RecordSummaryAttempt(ctx, failed); err != nil {
+		t.Fatalf("record H.R. 3's failure: %v", err)
+	}
+	for _, a := range []struct{ bill, hash string }{{billID(1), "hash-rh"}, {billID(2), "hash-ih"}} {
+		done := attempt(a.bill, a.hash, repository.SummaryOutcomeOK, h.At.Add(time.Minute))
+		done.RequestType = repository.SummaryRequestStandard
+		s := summary(a.bill, a.hash, summaryPrompt)
+		done.Summary = &s
+		if err := store.RecordSummaryAttempt(ctx, done); err != nil {
+			t.Fatalf("record %s's summary: %v", a.bill, err)
+		}
+	}
+
+	held, err := store.HoldSummaryBatch(ctx, h)
+	if err != nil {
+		t.Fatalf("hold: %v", err)
+	}
+	if held != 2 {
+		t.Errorf("held %d bills, want 2", held)
+	}
+	assertAttempt(t, client, billID(1), "ok|0||standard|")
+	assertAttempt(t, client, billID(2), "ok|0||standard|")
+	assertAttempt(t, client, billID(3), "batch_pending|0|2026-10-01T16:00:00Z|batch|b-1")
+	assertAttempt(t, client, billID(4), "batch_pending|0|2026-10-01T16:00:00Z|batch|b-1")
+
+	// The batch's results for the bills it didn't hold are skipped on import.
+	for _, bill := range []string{billID(1), billID(2)} {
+		line := attempt(bill, "hash-ih", repository.SummaryOutcomeOK, h.At.Add(2*time.Hour))
+		line.RequestType, line.BatchID = repository.SummaryRequestBatch, "b-1"
+		lineSummary := summary(bill, "hash-ih", summaryPrompt)
+		line.Summary = &lineSummary
+		if err = store.RecordSummaryAttempt(ctx, line); !errors.Is(err, repository.ErrStaleBatchAttempt) {
+			t.Errorf("import %s's line: err = %v, want ErrStaleBatchAttempt", bill, err)
+		}
+	}
+	assertRows(t, queryStrings(t, client, `SELECT CONCAT(bill_id, '|', source_content_hash) FROM bill_summaries
+		ORDER BY bill_id`, nil), []string{billID(1) + "|hash-rh", billID(2) + "|hash-ih"})
+}
+
 func TestCountSummaryAttemptsSince_SkipsBatchAttempts(t *testing.T) {
 	store, client := newSummaryStore(t)
 	ctx := t.Context()
@@ -332,7 +396,7 @@ func TestCountSummaryAttemptsSince_SkipsBatchAttempts(t *testing.T) {
 			t.Fatalf("record: %v", err)
 		}
 	}
-	if err := store.HoldSummaryBatch(ctx, holds("b-1", bills[3])); err != nil {
+	if _, err := store.HoldSummaryBatch(ctx, holds("b-1", bills[3])); err != nil {
 		t.Fatalf("hold: %v", err)
 	}
 

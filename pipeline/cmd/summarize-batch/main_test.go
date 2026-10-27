@@ -47,4 +47,15 @@ func TestPrintPlan(t *testing.T) {
 	if out.String() != want {
 		t.Errorf("plan =\n%s\nwant\n%s", out.String(), want)
 	}
+
+	out.Reset()
+	printPlan(&out, psync.SummaryBatchRequest{}, &psync.SummaryBatchPlan{
+		Due: map[int]int{2: 3}, Bills: 3, NotHeld: 1, BatchID: "b-1", JobName: "jobs/1",
+	})
+	want = "due other   3\nbills     3 (skipped, no text: 0)\n" +
+		"not held  1 (attempted by sync-summaries during the export; skipped on import)\n" +
+		"batch     b-1\njob       jobs/1\n"
+	if out.String() != want {
+		t.Errorf("submitted plan =\n%s\nwant\n%s", out.String(), want)
+	}
 }

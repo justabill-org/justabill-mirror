@@ -12,7 +12,7 @@ import (
 // chunks without seeding thousands of bills.
 func (s *PipelineStoreImpl) HoldSummaryBatchInChunks(
 	ctx context.Context, h repository.SummaryBatchHolds, chunk int,
-) error {
+) (int, error) {
 	return s.holdSummaryBatch(ctx, h, chunk)
 }
 

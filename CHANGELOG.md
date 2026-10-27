@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.2 (2026-10-27)
+
+
+### Bug Fixes
+
+* **db:** skip a batch hold over an attempt made during the export (#1080) (3a9375e)
+* **pipeline:** end a run whose errors are all upstream outages unavailable (#1085) (d3279dc)
+
 ## 0.14.1 (2026-10-27)
 
 

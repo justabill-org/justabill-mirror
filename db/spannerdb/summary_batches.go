@@ -162,35 +162,100 @@ func (s *PipelineStoreImpl) querySummaryBatches(
 }
 
 // HoldSummaryBatch writes the batch's batch_pending attempts; see [repository.PipelineStore].
-func (s *PipelineStoreImpl) HoldSummaryBatch(ctx context.Context, h repository.SummaryBatchHolds) error {
+func (s *PipelineStoreImpl) HoldSummaryBatch(ctx context.Context, h repository.SummaryBatchHolds) (int, error) {
 	return s.holdSummaryBatch(ctx, h, summaryBatchChunk)
 }
 
-// holdSummaryBatch writes h's holds in commits of at most chunk bills. A hold stores attempts 0,
-// since a batch_pending attempt counts like ok for the failure count.
-func (s *PipelineStoreImpl) holdSummaryBatch(ctx context.Context, h repository.SummaryBatchHolds, chunk int) error {
+// holdSummaryBatch writes h's holds in commits of at most chunk bills, and returns how many bills
+// it held. A hold stores attempts 0, since a batch_pending attempt counts like ok for the failure
+// count.
+func (s *PipelineStoreImpl) holdSummaryBatch(
+	ctx context.Context, h repository.SummaryBatchHolds, chunk int,
+) (int, error) {
 	if h.BatchID == "" {
-		return errors.New("hold summary batch: no batch ID")
+		return 0, errors.New("hold summary batch: no batch ID")
 	}
+	held := 0
 	for bills := range slices.Chunk(h.Bills, chunk) {
+		n, err := s.holdSummaryChunk(ctx, h, bills)
+		if err != nil {
+			return held, fmt.Errorf("hold summary batch %s: %w", h.BatchID, err)
+		}
+		held += n
+	}
+	return held, nil
+}
+
+// holdSummaryChunk holds those of bills whose attempt row wasn't written after h.At, in one
+// transaction, and returns how many it held. h.At is taken before the submit reads the queue, and
+// every attempt is stamped when it's written, so a later attempted_at is the synchronous job's (or
+// another batch's) attempt from during the export: holding over it would let this batch's result
+// for older text replace it (#1074).
+func (s *PipelineStoreImpl) holdSummaryChunk(
+	ctx context.Context, h repository.SummaryBatchHolds, bills []repository.SummaryQueueItem,
+) (int, error) {
+	keys := make([]spanner.KeySet, 0, len(bills))
+	for _, b := range bills {
+		keys = append(keys, spanner.Key{b.BillID})
+	}
+	var held int
+	_, err := s.client.ReadWriteTransaction(ctx, func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
+		changed, err := attemptedAfter(ctx, txn, spanner.KeySets(keys...), h.At)
+		if err != nil {
+			return err
+		}
 		muts := make([]*spanner.Mutation, 0, len(bills))
 		for _, b := range bills {
-			m, err := spanner.InsertOrUpdateStruct("summary_attempts", summaryAttemptRecord{
+			if changed[b.BillID] {
+				continue
+			}
+			m, mErr := spanner.InsertOrUpdateStruct("summary_attempts", summaryAttemptRecord{
 				BillID: b.BillID, ContentHash: b.ContentHash, PromptVersion: h.PromptVersion, Model: h.Model,
 				Outcome: repository.SummaryOutcomeBatchPending, AttemptedAt: h.At,
 				NextAttemptAt: spanner.NullTime{Time: h.Until, Valid: true},
 				RequestType:   emptyToNull(repository.SummaryRequestBatch), BatchID: emptyToNull(h.BatchID),
 			})
-			if err != nil {
-				return fmt.Errorf("summary hold mutation: %w", err)
+			if mErr != nil {
+				return fmt.Errorf("summary hold mutation: %w", mErr)
 			}
 			muts = append(muts, m)
 		}
-		if _, err := s.client.Apply(ctx, muts); err != nil {
-			return fmt.Errorf("hold summary batch %s: %w", h.BatchID, err)
+		// A retried transaction runs again from the start, so the count is set, not added to.
+		held = len(muts)
+		return txn.BufferWrite(muts)
+	})
+	if err != nil {
+		return 0, err
+	}
+	return held, nil
+}
+
+// attemptedAfter returns the bills among keys whose attempt row was written after at.
+func attemptedAfter(
+	ctx context.Context, txn *spanner.ReadWriteTransaction, keys spanner.KeySet, at time.Time,
+) (map[string]bool, error) {
+	iter := txn.Read(ctx, "summary_attempts", keys, []string{colBillID, "attempted_at"})
+	defer iter.Stop()
+	after := map[string]bool{}
+	for {
+		row, err := iter.Next()
+		if errors.Is(err, iterator.Done) {
+			return after, nil
+		}
+		if err != nil {
+			return nil, fmt.Errorf("read summary attempts: %w", err)
+		}
+		var (
+			bill        string
+			attemptedAt time.Time
+		)
+		if err = row.Columns(&bill, &attemptedAt); err != nil {
+			return nil, fmt.Errorf("read summary attempt: %w", err)
+		}
+		if attemptedAt.After(at) {
+			after[bill] = true
 		}
 	}
-	return nil
 }
 
 // releaseSummaryBatchSQL makes up to @lim of the batch's held bills due at @now. A released row

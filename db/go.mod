@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go v0.123.0
 	cloud.google.com/go/spanner v1.96.1
 	github.com/justabill-org/justabill/obs v0.0.0
-	google.golang.org/api v0.304.0
+	google.golang.org/api v0.305.0
 )
 
 require (
