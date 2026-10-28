@@ -2,7 +2,7 @@
 # Runs the pre-commit checks of the named modules: their tests and linters, as .githooks/pre-commit
 # did itself before (docs/design/710-containerized-dev.md, decision 7).
 #
-# usage: scripts/check-modules.sh <db|api|obs|pipeline|web>...
+# usage: scripts/check-modules.sh <db|api|obs|pipeline|web|mobile>...
 #
 # It runs them on the host when go, golangci-lint and npm are all on PATH, and otherwise in the dev
 # container through `docker compose run --rm dev`, which starts the emulators and Redis first
@@ -15,14 +15,14 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: scripts/check-modules.sh <db|api|obs|pipeline|web>... (env JAB_HOOKS=native|docker)" >&2
+  echo "usage: scripts/check-modules.sh <db|api|obs|pipeline|web|mobile>... (env JAB_HOOKS=native|docker)" >&2
   exit 2
 }
 
 [ $# -gt 0 ] || usage
 for module in "$@"; do
   case $module in
-    db | api | obs | pipeline | web) ;;
+    db | api | obs | pipeline | web | mobile) ;;
     *) usage ;;
   esac
 done
@@ -85,6 +85,20 @@ for module in "$@"; do
       check web "running lint" npm run lint
       check web "running type check" npm run typecheck
       check web "running tests" npm test
+      ;;
+    mobile)
+      # A web/src/lib change checks the phone app too, which a web contributor may never have
+      # installed: install it when node_modules is missing or older than the lockfile. npm ci leaves
+      # the lockfile as committed. In the container, Task's checksum decides, as for web.
+      if [ "${JAB_IN_CONTAINER:-}" = 1 ]; then
+        echo "==> mobile: installing dependencies..."
+        task mobile:install || failed=true
+      elif ! [ mobile/node_modules/.package-lock.json -nt mobile/package-lock.json ]; then
+        check mobile "installing dependencies" npm ci
+      fi
+      check mobile "running lint" npm run lint
+      check mobile "running type check" npm run typecheck
+      check mobile "running tests" npm test
       ;;
     *)
       check "$module" "running tests" go test ./...

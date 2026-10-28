@@ -48,6 +48,15 @@ var (
 	ErrWrongTitle = errors.New("uscode: title file holds another title")
 	// ErrNotZip means the zip link served an HTML page other than the maintenance page.
 	ErrNotZip = errors.New("uscode: the zip link served an HTML page")
+	// ErrNotPosted means the download page lists a release point whose zip answers HTTP 404. The
+	// Law Revision Counsel can list one before its files are up (Public Law 119-136 on 2026-10-28,
+	// #1134), so [Loader.Run] reports it as unavailable and the hourly retry loads it once posted.
+	// A link that changed for good looks the same; the US Code stale alert catches either after a
+	// day without a load.
+	ErrNotPosted = errors.New("uscode: the release point's zip isn't posted")
+
+	// errHTTPNotFound is [ErrHTTPStatus] for HTTP 404, which a download tells apart.
+	errHTTPNotFound = fmt.Errorf("%w: %d", ErrHTTPStatus, http.StatusNotFound)
 )
 
 // Store is the part of [repository.PipelineStore] the loader writes through.
@@ -172,13 +181,14 @@ func (l *Loader) Load(ctx context.Context, force bool) (Result, error) {
 }
 
 // Run is serve's load-uscode job: [Loader.Load] without force. While uscode.house.gov is down
-// (its maintenance page, HTTP 5xx, or no answer: [ErrSiteUnavailable]), Run wraps the error in
-// [obs.ErrUnavailable], for as long as the outage lasts, so the run is reported unavailable, not
-// failed: the job retries, and the Pipeline stale alert tracks the outage. Anything else, such
-// as a changed page or a zip that doesn't parse, fails.
+// (its maintenance page, HTTP 5xx, or no answer: [ErrSiteUnavailable]), or while the release
+// point it lists has no zip yet ([ErrNotPosted]), Run wraps the error in [obs.ErrUnavailable], for
+// as long as that lasts, so the run is reported unavailable, not failed: the job retries, and the
+// Pipeline stale alert tracks it. Anything else, such as a changed page or a zip that doesn't
+// parse, fails.
 func (l *Loader) Run(ctx context.Context) error {
 	_, err := l.Load(ctx, false)
-	if errors.Is(err, ErrSiteUnavailable) {
+	if errors.Is(err, ErrSiteUnavailable) || errors.Is(err, ErrNotPosted) {
 		return fmt.Errorf("%w: %w", obs.ErrUnavailable, err)
 	}
 	return err
@@ -222,9 +232,13 @@ func (l *Loader) readPage(ctx context.Context, rawURL string) (ReleasePoint, err
 }
 
 // download streams the zip at zipURL to a temporary file in [os.TempDir] and returns it open,
-// with its size. The caller closes and removes it.
+// with its size. The caller closes and removes it. A zip that answers HTTP 404 is [ErrNotPosted].
 func (l *Loader) download(ctx context.Context, zipURL string) (*os.File, int64, error) {
 	resp, err := l.do(ctx, zipURL)
+	if errors.Is(err, errHTTPNotFound) {
+		return nil, 0, fmt.Errorf("%w: %s answers HTTP 404 (listed before its files are up, or the link changed)",
+			ErrNotPosted, zipURL)
+	}
 	if err != nil {
 		return nil, 0, err
 	}
@@ -274,7 +288,8 @@ func (l *Loader) get(ctx context.Context, rawURL string) (io.ReadCloser, error) 
 }
 
 // do requests rawURL and returns a 200 answer. An answer of HTTP 5xx, or none, is
-// [ErrSiteUnavailable], unless ctx ended; any other status is [ErrHTTPStatus].
+// [ErrSiteUnavailable], unless ctx ended; any other status is [ErrHTTPStatus] (a 404 as
+// errHTTPNotFound).
 func (l *Loader) do(ctx context.Context, rawURL string) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
 	if err != nil {
@@ -294,6 +309,9 @@ func (l *Loader) do(ctx context.Context, rawURL string) (*http.Response, error) 
 	case resp.StatusCode >= http.StatusInternalServerError:
 		_ = resp.Body.Close()
 		return nil, fmt.Errorf("%w (HTTP %d for %s)", ErrSiteUnavailable, resp.StatusCode, rawURL)
+	case resp.StatusCode == http.StatusNotFound:
+		_ = resp.Body.Close()
+		return nil, fmt.Errorf("%w for %s", errHTTPNotFound, rawURL)
 	default:
 		_ = resp.Body.Close()
 		return nil, fmt.Errorf("%w: %d for %s", ErrHTTPStatus, resp.StatusCode, rawURL)

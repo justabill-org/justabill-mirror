@@ -352,6 +352,18 @@ tasks:
     generates:
       - node_modules/.package-lock.json
 
+  # The phone app (docs/design/1091-phone-apps.md): Expo, tested on Linux with no device or simulator.
+  mobile:install:
+    desc: Install the phone app's dependencies
+    dir: mobile
+    cmds:
+      - npm install
+    sources:
+      - package.json
+      - package-lock.json
+    generates:
+      - node_modules/.package-lock.json
+
   # ---------------------------------------------------------------------------
   # Dev (all-in-one)
   # ---------------------------------------------------------------------------
@@ -379,6 +391,7 @@ tasks:
       - task: test:obs
       - task: test:pipeline
       - task: test:web
+      - task: test:mobile
 
   test:db:
     desc: Run shared db module tests (emulator tests need the instance from migrate)
@@ -403,6 +416,15 @@ tasks:
     desc: Run web lint, type check and unit tests
     deps: [web:install]
     dir: web
+    cmds:
+      - npm run lint
+      - npm run typecheck
+      - npm test
+
+  test:mobile:
+    desc: Run the phone app's lint, type check and unit tests
+    deps: [mobile:install]
+    dir: mobile
     cmds:
       - npm run lint
       - npm run typecheck
@@ -471,8 +493,8 @@ tasks:
         E2E_DATABASE='{{.E2E_DATABASE}}' E2E_API_PORT='{{.E2E_API_PORT}}' E2E_WEB_PORT='{{.E2E_WEB_PORT}}'
         E2E_CENSUS_PORT='{{.E2E_CENSUS_PORT}}' E2E_OTLP_PORT='{{.E2E_OTLP_PORT}}'
 
-  # Coverage floors: {db,api,obs,pipeline}/.testcoverage.yml and web/vitest.config.ts. CI runs the same
-  # checks. Feature PRs don't edit the floors; CI also fails a PR below main's coverage (CLAUDE.md).
+  # Coverage floors: {db,api,obs,pipeline}/.testcoverage.yml, web/vitest.config.ts and mobile/jest.config.js.
+  # CI runs the same checks. Feature PRs don't edit the floors; CI also fails a PR below main's coverage (CLAUDE.md).
   cover:
     desc: Run every module's tests with coverage and check them against the floors (needs infra:up)
     cmds:
@@ -481,6 +503,7 @@ tasks:
       - task: cover:obs
       - task: cover:pipeline
       - task: cover:web
+      - task: cover:mobile
 
   cover:db:
     desc: db coverage against db/.testcoverage.yml
@@ -517,10 +540,22 @@ tasks:
     dir: web
     cmd: npm run test:coverage
 
+  cover:mobile:
+    desc: Phone app coverage against the thresholds in mobile/jest.config.js
+    deps: [mobile:install]
+    dir: mobile
+    cmd: npm run test:coverage
+
   cover:html:
     desc: Print the HTML coverage reports written by `task cover`
     cmds:
-      - for: [db/coverage.html, api/coverage.html, obs/coverage.html, pipeline/coverage.html, web/coverage/index.html]
+      - for:
+          - db/coverage.html
+          - api/coverage.html
+          - obs/coverage.html
+          - pipeline/coverage.html
+          - web/coverage/index.html
+          - mobile/coverage/lcov-report/index.html
         cmd: '[ -f {{.ITEM}} ] && echo "file://{{.ROOT_DIR}}/{{.ITEM}}" || echo "{{.ITEM}}: run task cover first"'
 
   # ---------------------------------------------------------------------------
@@ -551,6 +586,7 @@ tasks:
       - task: lint:obs
       - task: lint:pipeline
       - task: lint:web
+      - task: lint:mobile
       - task: license:check
       - task: lint:repo
 
@@ -578,6 +614,12 @@ tasks:
     desc: Lint web frontend
     deps: [web:install]
     dir: web
+    cmd: npm run lint
+
+  lint:mobile:
+    desc: Lint the phone app
+    deps: [mobile:install]
+    dir: mobile
     cmd: npm run lint
 
   # ---------------------------------------------------------------------------

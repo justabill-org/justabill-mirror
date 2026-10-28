@@ -150,8 +150,12 @@ func TestLoaderRunOutcomes(t *testing.T) {
 			want: uscode.ErrHTTPStatus, text: "403",
 		},
 		{
-			name: "zip 404", setup: func(o *olrc) { o.zipStatus = http.StatusNotFound },
+			name: "every page 404", setup: func(o *olrc) { o.pageStatus = http.StatusNotFound },
 			want: uscode.ErrHTTPStatus, text: "404",
+		},
+		{
+			name: "zip 403", setup: func(o *olrc) { o.zipStatus = http.StatusForbidden },
+			want: uscode.ErrHTTPStatus, text: "403",
 		},
 		{
 			name: "another page in the zip's place", setup: func(o *olrc) { o.zipPage = notFound },
@@ -186,6 +190,41 @@ func TestLoaderRunOutcomes(t *testing.T) {
 				t.Errorf("a run that didn't load recorded %+v", store.points)
 			}
 		})
+	}
+}
+
+// TestLoaderRunZipNotPosted is #1134: the download page lists a release point whose zip answers
+// HTTP 404 (Public Law 119-136 on 2026-10-28). Each run is unavailable, with nothing recorded,
+// until the zip is posted and the next run loads it.
+func TestLoaderRunZipNotPosted(t *testing.T) {
+	t.Parallel()
+	store := newFakeStore()
+	l, o := newTestLoader(t, store)
+	o.set("119-111", releaseFiles(t, "x"))
+	o.setZipStatus(http.StatusNotFound)
+
+	for range 2 {
+		err := l.Run(t.Context())
+		if !errors.Is(err, obs.ErrUnavailable) || !errors.Is(err, uscode.ErrNotPosted) {
+			t.Fatalf("Run = %v, want ErrNotPosted wrapped in obs.ErrUnavailable", err)
+		}
+		if errors.Is(err, uscode.ErrSiteUnavailable) {
+			t.Errorf("Run = %v, want it not to say the site is down", err)
+		}
+		if !strings.Contains(err.Error(), "xml_uscAll@119-111.zip answers HTTP 404") {
+			t.Errorf("Run = %q, want it to name the zip and its 404", err)
+		}
+		if len(store.points) != 0 {
+			t.Fatalf("a run with no zip recorded %+v", store.points)
+		}
+	}
+
+	o.setZipStatus(0)
+	if err := l.Run(t.Context()); err != nil {
+		t.Fatalf("Run once the zip is posted = %v, want nil", err)
+	}
+	if len(store.points) != 1 || store.points[0].ReleasePoint != "119-111" || o.downloads() != 3 {
+		t.Errorf("recorded %+v after %d downloads, want 119-111 after 3", store.points, o.downloads())
 	}
 }
 

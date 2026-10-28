@@ -183,6 +183,12 @@ func (o *olrc) serveZip(w http.ResponseWriter) {
 	_, _ = w.Write(buf.Bytes())
 }
 
+func (o *olrc) setZipStatus(status int) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	o.zipStatus = status
+}
+
 func (o *olrc) setMaintenance(page []byte) {
 	o.mu.Lock()
 	defer o.mu.Unlock()
@@ -388,6 +394,8 @@ func TestLoaderErrors(t *testing.T) {
 	}
 }
 
+// TestLoaderMissingZip loads a release point whose zip answers HTTP 404: [uscode.ErrNotPosted]
+// (#1134), and nothing is recorded.
 func TestLoaderMissingZip(t *testing.T) {
 	t.Parallel()
 	store := newFakeStore()
@@ -403,8 +411,11 @@ func TestLoaderMissingZip(t *testing.T) {
 	t.Cleanup(srv.Close)
 	l := uscode.NewLoader(store, slog.New(slog.DiscardHandler),
 		uscode.WithPageURL(srv.URL+legacyPagePath), uscode.WithHTTPClient(srv.Client()))
-	if _, err := l.Load(t.Context(), false); !errors.Is(err, uscode.ErrHTTPStatus) {
-		t.Fatalf("err = %v, want ErrHTTPStatus", err)
+	if _, err := l.Load(t.Context(), false); !errors.Is(err, uscode.ErrNotPosted) {
+		t.Fatalf("err = %v, want ErrNotPosted", err)
+	}
+	if len(store.points) != 0 {
+		t.Errorf("a load with no zip recorded %+v", store.points)
 	}
 }
 

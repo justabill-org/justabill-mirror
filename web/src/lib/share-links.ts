@@ -10,8 +10,8 @@ import {
   type PublishedCell,
   type ShareVote,
 } from "./share";
-import { truncate } from "./bill-metadata";
 import { siteUrl } from "./site";
+import { truncate } from "./text";
 import { BILL_TYPE_LABELS } from "./types";
 
 /** What was shared: a card (a vote on a bill, an aggregate cell) or a bill's own page. */

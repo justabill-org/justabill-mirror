@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.16.0 (2026-10-28)
+
+
+### Features
+
+* **dev:** check mobile/ in the pre-commit hook and the public mirror's CI (#1129) (f7d5632)
+* **mobile:** scaffold the Expo app with a shared-import guard and CI (#1108) (75c7e9e)
+
+
+### Bug Fixes
+
+* **db:** rename summaryRetrySecond so revive's time-naming passes (#1115) (b33ce2d)
+* **pipeline:** treat a listed US Code release point with no zip yet as unavailable (#1135) (c29a842)
+* restore main CI (Expo SDK 58 patch versions for expo-doctor) (#1130) (71bb24b)
+
 ## 0.15.0 (2026-10-28)
 
 

@@ -68,6 +68,9 @@ shell there, and `task docker:run -- <command>` runs one command from the direct
 The pre-commit hook (`task setup`) uses the container too: when `go`, `golangci-lint` or `npm`
 isn't on your `PATH`, it says so and runs the staged modules' checks through
 `docker compose run --rm dev`. `JAB_HOOKS=native` or `JAB_HOOKS=docker` picks one regardless.
+It checks the modules with staged files: a `db/` change also checks `api/` and `pipeline/`, and a
+`web/src/lib/` change also checks the phone app in `mobile/`, which imports it (installing the
+app's dependencies first when they're missing or older than its lockfile).
 
 `task --list` shows everything else.
 

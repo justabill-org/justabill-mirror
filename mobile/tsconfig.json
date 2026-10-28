@@ -1,0 +1,21 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    // TypeScript 6 includes no @types package unless listed: Jest's globals, and Node's for the tests
+    // and the import-graph walker.
+    "types": ["jest", "node"],
+    // The web's plain-TypeScript modules, imported unchanged (docs/design/1091-phone-apps.md). Their
+    // one seam, @/lib/api, is the app's own client. Files under ../web/src/lib find clsx and
+    // tailwind-merge in this module's node_modules, so a checkout without web/node_modules works.
+    // Expo's Metro config reads these; jest.config.js's moduleNameMapper repeats them.
+    "paths": {
+      "@/lib/api": ["./src/lib/api.ts"],
+      "@/*": ["../web/src/*"],
+      "clsx": ["./node_modules/clsx"],
+      "tailwind-merge": ["./node_modules/tailwind-merge"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": ["node_modules", "src/test/fixtures"]
+}

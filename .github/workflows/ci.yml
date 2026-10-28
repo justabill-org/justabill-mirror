@@ -5,6 +5,8 @@ name: CI
 # approval to run it). Every action is pinned to a full commit SHA, with its version in a comment.
 #
 #   Build and test  builds, tests and lints each module through Task, as CONTRIBUTING.md describes
+#   Mobile          the phone app (mobile/, and the web/src/lib modules it imports): lint, type check
+#                   and Jest against its coverage floors, as a check of its own
 #   DCO             every commit's Signed-off-by line
 # The Conventional check (the title) is conventional.yml, so editing a title re-runs only it.
 #   Secret Scan     gitleaks over the whole history
@@ -69,6 +71,43 @@ jobs:
 
       - name: Lint
         run: task lint
+
+  # Build and test runs the app's lint and tests too (task test), but this job names a mobile/
+  # failure on its own and applies the coverage floors in mobile/jest.config.js.
+  mobile:
+    name: Mobile
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPO_NO_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The app runs on the web's Node (web/.nvmrc).
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        working-directory: mobile
+        run: npm ci
+
+      - name: Lint
+        working-directory: mobile
+        run: npm run lint
+
+      - name: Type check
+        working-directory: mobile
+        run: npm run typecheck
+
+      # Fails below the thresholds in jest.config.js.
+      - name: Unit tests
+        working-directory: mobile
+        run: npm run test:coverage
 
   dco:
     name: DCO

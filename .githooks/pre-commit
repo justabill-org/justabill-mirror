@@ -17,6 +17,7 @@ run_api=false
 run_obs=false
 run_pipeline=false
 run_web=false
+run_mobile=false
 
 while IFS= read -r file; do
   case "$file" in
@@ -24,7 +25,10 @@ while IFS= read -r file; do
     api/*) run_api=true ;;
     obs/*) run_obs=true ;;
     pipeline/*) run_pipeline=true ;;
+    # The phone app imports web/src/lib unchanged (CI's Mobile Tests runs for it too).
+    web/src/lib/*) run_web=true; run_mobile=true ;;
     web/*) run_web=true ;;
+    mobile/*) run_mobile=true ;;
     .golangci.yml) run_db=true; run_api=true; run_obs=true; run_pipeline=true ;;
   esac
 done <<< "$STAGED_FILES"
@@ -41,6 +45,7 @@ $run_api && modules+=" api"
 $run_obs && modules+=" obs"
 $run_pipeline && modules+=" pipeline"
 $run_web && modules+=" web"
+$run_mobile && modules+=" mobile"
 
 # scripts/check-modules.sh runs each module's tests and linters, in the dev container when go,
 # golangci-lint or npm is missing (JAB_HOOKS=native|docker picks one). Keep this file Bash 3.2-safe.

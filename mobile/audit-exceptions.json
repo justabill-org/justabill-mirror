@@ -1,0 +1,9 @@
+{
+  "advisories": [
+    {
+      "id": "GHSA-mrhx-c7xc-m3w5",
+      "package": "zod",
+      "reason": "zod <4.6.6 reaches the app only through @expo/cli, which wants zod ^3.25.76, so npm audit shows 3 highs: zod, @expo/cli and expo. No fixed 3.x exists, so it can't be fixed until Expo moves to zod 4. It's build tooling that validates only our own config and isn't in the app bundle. Remove this entry once an Expo SDK upgrade drops it (the audit fails while it matches nothing)."
+    }
+  ]
+}

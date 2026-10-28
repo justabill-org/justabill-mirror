@@ -4,7 +4,7 @@
 #   license-check.sh      # from the repo root; CI runs it in the Licenses job (task license:check)
 #
 # go-licenses reports each Go module's non-test dependencies (our own module ignored), then
-# license-check.mjs reads those reports and web/package-lock.json. go-licenses runs with the
+# license-check.mjs reads those reports and the web's and phone app's package-lock.json. go-licenses runs with the
 # module's own toolchain: built by an older Go, it can't load go1.27 packages.
 set -euo pipefail
 
@@ -16,7 +16,7 @@ node --test .github/scripts/license-check.test.mjs
 
 reports=$(mktemp -d)
 trap 'rm -rf "$reports"' EXIT
-args=(--npm web/package-lock.json)
+args=(--npm web/package-lock.json --npm mobile/package-lock.json)
 for m in "${modules[@]}"; do
   echo "go-licenses: $m"
   # Its stderr is a warning for every assembly file; show it only if the report fails.

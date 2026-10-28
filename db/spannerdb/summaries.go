@@ -28,9 +28,9 @@ const (
 // Summary retry delays after consecutive failures of the same text, prompt and model
 // (docs/design/68-ai-summaries-gemini-3.md, "Queue").
 const (
-	summaryRetryFirst  = time.Hour
-	summaryRetrySecond = 4 * time.Hour
-	summaryRetryParked = 24 * time.Hour
+	summaryRetryAfterOne = time.Hour
+	summaryRetryAfterTwo = 4 * time.Hour
+	summaryRetryParked   = 24 * time.Hour
 )
 
 // passedChamberSQL is true for a bill b that passed at least one chamber or became law
@@ -337,9 +337,9 @@ func nextSummaryAttempt(outcome string, prevFailures int64, at time.Time) (int64
 func summaryRetryDelay(failures int64) time.Duration {
 	switch failures {
 	case 1:
-		return summaryRetryFirst
+		return summaryRetryAfterOne
 	case 2: //nolint:mnd // the second failure
-		return summaryRetrySecond
+		return summaryRetryAfterTwo
 	default:
 		return summaryRetryParked
 	}

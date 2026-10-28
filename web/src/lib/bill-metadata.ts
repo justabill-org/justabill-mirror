@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { truncate } from "./text";
 import { BILL_TYPE_LABELS, type BillDetailResponse } from "./types";
+
+export { truncate };
 
 const SITE_NAME = "Just a Bill";
 /** Search engines show about 155–160 characters of a description. */
@@ -10,16 +13,6 @@ const MAX_TITLE = 90;
 /** "H.R. 1" for a bill of type hr and number 1. */
 export function billLabel(billType: string, number: number): string {
   return `${BILL_TYPE_LABELS[billType] ?? billType.toUpperCase()} ${number}`;
-}
-
-/** Shortens text to at most `max` characters at a word boundary, with an ellipsis. */
-export function truncate(text: string, max: number): string {
-  const clean = text.replace(/\s+/g, " ").trim();
-  if (clean.length <= max) return clean;
-  // Room for the ellipsis. The cut ends on a word boundary if the next character is a space.
-  const cut = clean.slice(0, max - 1);
-  const space = clean[max - 1] === " " ? cut.length : cut.lastIndexOf(" ");
-  return `${(space > max / 2 ? cut.slice(0, space) : cut).replace(/[\s,;:.]+$/, "")}…`;
 }
 
 /**

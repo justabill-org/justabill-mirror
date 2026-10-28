@@ -1,0 +1,9 @@
+node_modules/
+.expo/
+dist/
+coverage/
+coverage-summary/
+expo-env.d.ts
+# Native projects: EAS generates them from app.config.ts (continuous native generation).
+/ios/
+/android/

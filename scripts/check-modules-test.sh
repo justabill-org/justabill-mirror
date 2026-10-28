@@ -15,9 +15,10 @@ check() { # check <name> <expected> <actual>
 # Git exports GIT_DIR and the like to hooks; the throwaway repo below must not inherit them.
 while IFS= read -r var; do unset "$var"; done < <(compgen -e | grep '^GIT_')
 
-# A checkout with the script and the five module directories.
+# A checkout with the script and the six module directories.
 repo=$tmp/repo
-mkdir -p "$repo/scripts" "$repo/db" "$repo/api" "$repo/obs" "$repo/pipeline" "$repo/web"
+mkdir -p "$repo/scripts" "$repo/db" "$repo/api" "$repo/obs" "$repo/pipeline" "$repo/web" "$repo/mobile"
+echo '{}' >"$repo/mobile/package-lock.json"
 cp "$here/check-modules.sh" "$repo/scripts/"
 
 # The stand-ins log "<dir> <tool> <args>" (and JAB_UID for docker) and exit with e.g. $GO_EXIT.
@@ -75,6 +76,27 @@ check "toolchain: a failing test fails it, and the lint still runs" \
 check "toolchain: a failing lint fails it" \
   "rc=1 calls=[web npm run lint;web npm run typecheck;web npm test;]" "$(run "$all" NPM_EXIT=1 -- web)"
 
+# mobile installs its dependencies first when mobile/node_modules lacks them or is older than the
+# lockfile (npm ci leaves the lockfile alone), so a web/src/lib change checks it on any checkout.
+mobile_checks="mobile npm run lint;mobile npm run typecheck;mobile npm test;"
+rm -rf "$repo/mobile/node_modules"
+check "toolchain: mobile without node_modules installs, then lints, type-checks and tests" \
+  "rc=0 calls=[mobile npm ci;$mobile_checks]" "$(run "$all" -- mobile)"
+mkdir -p "$repo/mobile/node_modules"
+touch -d '2026-01-02' "$repo/mobile/node_modules/.package-lock.json"
+touch -d '2026-01-01' "$repo/mobile/package-lock.json"
+check "toolchain: mobile with node_modules newer than the lockfile skips the install" \
+  "rc=0 calls=[$mobile_checks]" "$(run "$all" -- mobile)"
+touch -d '2026-01-03' "$repo/mobile/package-lock.json"
+check "toolchain: mobile with node_modules older than the lockfile installs again" \
+  "rc=0 calls=[mobile npm ci;$mobile_checks]" "$(run "$all" -- mobile)"
+rm -rf "$repo/mobile/node_modules"
+check "toolchain: a failed mobile install fails it, and the checks still run" \
+  "rc=1 calls=[mobile npm ci;$mobile_checks]" "$(run "$all" NPM_EXIT=1 -- mobile)"
+check "toolchain: web then mobile, in the order named" \
+  "rc=0 calls=[web npm run lint;web npm run typecheck;web npm test;mobile npm ci;$mobile_checks]" \
+  "$(run "$all" -- web mobile)"
+
 # Any of the three missing: the dev container, as the host user, with the same modules.
 check "no go: the dev container" "rc=0 calls=[$docker_obs]" "$(run golangci-lint,npm,docker -- obs)"
 check "no golangci-lint: the dev container" "rc=0 calls=[$docker_obs]" "$(run go,npm,docker -- obs)"
@@ -82,6 +104,9 @@ check "no npm: the dev container" "rc=0 calls=[$docker_obs]" "$(run go,golangci-
 check "the dev container gets every module named" \
   "rc=0 calls=[repo docker compose run --rm -T dev scripts/check-modules.sh db api pipeline web uid=$(id -u);]" \
   "$(run docker -- db api pipeline web)"
+check "the dev container gets mobile too" \
+  "rc=0 calls=[repo docker compose run --rm -T dev scripts/check-modules.sh web mobile uid=$(id -u);]" \
+  "$(run docker JAB_HOOKS=docker -- web mobile)"
 check "a failing check in the container fails it" "rc=1 calls=[$docker_obs]" "$(run docker DOCKER_EXIT=1 -- obs)"
 run docker -- obs >/dev/null
 check "it says, in one line, why it uses the container" \
@@ -103,6 +128,10 @@ check "in the container: in place, even with JAB_HOOKS=docker" \
 check "in the container: web installs first" \
   "rc=0 calls=[repo task web:install;web npm run lint;web npm run typecheck;web npm test;]" \
   "$(run go,golangci-lint,npm,task JAB_IN_CONTAINER=1 -- web)"
+
+check "in the container: mobile installs first, through Task" \
+  "rc=0 calls=[repo task mobile:install;$mobile_checks]" \
+  "$(run go,golangci-lint,npm,task JAB_IN_CONTAINER=1 -- mobile)"
 
 check "no module is a usage error" "rc=2 calls=[]" "$(run "$all" --)"
 check "an unknown module is a usage error" "rc=2 calls=[]" "$(run "$all" -- db docs)"
@@ -144,6 +173,12 @@ check "hook: modules in a fixed order, once each" \
   "rc=0 modules=[api obs web;]" "$(hook 0 web/a.ts api/a.go obs/a.go api/b.go)"
 check "hook: .golangci.yml checks the Go modules" \
   "rc=0 modules=[db api obs pipeline;]" "$(hook 0 .golangci.yml)"
+check "hook: mobile/ checks mobile" "rc=0 modules=[mobile;]" "$(hook 0 mobile/app/index.tsx)"
+check "hook: web/src/lib/ checks web and mobile, which imports it" \
+  "rc=0 modules=[web mobile;]" "$(hook 0 web/src/lib/format.ts)"
+check "hook: the rest of web/ checks only web" "rc=0 modules=[web;]" "$(hook 0 web/src/app/page.tsx)"
+check "hook: web/src/lib/ and mobile/ check each module once" \
+  "rc=0 modules=[web mobile;]" "$(hook 0 mobile/a.ts web/src/lib/a.ts web/a.ts)"
 check "hook: no module staged checks nothing" "rc=0 modules=[]" "$(hook 0 README.md)"
 check "hook: a failed check fails the commit" "rc=1 modules=[pipeline;]" "$(hook 1 pipeline/a.go)"
 check "hook: a usage error fails the commit" "rc=1 modules=[web;]" "$(hook 2 web/a.ts)"
