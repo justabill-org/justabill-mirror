@@ -30,11 +30,15 @@ export function toDeckCards(items: DeckItem[]): DeckCard[] {
 /**
  * The list the deck reads for the filters: the /bills view's statuses (any of them, one list) and
  * the other filters, without the page. `current` is the congress in session, when it's known.
+ * Under Latest action, the default, the deck deals contested bills first (#1090): contested roll
+ * calls, then other roll calls, then voice votes and unanimous consent, then bills with no passage
+ * vote, latest action first within each. /bills keeps Latest action, and the URL doesn't change.
  */
 export function deckListParams(f: BillFilters, current: number | undefined): BillListParams {
   const { statuses } = parseBillView(f.view);
   const params: BillListParams = billListParams(f, current);
   if (statuses.length > 0) params.status = statuses;
+  if (params.sort === "latest_action") params.sort = "contested";
   return params;
 }
 

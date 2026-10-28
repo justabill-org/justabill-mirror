@@ -51,6 +51,11 @@ type voteStore struct {
 	attendance map[int][]repository.MemberAttendanceRow
 	refsCalls  int   // ListRollCallRefs
 	replaceErr error // ReplaceMemberAttendance
+
+	// The passage rank step (passage_ranks_internal_test.go).
+	rankCalls   []int // every RefreshPassageRanks' congress
+	rankWritten int   // RefreshPassageRanks' answer
+	rankErr     error // RefreshPassageRanks
 }
 
 // newVoteStore knows the stored LIS IDs of the three senators in the trimmed Senate fixtures.

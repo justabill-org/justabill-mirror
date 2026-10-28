@@ -1103,6 +1103,10 @@ type PipelineStore interface {
 	// read-write transaction, with computed_at the commit timestamp. Every row must be of the
 	// congress; other congresses' rows are untouched.
 	ReplaceMemberAttendance(ctx context.Context, congress int, rows []MemberAttendanceRow) error
+	// RefreshPassageRanks sets each of the congress's bills' passage_rank (#1090) to the
+	// [model.PassageRank] of the passage the /vote card shows, NULL for none, from its stored
+	// votes. It writes only the ranks that changed, and returns how many.
+	RefreshPassageRanks(ctx context.Context, congress int) (int, error)
 
 	// Aggregates (docs/design/89-aggregate-analytics.md). The job reads the previous cells,
 	// with their bookkeeping, to apply the republish and hold rules, then writes new ones.

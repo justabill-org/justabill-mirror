@@ -69,7 +69,7 @@ describe("signed out, votes on the device, a filter matching no bill", () => {
       type: "hr",
       policy_area: "No Such Area",
       q: "zzzz",
-      sort: "latest_action",
+      sort: "contested",
       include: "summary,card",
     });
     // Nothing about the device's votes leaves the browser.

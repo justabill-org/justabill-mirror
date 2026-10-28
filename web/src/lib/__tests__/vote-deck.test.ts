@@ -90,12 +90,12 @@ describe("deckListParams", () => {
   it("reads the /bills view's statuses as one list, with the other filters", () => {
     expect(deckListParams(parseBillFilters(new URLSearchParams()), 119)).toEqual({
       congress: 119,
-      sort: "latest_action",
+      sort: "contested",
       status: ["became_law", "signed"],
     });
     expect(deckListParams(parseBillFilters(new URLSearchParams("show=passed&type=hr&area=Health")), 119)).toEqual({
       congress: 119,
-      sort: "latest_action",
+      sort: "contested",
       type: "hr",
       policy_area: "Health",
       status: ["passed_house", "passed_senate", "resolving_differences", "to_president", "vetoed"],
@@ -104,9 +104,14 @@ describe("deckListParams", () => {
 
   it("sends no status for All, and no congress for every congress", () => {
     expect(deckListParams(parseBillFilters(new URLSearchParams("show=all&congress=all&q=water")), 119)).toEqual({
-      sort: "latest_action",
+      sort: "contested",
       q: "water",
     });
+  });
+
+  it("keeps Date introduced, the one sort the deck doesn't replace", () => {
+    const f = parseBillFilters(new URLSearchParams("sort=introduced_date"));
+    expect(deckListParams(f, 119)).toEqual({ congress: 119, sort: "introduced_date", status: ["became_law", "signed"] });
   });
 });
 

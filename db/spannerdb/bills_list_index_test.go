@@ -197,6 +197,73 @@ func TestBillListIndexedOrders(t *testing.T) {
 	}
 }
 
+// TestBillListContestedOrder pages sort=contested (#1090), the vote deck's order, through the
+// status index (a status filter), through bills (a congress alone, or every congress), one, two
+// and twenty bills a page: contested roll calls first, then other roll calls, voice votes and
+// unanimous consent, and no passage vote (NULL) last; latest action first within a rank, ties by
+// bill_id. Only the rank puts hr-119-3, contested with no latest action, ahead of newer bills, and
+// s-119-2's voice vote ahead of s-119-1.
+func TestBillListContestedOrder(t *testing.T) {
+	client := testdb.New(t)
+	seedIndexBills(t, client)
+	testdb.SeedUser(t.Context(), t, client, "u1")
+	if _, err := client.Apply(t.Context(), []*spanner.Mutation{spanner.Insert("user_votes",
+		[]string{"user_id", "bill_id", "vote", "voted_at"},
+		[]any{"u1", "hr-119-1", "yea", time.Date(2026, time.October, 3, 12, 0, 0, 0, time.UTC)})}); err != nil {
+		t.Fatalf("seed vote: %v", err)
+	}
+	// hr-119-4 (newest action) and hr-119-3 (none) contested; hr-119-1 and hr-119-2 other roll calls
+	// tied on their action's date; s-119-2 a voice vote; s-119-1 no passage vote (NULL); hr-118-1,
+	// in another congress, contested with the newest action of all.
+	var ranks []*spanner.Mutation
+	for id, rank := range map[string]int64{
+		"hr-119-4": model.PassageRankContested, "hr-119-3": model.PassageRankContested,
+		"hr-119-1": model.PassageRankRoll, "hr-119-2": model.PassageRankRoll,
+		"s-119-2": model.PassageRankVoice, "hr-118-1": model.PassageRankContested,
+	} {
+		ranks = append(ranks, spanner.Update("bills", []string{"bill_id", "passage_rank"}, []any{id, rank}))
+	}
+	if _, err := client.Apply(t.Context(), ranks); err != nil {
+		t.Fatalf("seed passage_rank: %v", err)
+	}
+	repo := spannerdb.NewBillRepo(&spannerdb.Client{Spanner: client})
+	contested := model.SortContested
+	congress := 119
+
+	tests := []struct {
+		name   string
+		params model.ListParams
+		want   []string
+	}{
+		{"congress", model.ListParams{Congress: &congress},
+			[]string{"hr-119-4", "hr-119-3", "hr-119-1", "hr-119-2", "s-119-2", "s-119-1"}},
+		{"all congresses", model.ListParams{},
+			[]string{"hr-118-1", "hr-119-4", "hr-119-3", "hr-119-1", "hr-119-2", "s-119-2", "s-119-1"}},
+		{"status", model.ListParams{Congress: &congress, Statuses: []string{"in_committee"}},
+			[]string{"hr-119-4", "hr-119-3", "hr-119-1", "s-119-1"}},
+		{"statuses", model.ListParams{Congress: &congress, Statuses: []string{"passed_senate", "passed_house"}},
+			[]string{"hr-119-2", "s-119-2"}},
+		{"status and unvoted", model.ListParams{Congress: &congress, Statuses: []string{"in_committee"},
+			UnvotedBy: new("u1")},
+			[]string{"hr-119-4", "hr-119-3", "s-119-1"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, limit := range []int{1, 2, 20} {
+				ids := pageAll(t, limit, func(p model.ListParams) (*model.ListResult[model.Bill], error) {
+					params := tt.params
+					params.Sort = &contested
+					params.Offset, params.Limit = p.Offset, p.Limit
+					return repo.List(t.Context(), params)
+				}, func(b model.Bill) string { return b.ID })
+				if !slices.Equal(ids, tt.want) {
+					t.Errorf("limit %d: ids = %v, want %v", limit, ids, tt.want)
+				}
+			}
+		})
+	}
+}
+
 // TestBillListPreviousSQL runs the list queries the API ran before #760, verbatim, on the
 // migrated schema: during a release the migrations apply before the new image rolls out, so the
 // old image's queries must still work and return what the new ones do (Review Focus 4).

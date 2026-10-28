@@ -932,7 +932,8 @@ export interface BillListParams {
   /** A policy area's name, as `GET /policy-areas` lists them (#708). */
   policy_area?: string;
   q?: string;
-  sort?: "introduced_date" | "updated_at" | "latest_action" | "number";
+  /** `contested`: by how the bill passed, contested roll calls first, then latest action (the vote deck, #1090). */
+  sort?: "introduced_date" | "updated_at" | "latest_action" | "number" | "contested";
   unvoted?: boolean;
 }
 

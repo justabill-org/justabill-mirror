@@ -90,8 +90,10 @@ var rollNumberRe = regexp.MustCompile(`rollnumber=(\d+)`)
 // step, and their votes are fetched again on the next run.
 //
 // Every run ends by recomputing the congress's member_attendance rows from all its stored roll
-// calls (computeAttendance), whether or not it stored new ones; a failure there fails the step,
-// and the roll calls stored before it stay stored.
+// calls (computeAttendance) and its bills' passage ranks from all its stored votes (#1090),
+// whether or not it stored new ones; a failure there fails the step, and the roll calls stored
+// before it stay stored. Voice votes and unanimous consent, which the bill sync stores, are ranked
+// by the next vote sync.
 func (s *Service) SyncVotes(ctx context.Context, congressNum int, sessions []int) error {
 	return s.runStepOutcome(ctx, stepVotes, congressNum, false, func(ctx context.Context) (stepOutcome, error) {
 		return s.syncVotes(ctx, congressNum, sessions)
@@ -142,16 +144,10 @@ func (s *Service) syncVotes(ctx context.Context, congressNum int, sessions []int
 	if len(unmatched) > 0 {
 		out.warning = "unmatched senators: " + strings.Join(unmatched, ", ")
 	}
-	// The attendance rows follow what member_votes holds, so they're recomputed even when this
-	// run stored nothing or a session failed. A cancelled run, failing anyway, skips them.
-	members := 0
-	if ctx.Err() == nil {
-		if members, err = s.computeAttendance(ctx, congressNum); err != nil {
-			errs = append(errs, err)
-		}
-	}
+	members, ranked, derivedErrs := s.recomputeFromVotes(ctx, congressNum)
+	errs = append(errs, derivedErrs...)
 	s.logger.InfoContext(ctx, "vote sync finished", "congress", congressNum, "stored", total,
-		"unmatched_senators", len(unmatched), "attendance_members", members)
+		"unmatched_senators", len(unmatched), "attendance_members", members, "passage_ranks", ranked)
 	err = errors.Join(errs...)
 	if err != nil && onlySenateRefusals(errs) {
 		s.logger.WarnContext(ctx, "senate.gov refused the senate vote feed; the run is unavailable",
@@ -159,6 +155,27 @@ func (s *Service) syncVotes(ctx context.Context, congressNum int, sessions []int
 		return out, fmt.Errorf("%w: %w", obs.ErrUnavailable, err)
 	}
 	return out, err
+}
+
+// recomputeFromVotes rebuilds what the congress's stored votes determine: its member_attendance
+// rows (computeAttendance) and its bills' passage ranks (#1090). They follow what is stored, so
+// they're recomputed even when this run stored nothing or a session failed, each whether or not
+// the other failed. It returns how many attendance rows it wrote and how many ranks changed. A
+// cancelled run, failing anyway, skips both.
+func (s *Service) recomputeFromVotes(ctx context.Context, congressNum int) (int, int, []error) {
+	if ctx.Err() != nil {
+		return 0, 0, nil
+	}
+	var errs []error
+	members, err := s.computeAttendance(ctx, congressNum)
+	if err != nil {
+		errs = append(errs, err)
+	}
+	ranked, err := s.store.RefreshPassageRanks(ctx, congressNum)
+	if err != nil {
+		errs = append(errs, fmt.Errorf("refresh passage ranks: %w", err))
+	}
+	return members, ranked, errs
 }
 
 // onlySenateRefusals reports whether every error in errs is senate.gov refusing the Senate's

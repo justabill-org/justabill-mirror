@@ -407,6 +407,7 @@ func TestListCacheKey(t *testing.T) {
 		"congress=119&type=hr&sort=latest_action",
 		"congress=119&type=hr&sort=updated_at",
 		"congress=119&type=hr&sort=number",
+		"congress=119&type=hr&sort=contested",
 		"congress=119&type=hr&q=x%26congress%3D118",
 	} {
 		if got := parse(query); got == base {

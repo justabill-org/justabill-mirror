@@ -177,7 +177,7 @@ describe("/vote under other filters", () => {
       [
         {
           congress: 119,
-          sort: "latest_action",
+          sort: "contested",
           type: "hr",
           status: ["passed_house", "passed_senate", "resolving_differences", "to_president", "vetoed"],
           offset: 0,
@@ -246,11 +246,11 @@ describe("/vote signed in", () => {
     expect(await screen.findByRole("heading", { level: 2, name: "Bill 4" })).toBeTruthy();
     const statuses = ["passed_house", "passed_senate", "resolving_differences", "to_president", "vetoed"];
     expect(vi.mocked(api.listBillsWithCards).mock.calls).toEqual([
-      [{ congress: 119, sort: "latest_action", status: statuses, unvoted: true, offset: 0, limit: 20 }, "id-token-1"],
+      [{ congress: 119, sort: "contested", status: statuses, unvoted: true, offset: 0, limit: 20 }, "id-token-1"],
     ]);
     // The count is the shared list's, sent without the token.
     expect(vi.mocked(api.listBills).mock.calls).toEqual([
-      [{ congress: 119, sort: "latest_action", status: statuses, limit: 1 }],
+      [{ congress: 119, sort: "contested", status: statuses, limit: 1 }],
     ]);
     expect(screen.getByText("Passed a chamber: 12 of 50 bills left")).toBeTruthy();
   });

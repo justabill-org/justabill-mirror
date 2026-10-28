@@ -118,6 +118,7 @@ func TestBillListOrder(t *testing.T) {
 		{sortKey("updated_at"), "ORDER BY updated_at DESC, bill_id"},
 		{sortKey("number"), "ORDER BY congress DESC, number DESC, bill_type, bill_id"},
 		{sortKey("latest_action"), "ORDER BY latest_action_date DESC, bill_id"},
+		{sortKey("contested"), "ORDER BY passage_rank DESC, latest_action_date DESC, bill_id"},
 		{sortKey("bogus"), "ORDER BY introduced_date DESC, bill_id"},
 	}
 	for _, tt := range tests {
@@ -130,8 +131,8 @@ func TestBillListOrder(t *testing.T) {
 // TestBillListSource checks which index a list's page reads (#760, #868): within a congress, with
 // no search and no past-status filter, the default order forces the introduced-date index, the
 // latest_action order the latest-action index, or the status index when the list filters on
-// current status, and updated_at with a status filter the status index too; every other list
-// reads bills with no hint, as it did before.
+// current status, and updated_at or contested with a status filter the status index too; every
+// other list reads bills with no hint, as it did before.
 func TestBillListSource(t *testing.T) {
 	str := func(s string) *string { return &s }
 	congress := 119
@@ -139,6 +140,7 @@ func TestBillListSource(t *testing.T) {
 		introduced = "bills@{FORCE_INDEX=idx_bills_list_introduced}"
 		latest     = "bills@{FORCE_INDEX=idx_bills_list_latest_action}"
 		byStatus   = "bills@{FORCE_INDEX=idx_bills_list_status}"
+		contested  = "ORDER BY passage_rank DESC, latest_action_date DESC, bill_id"
 	)
 	tests := []struct {
 		name          string
@@ -175,6 +177,16 @@ func TestBillListSource(t *testing.T) {
 		}, byStatus, "ORDER BY latest_action_date DESC, bill_id"},
 		{"status, updated_at", model.ListParams{Congress: &congress, Sort: str("updated_at"),
 			Statuses: []string{"became_law"}}, byStatus, "ORDER BY updated_at DESC, bill_id"},
+		{"status, contested", model.ListParams{Congress: &congress, Sort: str("contested"),
+			Statuses: []string{"became_law", "signed"}}, byStatus, contested},
+		{"congress, contested", model.ListParams{Congress: &congress, Sort: str("contested")},
+			"bills", contested},
+		{"no congress, status, contested", model.ListParams{Sort: str("contested"),
+			Statuses: []string{"became_law"}}, "bills", contested},
+		{"search, status, contested", model.ListParams{Congress: &congress, Sort: str("contested"),
+			Search: str("water"), Statuses: []string{"became_law"}}, "bills", contested},
+		{"past mode, contested", model.ListParams{Congress: &congress, Sort: str("contested"),
+			Statuses: []string{"became_law"}, StatusMode: "past"}, "bills", contested},
 		{"status, number", model.ListParams{Congress: &congress, Sort: str("number"),
 			Statuses: []string{"became_law"}}, "bills", "ORDER BY congress DESC, number DESC, bill_type, bill_id"},
 		{"no congress, status, latest action", model.ListParams{Sort: str("latest_action"),

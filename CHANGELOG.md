@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.15.0 (2026-10-28)
+
+
+### Features
+
+* **api:** deal the vote deck's contested bills first (#1114) (6142f67)
+* **db:** store each bill's passage rank from its stored votes (#1107) (72357aa)
+
 ## 0.14.3 (2026-10-27)
 
 

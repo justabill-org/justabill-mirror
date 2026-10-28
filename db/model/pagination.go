@@ -22,21 +22,23 @@ type ListParams struct {
 }
 
 // The bill list's sorts, newest first by the date each names (number: the highest congress and
-// number first). The API sends anything else as no sort, newest introduced first (#943).
+// number first; contested: by passage rank, then latest action, the vote deck's order, #1090). The
+// API sends anything else as no sort, newest introduced first (#943).
 const (
 	SortUpdatedAt    = "updated_at"
 	SortNumber       = "number"
 	SortLatestAction = "latest_action"
+	SortContested    = "contested"
 )
 
 // StatusModePast is the [ListParams] StatusMode for the stages a bill has reached at least once,
 // rather than its current status.
 const StatusModePast = "past"
 
-// IsBillSort reports whether s is one of the bill list's sorts: [SortUpdatedAt], [SortNumber] or
-// [SortLatestAction].
+// IsBillSort reports whether s is one of the bill list's sorts: [SortUpdatedAt], [SortNumber],
+// [SortLatestAction] or [SortContested].
 func IsBillSort(s string) bool {
-	return s == SortUpdatedAt || s == SortNumber || s == SortLatestAction
+	return s == SortUpdatedAt || s == SortNumber || s == SortLatestAction || s == SortContested
 }
 
 // ListResult wraps a paginated result set.

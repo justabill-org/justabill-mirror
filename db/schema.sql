@@ -70,6 +70,7 @@ CREATE TABLE bills (
   gao_checked_at TIMESTAMP,
   laws JSON,
   latest_action_date STRING(MAX) AS (JSON_VALUE(latest_action, '$.actionDate')) STORED,
+  passage_rank INT64,
   CONSTRAINT fk_bills_congress FOREIGN KEY(congress) REFERENCES congresses(number),
 ) PRIMARY KEY(bill_id);
 

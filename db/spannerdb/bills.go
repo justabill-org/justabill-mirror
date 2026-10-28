@@ -194,6 +194,10 @@ const (
 	latestActionFirst = "ORDER BY latest_action_date DESC, bill_id"
 	// updatedFirst is sort=updated_at's order: the bill's last update on Congress.gov, newest first.
 	updatedFirst = "ORDER BY updated_at DESC, bill_id"
+	// contestedFirst is sort=contested's order, the vote deck's (#1090): by passage_rank, contested
+	// roll calls first, then other roll calls, then voice votes and unanimous consent, and bills
+	// with no passage vote (NULL, lowest in GoogleSQL) last; latest action first within a rank.
+	contestedFirst = "ORDER BY passage_rank DESC, latest_action_date DESC, bill_id"
 )
 
 // The bill list's indexes, as FROM sources: each is keyed on congress first and stores every column
@@ -222,8 +226,10 @@ func billListIndexed(params model.ListParams) bool {
 // idx_bills_list_latest_action, or idx_bills_list_status when the list filters on current status
 // (#868), which seeks to each status's bills, already in that order. A status-filtered list
 // sorted by updated_at reads idx_bills_list_status too: it sorts only that status's rows, from the
-// index. Each index's key order is the list's order, ties broken by bill_id, with NULL dates last,
-// as ORDER BY sorts them. Anything else reads bills with no hint, as before.
+// index. So does one sorted by contested (the vote deck's views, #1090), though the index doesn't
+// store passage_rank: it reads back each of the status's bills for it. Each index's key order is
+// the list's order, ties broken by bill_id, with NULL dates last, as ORDER BY sorts them. Anything
+// else reads bills with no hint, as before.
 func billListSource(params model.ListParams) (string, string) {
 	orderBy := billListOrder(params.Sort)
 	if !billListIndexed(params) {
@@ -233,7 +239,8 @@ func billListSource(params model.ListParams) (string, string) {
 	switch {
 	case orderBy == newestFirst:
 		return billsByIntroduced, orderBy
-	case orderBy == latestActionFirst && byStatus, orderBy == updatedFirst && byStatus:
+	case orderBy == latestActionFirst && byStatus, orderBy == updatedFirst && byStatus,
+		orderBy == contestedFirst && byStatus:
 		return billsByStatus, orderBy
 	case orderBy == latestActionFirst:
 		return billsByLatestAction, orderBy
@@ -270,6 +277,8 @@ func billListOrder(sort *string) string {
 		// Congress.gov's actionDate is YYYY-MM-DD, so the strings sort as dates. GoogleSQL orders
 		// NULL lowest, so DESC puts bills with no latest action (or no date in it) last (#712).
 		return latestActionFirst
+	case model.SortContested:
+		return contestedFirst
 	default:
 		return newestFirst
 	}

@@ -253,7 +253,7 @@ describe("vote page", () => {
 
     // One list for the default deck: the Laws view's statuses, newest action first, a batch of 20.
     expect(vi.mocked(api.listBillsWithCards).mock.calls).toEqual([
-      [{ congress: 120, sort: "latest_action", status: ["became_law", "signed"], offset: 0, limit: 20 }],
+      [{ congress: 120, sort: "contested", status: ["became_law", "signed"], offset: 0, limit: 20 }],
     ]);
     // The deck is dealt in the browser (#215), so check what the page hands it.
     const deck = findElement(tree, FilteredDeck);
